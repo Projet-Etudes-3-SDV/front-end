@@ -1,39 +1,30 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+
+import { AuthGuard } from '../services/auth.guard';
 import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
-    path: 'tabs',
+    path: '',
     component: TabsPage,
     children: [
-      {
-        path: 'tab1',
-        loadChildren: () => import('../tab1/tab1.module').then(m => m.Tab1PageModule)
-      },
-      {
-        path: 'tab2',
-        loadChildren: () => import('../tab2/tab2.module').then(m => m.Tab2PageModule)
-      },
-      {
-        path: 'tab3',
-        loadChildren: () => import('../tab3/tab3.module').then(m => m.Tab3PageModule)
-      },
-      {
-        path: '',
-        redirectTo: '/tabs/tab1',
-        pathMatch: 'full'
-      }
-    ]
+      { path: '', redirectTo: '/home', pathMatch: 'full' },
+      { path: 'home', loadChildren: () => import('../tab1/tab1.module').then(m => m.Tab1PageModule) },
+      { path: 'categories', loadChildren: () => import('../tab2/tab2.module').then(m => m.Tab2PageModule) },
+      { path: 'account', loadChildren: () => import('../tab3/tab3.module').then(m => m.Tab3PageModule), canActivate: [AuthGuard] },
+      { path: 'search', loadChildren: () => import('../tab4/tab4.module').then(m => m.Tab4PageModule) },
+      { path: 'cart', loadChildren: () => import('../tab5/tab5.module').then(m => m.Tab5PageModule) },
+      { path: 'login', loadChildren: () => import('../login/login.module').then(m => m.LoginPageModule) },
+      { path: 'register', loadChildren: () => import('../register/register.module').then(m => m.RegisterPageModule) },
+      { path: 'categories/products/:categoryId', loadChildren: () => import('../products/products.module').then(m => m.ProductsPageModule) },
+      { path: 'categories/product/:productId', loadChildren: () => import('../product-detail/product-detail.module').then(m => m.ProductDetailPageModule) },
+    ],
   },
-  {
-    path: '',
-    redirectTo: '/tabs/tab1',
-    pathMatch: 'full'
-  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
 })
 export class TabsPageRoutingModule {}

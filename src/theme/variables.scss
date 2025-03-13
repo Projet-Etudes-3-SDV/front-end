@@ -1,2 +1,9 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --ion-background-color: linear-gradient(404deg, rgb(1, 0, 51) 0%, rgb(48, 32, 130) 73%);
+    --ion-font-family: "Montserrat", sans-serif;
+}
