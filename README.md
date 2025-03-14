@@ -79,13 +79,5 @@ ng generate component nom-du-composant
 ng generate service nom-du-service
 ```
 
-## Contribuer
-Les contributions sont les bienvenues !
-1. **Fork** le projet
-2. **Créer une branche** (`feature/ma-nouvelle-feature`)
-3. **Commit** (`git commit -m 'Ajout d'une nouvelle feature'`)
-4. **Push** (`git push origin feature/ma-nouvelle-feature`)
-5. **Faire une Pull Request**
-
 ## Licence
 Ce projet est sous licence MIT.
