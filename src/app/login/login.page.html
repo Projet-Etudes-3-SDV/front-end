@@ -1,29 +1,31 @@
 <ion-content class="ion-padding">
-  <form [formGroup]="loginForm" (ngSubmit)="login()">
-    <h1 class="color-theme-title text-center font-bold text-2xl">Connexion</h1>
-    <ion-item>
-      <ion-label position="floating">Email</ion-label>
-      <ion-input placeholder="Email" type="email" formControlName="email" required></ion-input>
-    </ion-item>
-    <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
-      Email invalide
+  <div [class]="isDesktop ? 'm-16' : ''">
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <h1 class="color-theme-title text-center font-bold text-2xl">Connexion</h1>
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input placeholder="Email" type="email" formControlName="email" required></ion-input>
+      </ion-item>
+      <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
+        Email invalide
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">Mot de passe</ion-label>
+        <ion-input placeholder="Mot de passe" type="password" formControlName="password" required></ion-input>
+      </ion-item>
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
+        Mot de passe requis
+      </div>
+
+      <ion-button expand="full" type="submit" [disabled]="loginForm.invalid">
+        Se connecter
+      </ion-button>
+
+    </form>
+
+    <div class="register-link">
+      <p class="text-white">Pas encore de compte ? <a [routerLink]="['/register']">Inscrivez-vous</a></p>
     </div>
-
-    <ion-item>
-      <ion-label position="floating">Mot de passe</ion-label>
-      <ion-input placeholder="Mot de passe" type="password" formControlName="password" required></ion-input>
-    </ion-item>
-    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
-      Mot de passe requis
-    </div>
-
-    <ion-button expand="full" type="submit" [disabled]="loginForm.invalid">
-      Se connecter
-    </ion-button>
-
-  </form>
-
-  <div class="register-link">
-    <p class="text-white">Pas encore de compte ? <a [routerLink]="['/register']">Inscrivez-vous</a></p>
   </div>
 </ion-content>

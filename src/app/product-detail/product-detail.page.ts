@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
-import { ToastController } from '@ionic/angular';
+import { ToastController, Platform } from '@ionic/angular';
 import { CookieService } from 'ngx-cookie-service';
 
 @Component({
@@ -14,16 +14,18 @@ export class ProductDetailPage implements OnInit {
   product: any;
   productId: string = '';
   userId: string = '';
+  isDesktop: boolean = false;
 
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
     private toastController: ToastController,
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    private platform: Platform
   ) {}
 
   ngOnInit() {
-    this.userId = this.cookieService.get('user_id'); // Récupérer l'ID de l'utilisateur
+    this.userId = this.cookieService.get('user_id');
     const productId = this.route.snapshot.paramMap.get('productId');
     if (productId) {
       this.productId = productId;
@@ -35,6 +37,7 @@ export class ProductDetailPage implements OnInit {
     } else {
       console.error('Product ID is null');
     }
+    this.isDesktop = this.platform.is('desktop');
   }
 
   async addToCart(plan: 'monthly' | 'yearly') {

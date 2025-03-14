@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { CookieService } from 'ngx-cookie-service';
-import { ToastController, ModalController } from '@ionic/angular';
+import { ToastController, ModalController, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-cart',
@@ -12,21 +12,24 @@ import { ToastController, ModalController } from '@ionic/angular';
 export class CartPage implements OnInit {
   cartItems: any[] = [];
   token: string = '';
+  isDesktop: boolean = false;
 
   constructor(
     private apiService: ApiService,
     private cookieService: CookieService,
     private toastController: ToastController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private platform: Platform
   ) {}
 
   ngOnInit() {
-    this.token = this.cookieService.get('auth_token');
+    this.token = localStorage.getItem('auth_token') ?? '';
     if (this.token) {
       this.getCart();
     } else {
       this.presentToast('Vous devez être connecté pour voir le panier.', 'warning');
     }
+    this.isDesktop = this.platform.is('desktop');
   }
 
   async getCart() {

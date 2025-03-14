@@ -24,7 +24,7 @@ export class AuthService {
     }
   
     async checkAuthStatus() {
-      const token = this.cookieService.get('auth_token');
+      const token = localStorage.getItem('auth_token') ?? '';
       if (!token) {
         this.authState.next(false);
         return;
@@ -51,9 +51,11 @@ export class AuthService {
         const userId = response.data.userPresenter.id;
     
         if (token && userId) {
-          this.cookieService.set('auth_token', token, { path: '/' });
+          localStorage.setItem('auth_token', token);
+          console.log(localStorage.getItem('auth_token'));
           this.cookieService.set('user_id', userId, { path: '/' });
           this.authState.next(true);
+          this.router.navigate(['/account']);
           return Promise.resolve();
         } else {
           return Promise.reject(new Error('Aucun token reçu'));
@@ -64,7 +66,8 @@ export class AuthService {
     } 
   
     logout() {
-      this.cookieService.delete('auth_token', '/');
+      localStorage.removeItem('auth_token');
+      this.cookieService.delete('user_id', '/');
       this.authState.next(false);
       this.router.navigate(['/login']);
     }

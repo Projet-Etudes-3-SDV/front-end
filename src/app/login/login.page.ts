@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController, ToastController, Platform } from '@ionic/angular';
 import { AxiosError } from 'axios';
 
 @Component({
@@ -10,15 +10,17 @@ import { AxiosError } from 'axios';
   styleUrls: ['./login.page.scss'],
   standalone: false
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   loginForm: FormGroup;
   errorMessage: string = '';
+  isDesktop: boolean = false;
 
   constructor(
     private authService: AuthService,
     private fb: FormBuilder,
     private navCtrl: NavController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private platform: Platform
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -26,12 +28,15 @@ export class LoginPage {
     });
   }
 
+  ngOnInit(): void {
+      this.isDesktop = this.platform.is('desktop');
+  }
+
   async login() {
     if (this.loginForm.valid) {
       try {
         await this.authService.login(this.loginForm.value);
         this.presentToast('Vous êtes bien connecté !', 'success');
-        this.navCtrl.navigateRoot('/account');
       } catch (error: unknown) {
         const axiosError = error as AxiosError;
         const errorData = axiosError.response?.data as { code?: string };

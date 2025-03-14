@@ -8,28 +8,30 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div *ngIf="cartItems.length > 0; else emptyCart">
-    <ion-list>
-      <ion-item *ngFor="let item of cartItems">
-        <ion-label>
-          <h2>{{ item.product.name }}</h2>
-          <p>Quantité: {{ item.quantity }}</p>
-          <p>Prix: {{ item.product?.plan === "monthly" ? item.product.monthlyPrice : item.product.yearlyPrice | currency: 'EUR': 'symbol' }}</p>
-          <p>Plan: {{ item.product?.plan === "monthly" ? "Mensuel" : "Annuel" }}</p>
-        </ion-label>
-        <ion-button fill="clear" color="danger" (click)="removeFromCart(item.product.id)">
-          🗑️
-        </ion-button>
-      </ion-item>
-    </ion-list>
-    <ion-button expand="full" color="danger" (click)="resetCart()">
-        <ion-icon class="mr-2" name="trash"></ion-icon>
-        Vider le panier
-    </ion-button>
-    <ion-button expand="full" color="success" (click)="validateCart()">Valider le panier</ion-button>
-  </div>
+  <div [class]="isDesktop ? 'm-16' : ''">
+    <div *ngIf="cartItems.length > 0; else emptyCart">
+      <ion-list>
+        <ion-item *ngFor="let item of cartItems">
+          <ion-label>
+            <h2>{{ item.product.name }}</h2>
+            <p>Quantité: {{ item.quantity }}</p>
+            <p>Prix: {{ item.product?.plan === "monthly" ? item.product.monthlyPrice : item.product.yearlyPrice | currency: 'EUR': 'symbol' }}</p>
+            <p>Plan: {{ item.product?.plan === "monthly" ? "Mensuel" : "Annuel" }}</p>
+          </ion-label>
+          <ion-button fill="clear" color="danger" (click)="removeFromCart(item.product.id)">
+            🗑️
+          </ion-button>
+        </ion-item>
+      </ion-list>
+      <ion-button expand="full" color="danger" (click)="resetCart()">
+          <ion-icon class="mr-2" name="trash"></ion-icon>
+          Vider le panier
+      </ion-button>
+      <ion-button expand="full" color="success" (click)="validateCart()">Valider le panier</ion-button>
+    </div>
 
-  <ng-template #emptyCart>
-    <p class="text-center p-6 bg-theme-main">Votre panier est vide.</p>
-  </ng-template>
+    <ng-template #emptyCart>
+      <p class="text-center p-6 bg-theme-main">Votre panier est vide.</p>
+    </ng-template>
+  </div>
 </ion-content>

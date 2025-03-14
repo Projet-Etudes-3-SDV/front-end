@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController, ToastController, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-account',
@@ -12,8 +12,9 @@ import { NavController, ToastController } from '@ionic/angular';
 export class AccountPage implements OnInit {
   user: any = null;
   userSubscriptions: any[] = [];
+  isDesktop: boolean = false;
 
-  constructor(private authService: AuthService, private apiService: ApiService, private navCtrl: NavController, private toastController: ToastController) {}
+  constructor(private authService: AuthService, private apiService: ApiService, private navCtrl: NavController, private toastController: ToastController, private platform: Platform) {}
 
   async ngOnInit() {
     try {
@@ -23,6 +24,7 @@ export class AccountPage implements OnInit {
     } catch (error) {
       console.error('Erreur lors du chargement des infos utilisateur:', error);
     }
+    this.isDesktop = this.platform.is('desktop');
   }
 
   logout() {

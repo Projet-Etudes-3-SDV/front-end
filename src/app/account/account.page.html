@@ -1,44 +1,46 @@
 <ion-content class="ion-padding">
-  <div *ngIf="user; else loading">
-    <div class="w-full px-[16px] flex flex-col justify-center gap-[24px]">
-        <div class="bg-theme-ellipsis border border-white/30 w-full flex items-center gap-2 mt-6 rounded-lg p-4">
-            <h3 class="text-xl font-bold text-white">Bienvenue sur votre compte</h3>
-        </div>
-        <hr class="w-full h-[2px] border-0 rounded-full" />
-    </div>
-    <ion-list class="bg-theme-main">
-      <ion-item>
-        <ion-label>Nom :</ion-label>
-        <p>{{ user.lastName }}</p>
-      </ion-item>
-      <ion-item>
-        <ion-label>Prénom :</ion-label>
-        <p>{{ user.firstName }}</p>
-      </ion-item>
-      <ion-item>
-        <ion-label>Email :</ion-label>
-        <p>{{ user.email }}</p>
-      </ion-item>
-      <ion-item>
-        <ion-label>Nombre d'abonnements actifs :</ion-label>
-        <p>{{ user.subscriptions?.length || 0 }}</p>
-      </ion-item>
-
-      <ng-container *ngIf="userSubscriptions.length > 0">
-        <ion-label>Vos {{ userSubscriptions.length > 1 ? "abonnements" : "abonnement"}} :</ion-label>
-        <ion-item *ngFor="let sub of userSubscriptions">
-          <p>{{ sub.product.name }} ({{ sub.plan === 'monthly' ? 'Mensuel' : 'Annuel' }}) {{ sub.plan === 'monthly' ? sub.product.monthlyPrice : sub.product.yearlyPrice | currency: 'EUR': 'symbol' }}</p>
+  <div [class]="isDesktop ? 'm-16' : ''">
+    <div *ngIf="user; else loading">
+      <div class="w-full px-[16px] flex flex-col justify-center gap-[24px]">
+          <div class="bg-theme-ellipsis border border-white/30 w-full flex items-center gap-2 mt-6 rounded-lg p-4">
+              <h3 class="text-xl font-bold text-white">Bienvenue sur votre compte</h3>
+          </div>
+          <hr class="w-full h-[2px] border-0 rounded-full" />
+      </div>
+      <ion-list class="bg-theme-main">
+        <ion-item>
+          <ion-label>Nom :</ion-label>
+          <p>{{ user.lastName }}</p>
         </ion-item>
-      </ng-container>
-    </ion-list>
+        <ion-item>
+          <ion-label>Prénom :</ion-label>
+          <p>{{ user.firstName }}</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>Email :</ion-label>
+          <p>{{ user.email }}</p>
+        </ion-item>
+        <ion-item>
+          <ion-label>Nombre d'abonnements actifs :</ion-label>
+          <p>{{ user.subscriptions?.length || 0 }}</p>
+        </ion-item>
 
-    <ion-button class="m-[16px]" expand="full" color="danger" (click)="logout()">
-      <ion-icon name="log-out" class="mr-2"></ion-icon>
-      Se Déconnecter
-    </ion-button>
+        <ng-container *ngIf="userSubscriptions.length > 0">
+          <ion-label>Vos {{ userSubscriptions.length > 1 ? "abonnements" : "abonnement"}} :</ion-label>
+          <ion-item *ngFor="let sub of userSubscriptions">
+            <p>{{ sub.product.name }} ({{ sub.plan === 'monthly' ? 'Mensuel' : 'Annuel' }}) {{ sub.plan === 'monthly' ? sub.product.monthlyPrice : sub.product.yearlyPrice | currency: 'EUR': 'symbol' }}</p>
+          </ion-item>
+        </ng-container>
+      </ion-list>
+
+      <ion-button class="m-[16px]" expand="full" color="danger" (click)="logout()">
+        <ion-icon name="log-out" class="mr-2"></ion-icon>
+        Se Déconnecter
+      </ion-button>
+    </div>
+
+    <ng-template #loading>
+      <p class="text-white">Chargement des informations...</p>
+    </ng-template>
   </div>
-
-  <ng-template #loading>
-    <p class="text-white">Chargement des informations...</p>
-  </ng-template>
 </ion-content>

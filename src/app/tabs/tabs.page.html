@@ -1,16 +1,16 @@
 <ion-tabs>
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="home">
+  <ion-tab-bar [slot]="isDesktop ? 'top' : 'bottom'">
+    <ion-tab-button tab="home" href="/home">
       <ion-icon src="assets/images/cyna.svg"></ion-icon>
       <ion-label>Accueil</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="categories">
+    <ion-tab-button tab="categories" href="/tabs/categories">
       <ion-icon name="layers"></ion-icon>
       <ion-label>Catégories</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="search">
+    <ion-tab-button tab="search" href="/tabs/search">
       <ion-icon name="search"></ion-icon>
       <ion-label>Recherche</ion-label>
     </ion-tab-button>
@@ -20,19 +20,19 @@
       <ion-label>Panier</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button *ngIf="isLoggedIn | async; else notLogged" tab="account">
+    <ion-tab-button *ngIf="isLoggedIn | async; else notLogged" tab="account" href="/tabs/account">
       <ion-icon name="person"></ion-icon>
       <ion-label>Mon Compte</ion-label>
     </ion-tab-button>
 
     <ng-template #notLogged>
-      <ion-tab-button tab="login">
+      <ion-tab-button tab="login" href="/login">
         <ion-icon name="log-in"></ion-icon>
         <ion-label>Connexion</ion-label>
       </ion-tab-button>
     </ng-template>
-
   </ion-tab-bar>
 
   <app-cart #cartComponent></app-cart>
+  <app-footer *ngIf="isDesktop"></app-footer>
 </ion-tabs>

@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
+import { Platform } from '@ionic/angular';
+import { register } from 'swiper/element/bundle';
+
+register();
 
 @Component({
   selector: 'app-home',
@@ -12,12 +16,14 @@ export class HomePage implements OnInit {
   featuredProducts: any[] = [];
   categories: any[] = [];
   specialOffers: any[] = [];
+  isDesktop: boolean = false;
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, private router: Router, private platform: Platform) {}
 
   ngOnInit() {
     this.loadFeaturedProducts();
     this.loadCategories();
+    this.isDesktop = this.platform.is('desktop');
   }
 
   async loadFeaturedProducts() {
