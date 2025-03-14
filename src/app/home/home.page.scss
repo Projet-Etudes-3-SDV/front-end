@@ -33,6 +33,16 @@ ion-card {
   max-height: 200px;
 }
 
+
+img {
+  cursor: pointer;
+  display: inline-block;
+  object-fit: cover;
+  height: 50px;
+  width: 850px;
+  transition: all 0.5s;
+}
+
 .discount-price {
   color: red;
   font-weight: bold;

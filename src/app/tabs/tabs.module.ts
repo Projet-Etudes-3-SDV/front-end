@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
   
 import { CartPageModule } from '../cart/cart.module';
 import { TabsPageRoutingModule } from './tabs-routing.module';
-
+import { FooterPageModule } from '../footer/footer.module';
 import { TabsPage } from './tabs.page';
 
 @NgModule({
@@ -14,7 +14,8 @@ import { TabsPage } from './tabs.page';
     CommonModule,
     FormsModule,
     TabsPageRoutingModule,
-    CartPageModule
+    CartPageModule,
+    FooterPageModule
   ],
   declarations: [TabsPage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
