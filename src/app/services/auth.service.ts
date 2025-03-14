@@ -46,11 +46,13 @@ export class AuthService {
   
     async login(credentials: { email: string; password: string }): Promise<void> {
       try {
-        const response = await this.apiService.post<{ accessToken: string }>('/users/login', credentials);
+        const response = await this.apiService.post<{ accessToken: string; userPresenter: { id: string } }>('/users/login', credentials);
         const token = response.data.accessToken;
+        const userId = response.data.userPresenter.id;
     
-        if (token) {
+        if (token && userId) {
           this.cookieService.set('auth_token', token, { path: '/' });
+          this.cookieService.set('user_id', userId, { path: '/' });
           this.authState.next(true);
           return Promise.resolve();
         } else {
@@ -59,7 +61,7 @@ export class AuthService {
       } catch (error: unknown) {
         return Promise.reject(error);
       }
-    }   
+    } 
   
     logout() {
       this.cookieService.delete('auth_token', '/');

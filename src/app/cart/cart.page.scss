@@ -1,0 +1,42 @@
+.cart-container {
+  position: fixed;
+  bottom: 20px;
+  right: -350px;
+  width: 300px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  transition: right 0.3s ease-in-out;
+}
+
+.cart-container.open {
+  right: 20px;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.empty-message {
+  text-align: center;
+  color: gray;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+.cart-modal {
+  --width: 350px;
+  --height: 500px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+ion-item {
+    --background: #F1F3F5;
+}

@@ -20,13 +20,16 @@
         <p>{{ user.email }}</p>
       </ion-item>
       <ion-item>
-        <ion-label>Nombre d'adresses :</ion-label>
-        <p>{{ user.addresses.length }}</p>
-      </ion-item>
-      <ion-item>
         <ion-label>Nombre d'abonnements actifs :</ion-label>
         <p>{{ user.subscriptions?.length || 0 }}</p>
       </ion-item>
+
+      <ng-container *ngIf="userSubscriptions.length > 0">
+        <ion-label>Vos {{ userSubscriptions.length > 1 ? "abonnements" : "abonnement"}} :</ion-label>
+        <ion-item *ngFor="let sub of userSubscriptions">
+          <p>{{ sub.product.name }} ({{ sub.plan === 'monthly' ? 'Mensuel' : 'Annuel' }}) {{ sub.plan === 'monthly' ? sub.product.monthlyPrice : sub.product.yearlyPrice | currency: 'EUR': 'symbol' }}</p>
+        </ion-item>
+      </ng-container>
     </ion-list>
 
     <ion-button class="m-[16px]" expand="full" color="danger" (click)="logout()">

@@ -11,6 +11,7 @@ import { NavController, ToastController } from '@ionic/angular';
 })
 export class AccountPage implements OnInit {
   user: any = null;
+  userSubscriptions: any[] = [];
 
   constructor(private authService: AuthService, private apiService: ApiService, private navCtrl: NavController, private toastController: ToastController) {}
 
@@ -18,6 +19,7 @@ export class AccountPage implements OnInit {
     try {
       const response = await this.apiService.get('/users/me');
       this.user = response.data;
+      this.userSubscriptions = this.user.subscriptions || [];
     } catch (error) {
       console.error('Erreur lors du chargement des infos utilisateur:', error);
     }

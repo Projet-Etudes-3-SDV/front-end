@@ -10,11 +10,10 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       { path: '', redirectTo: '/home', pathMatch: 'full' },
-      { path: 'home', loadChildren: () => import('../tab1/tab1.module').then(m => m.Tab1PageModule) },
+      { path: 'home', loadChildren: () => import('../home/home.module').then(m => m.HomePageModule) },
       { path: 'categories', loadChildren: () => import('../tab2/tab2.module').then(m => m.Tab2PageModule) },
       { path: 'account', loadChildren: () => import('../tab3/tab3.module').then(m => m.Tab3PageModule), canActivate: [AuthGuard] },
       { path: 'search', loadChildren: () => import('../tab4/tab4.module').then(m => m.Tab4PageModule) },
-      { path: 'cart', loadChildren: () => import('../tab5/tab5.module').then(m => m.Tab5PageModule) },
       { path: 'login', loadChildren: () => import('../login/login.module').then(m => m.LoginPageModule) },
       { path: 'register', loadChildren: () => import('../register/register.module').then(m => m.RegisterPageModule) },
       { path: 'categories/products/:categoryId', loadChildren: () => import('../products/products.module').then(m => m.ProductsPageModule) },

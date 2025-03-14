@@ -1,0 +1,36 @@
+.banner {
+    text-align: center;
+    padding: 20px;
+    background: #f1f3f5;
+    color: #9933ff;
+    border-radius: 10px;
+    margin: 16px;
+    font-weight: 900;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 16px;
+    color: #333;
+  }
+  
+  .categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px;
+  }
+  
+  ion-chip {
+    --background: #f4f4f4;
+    --color: #333;
+    font-weight: bold;
+  }
+  
+  .discount-price {
+    color: red;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  

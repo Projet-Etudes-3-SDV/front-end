@@ -1,13 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AccountPage } from './account.page';
-import { AuthGuard } from '../services/auth.guard';
+import { CartPage } from './cart.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: AccountPage,
-    canActivate: [AuthGuard]
+    component: CartPage
   }
 ];
 
@@ -15,4 +13,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class AccountPageRoutingModule {}
+export class CartPageRoutingModule {}

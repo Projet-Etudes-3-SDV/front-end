@@ -47,20 +47,31 @@ export class ApiService {
 
   /** Gestion du panier **/
   
-  addItemToCart(data: any): Promise<AxiosResponse<any>> {
-    return this.axiosInstance.post('/cart/add', data);
+  getCart(): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.get('/cart');
+  }
+
+  addItemToCart(productId: string, plan: 'monthly' | 'yearly'): Promise<AxiosResponse<any>> {
+    const userId = this.cookieService.get('user_id');
+    return this.post('/cart/add', { productId, plan, userId });
   }
 
   updateCart(data: any): Promise<AxiosResponse<any>> {
     return this.axiosInstance.put('/cart/update', data);
   }
 
-  deleteItemFromCart(data: any): Promise<AxiosResponse<any>> {
-    return this.axiosInstance.delete('/cart/delete', { data });
+  deleteItemFromCart(productId: string): Promise<AxiosResponse<any>> {
+    const userId = this.cookieService.get('user_id');
+    return this.axiosInstance.delete('/cart/delete', { data: { userId, productId } });
   }
 
   resetCart(): Promise<AxiosResponse<any>> {
-    return this.axiosInstance.delete('/cart/reset');
+    const userId = this.cookieService.get('user_id');
+    return this.axiosInstance.delete('/cart/reset', { data: { userId: userId } });
+  }
+
+  validateCart(): Promise<AxiosResponse<any>> {
+    return this.post('/cart/validate', {});
   }
 
   /** Gestion des catégories **/

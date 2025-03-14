@@ -15,7 +15,7 @@
       <ion-label>Recherche</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="cart">
+    <ion-tab-button tab="cart" (click)="openCart()">
       <ion-icon name="cart"></ion-icon>
       <ion-label>Panier</ion-label>
     </ion-tab-button>
@@ -31,5 +31,8 @@
         <ion-label>Connexion</ion-label>
       </ion-tab-button>
     </ng-template>
+
   </ion-tab-bar>
+
+  <app-cart #cartComponent></app-cart>
 </ion-tabs>

@@ -1,8 +1,9 @@
 import { IonicModule } from '@ionic/angular';
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+  
+import { CartPageModule } from '../cart/cart.module';
 import { TabsPageRoutingModule } from './tabs-routing.module';
 
 import { TabsPage } from './tabs.page';
@@ -12,8 +13,10 @@ import { TabsPage } from './tabs.page';
     IonicModule,
     CommonModule,
     FormsModule,
-    TabsPageRoutingModule
+    TabsPageRoutingModule,
+    CartPageModule
   ],
-  declarations: [TabsPage]
+  declarations: [TabsPage],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class TabsPageModule {}
