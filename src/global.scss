@@ -63,7 +63,12 @@ ion-card {
     border-radius: 8px;
     color: white;
     border: 1px solid transparent;
+    margin: 15px;
+    padding: 0;
     transition: 0.2s;
+    img {
+        border-radius: 8px 8px 0 0;
+    }
     &:hover {
         border: 1px solid white;
         ion-card-title::after {
@@ -76,6 +81,7 @@ ion-card {
     &-title {
         color: #9933ff;
         position: relative;
+        font-weight: bold;
         &::after {
             content: '→';
             margin-left: 0;
@@ -83,8 +89,11 @@ ion-card {
             transition: margin-left 0.2s ease-in-out, opacity 0.2s ease-in-out;
         }
     }
+    &-subtitle {
+        color: rgba(0, 0, 0, 0.8);
+    }
     &-content {
-        color: black;
+        color: rgba(0, 0, 0, 0.8);
     }
 }
 

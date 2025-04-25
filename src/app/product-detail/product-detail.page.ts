@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 import { ToastController, Platform } from '@ionic/angular';
 import { CookieService } from 'ngx-cookie-service';
 
@@ -18,6 +19,7 @@ export class ProductDetailPage implements OnInit {
 
   constructor(
     private apiService: ApiService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private toastController: ToastController,
     private cookieService: CookieService,
@@ -41,7 +43,7 @@ export class ProductDetailPage implements OnInit {
   }
 
   async addToCart(plan: 'monthly' | 'yearly') {
-    if (!this.userId) {
+    if (!this.authService.isAuthenticated()) {
       this.presentToast('Vous devez être connecté pour ajouter au panier.', 'warning');
       return;
     }
@@ -50,8 +52,10 @@ export class ProductDetailPage implements OnInit {
       await this.apiService.addItemToCart(this.productId, plan);
       this.presentToast(`Produit ajouté au panier (${plan === 'monthly' ? 'Mensuel' : 'Annuel'}) !`, 'success');
     } catch (error: any) {
-      if(error.response.data.message === 'User is already subbed to this product') {
-        this.presentToast('Vous avez déjà ajouté ce produit à votre panier.', 'warning');
+      if(error.response.data.code === 'ALREADY_SUBSCRIBED') {
+        this.presentToast('Vous êtes déjà abonné à ce produit.', 'warning');
+      } else if(error.response.data.code === 'CART_ITEM_EXISTS') {
+        this.presentToast('Produit déjà dans le panier.', 'warning');
       } else {
         console.error('Erreur lors de l\'ajout au panier:', error);
         this.presentToast('Erreur lors de l\'ajout au panier.', 'danger');
@@ -64,7 +68,8 @@ export class ProductDetailPage implements OnInit {
       message,
       color,
       duration: 3000,
-      position: 'top'
+      position: 'top',
+      swipeGesture: 'vertical'
     });
     toast.present();
   }

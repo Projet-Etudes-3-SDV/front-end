@@ -59,7 +59,8 @@ export class RegisterPage implements OnInit {
       message,
       color,
       duration: 4000,
-      position: 'top'
+      position: 'top',
+      swipeGesture: 'vertical'
     });
     toast.present();
   }

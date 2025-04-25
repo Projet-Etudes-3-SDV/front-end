@@ -6,11 +6,11 @@ import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-categories',
-  templateUrl: './categories.component.html',
-  styleUrls: ['./categories.component.scss'],
-  standalone: false
+  templateUrl: './categories.page.html',
+  styleUrls: ['./categories.page.scss'],
+  standalone: false,
 })
-export class CategoriesComponent implements OnInit {
+export class CategoriesPage {
   categories: any[] = [];
   isDesktop: boolean = false;
 
@@ -18,7 +18,7 @@ export class CategoriesComponent implements OnInit {
 
   ngOnInit() {
     this.apiService.getAllCategories().then(response => {
-      this.categories = response.data;
+      this.categories = response.data.result;
     }).catch(error => {
       console.error(error);
     });

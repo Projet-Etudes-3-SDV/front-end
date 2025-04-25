@@ -9,14 +9,14 @@ import { NavController, ToastController, Platform } from '@ionic/angular';
   styleUrls: ['./account.page.scss'],
   standalone: false,
 })
-export class AccountPage implements OnInit {
+export class AccountPage {
   user: any = null;
   userSubscriptions: any[] = [];
   isDesktop: boolean = false;
 
   constructor(private authService: AuthService, private apiService: ApiService, private navCtrl: NavController, private toastController: ToastController, private platform: Platform) {}
 
-  async ngOnInit() {
+  async ionViewWillEnter() {
     try {
       const response = await this.apiService.get('/users/me');
       this.user = response.data;
@@ -38,7 +38,8 @@ export class AccountPage implements OnInit {
       message,
       color,
       duration: 4000,
-      position: 'top'
+      position: 'top',
+      swipeGesture: 'vertical'
     });
     toast.present();
   }

@@ -1,4 +1,3 @@
-
 <ion-content [fullscreen]="true">
   <div [class]="isDesktop ? 'm-16' : ''">
     <div class="banner">
@@ -6,11 +5,19 @@
       <p>Découvrez nos produits phares et nos meilleures offres !</p>
     </div>
 
-    <div class="w-full flex flex-col justify-center gap-2 px-[16px]">
+    <!-- <div class="w-full flex flex-col justify-center gap-2 px-[16px]">
       <div class="bg-theme-ellipsis border border-white/30 w-full flex items-center gap-2 mt-6 rounded-lg p-4">
-        <h3 class="text-xl font-bold text-white">🔥 Produits en vedette</h3>
+        <ion-icon name="flame" class="text-white text-xl"></ion-icon>
+        <h3 class="text-xl font-bold text-white">Produits en vedette</h3>
       </div>
       <hr class="w-full h-[2px] border-0 rounded-full my-[16px]" />
+    </div> -->
+    <div class="w-full flex flex-col justify-center gap-2 px-6">
+      <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
+        <ion-icon name="flame" class="color-theme-title text-xl"></ion-icon>
+        <h3 class="text-xl font-bold text-black/80">Produits en vedette</h3>
+      </div>
+      <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
     </div>
     <swiper-container
         slides-per-view="1.5"
@@ -18,31 +25,29 @@
         navigation="true"
         pagination="true"
         autoplay="true"
-        class="product-slider"
+        class="product-slider py-4"
       >
-      <swiper-slide class="px-6" *ngFor="let product of featuredProducts">
-        <ion-card (click)="goToProduct(product.id)">
+      <swiper-slide class="px-6 pb-10" *ngFor="let product of featuredProducts">
+        <ion-card class="m-0" (click)="goToProduct(product.id)">
           <img src="assets/images/placeholder-image.png" alt="{{ product.name }}" class="" />
           <ion-card-header>
             <ion-card-title>{{ product.name }}</ion-card-title>
             <ion-card-subtitle>{{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois - {{ product.yearlyPrice | currency: 'EUR': 'symbol' }}/an</ion-card-subtitle>
           </ion-card-header>
-          <ion-card-content class="text-black/60 text-sm">
-            {{ product.description }}
-          </ion-card-content>
         </ion-card>
       </swiper-slide>
     </swiper-container>
 
-    <div class="w-full flex flex-col justify-center gap-2 px-[16px]">
-      <div class="bg-theme-ellipsis border border-white/30 w-full flex items-center gap-2 mt-6 rounded-lg p-4">
-        <h3 class="text-xl font-bold text-white">📂 Catégories</h3>
+    <div class="w-full flex flex-col justify-center gap-2 px-6">
+      <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
+        <ion-icon name="list" class="color-theme-title text-xl"></ion-icon>
+        <h3 class="text-xl font-bold text-black/80">Catégories</h3>
       </div>
-      <hr class="w-full h-[2px] border-0 rounded-full mt-[16px]" />
+      <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
     </div>
     <div class="categories">
       <ion-chip *ngFor="let category of categories" (click)="goToCategory(category.id)">
-        <ion-icon name="pricetag-outline"></ion-icon>
+        <ion-icon name="pricetag"></ion-icon>
         <ion-label>{{ category.name }}</ion-label>
       </ion-chip>
     </div>

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { Observable } from 'rxjs';
-
-import { ModalController, Platform } from '@ionic/angular';
+import { Observable, take } from 'rxjs';
+import { ModalController, Platform, ToastController } from '@ionic/angular';
 import { CartPage } from '../cart/cart.page';
 
 @Component({
@@ -15,7 +14,12 @@ export class TabsPage implements OnInit {
   isLoggedIn: Observable<boolean | null> | null = null;
   isDesktop: boolean = false;
 
-  constructor(private authService: AuthService, private modalController: ModalController, private platform: Platform) {}
+  constructor(
+    private authService: AuthService,
+    private modalController: ModalController,
+    private platform: Platform,
+    private toastController: ToastController
+  ) {}
 
   ngOnInit() {
     this.isLoggedIn = this.authService.isAuthenticated();
@@ -24,10 +28,28 @@ export class TabsPage implements OnInit {
   }
 
   async openCart() {
-    const modal = await this.modalController.create({
-      component: CartPage,
-      cssClass: 'cart-modal'
+    this.isLoggedIn?.pipe(take(1)).subscribe(async (loggedIn) => {
+      if (!loggedIn) {
+        this.presentToast('Vous devez être connecté pour voir le panier.', 'warning');
+        return;
+      }
+  
+      const modal = await this.modalController.create({
+        component: CartPage,
+        cssClass: 'cart-modal'
+      });
+      await modal.present();
     });
-    return await modal.present();
+  }
+
+  async presentToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message,
+      color,
+      duration: 4000,
+      position: 'top',
+      swipeGesture: 'vertical'
+    });
+    toast.present();
   }
 }

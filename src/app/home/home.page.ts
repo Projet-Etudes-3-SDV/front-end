@@ -29,7 +29,7 @@ export class HomePage implements OnInit {
   async loadFeaturedProducts() {
     try {
       const response = await this.apiService.get('/products?featured=true');
-      this.featuredProducts = response.data as any[];
+      this.featuredProducts = (response.data as { result: any[] }).result;
     } catch (error) {
       console.error('Erreur lors du chargement des produits phares:', error);
     }
@@ -38,7 +38,7 @@ export class HomePage implements OnInit {
   async loadCategories() {
     try {
       const response = await this.apiService.get('/categories');
-      this.categories = response.data as any[];
+      this.categories = (response.data as { result: any[] }).result;
     } catch (error) {
       console.error('Erreur lors du chargement des catégories:', error);
     }

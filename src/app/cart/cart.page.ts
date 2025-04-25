@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { CookieService } from 'ngx-cookie-service';
 import { ToastController, ModalController, Platform } from '@ionic/angular';
 
 @Component({
@@ -16,19 +15,13 @@ export class CartPage implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private cookieService: CookieService,
     private toastController: ToastController,
     private modalController: ModalController,
     private platform: Platform
   ) {}
 
   ngOnInit() {
-    this.token = localStorage.getItem('auth_token') ?? '';
-    if (this.token) {
-      this.getCart();
-    } else {
-      this.presentToast('Vous devez être connecté pour voir le panier.', 'warning');
-    }
+    this.getCart();
     this.isDesktop = this.platform.is('desktop');
   }
 
@@ -69,7 +62,7 @@ export class CartPage implements OnInit {
       this.cartItems = [];
       this.presentToast('Achat validé avec succès ! 🎉', 'success');
     } catch (error: any) {
-      if(error.response.data.message === 'User already subscribed to this product') {
+      if(error.response.data.code === 'ALREADY_SUBSCRIBED') {
         this.presentToast('Vous êtes déjà abonné à ce produit.', 'warning');
         return;
       } else {
@@ -84,6 +77,7 @@ export class CartPage implements OnInit {
       color,
       duration: 3000,
       position: 'top',
+      swipeGesture: 'vertical'
     });
     toast.present();
   }

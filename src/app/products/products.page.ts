@@ -21,7 +21,7 @@ export class ProductsPage implements OnInit {
     if (categoryId) {
       this.categoryId = categoryId;
       this.apiService.getProductsByCategory(this.categoryId).then(response => {
-        this.products = response.data;
+        this.products = response.data.result;
       }).catch(error => {
         console.error(error);
       });
