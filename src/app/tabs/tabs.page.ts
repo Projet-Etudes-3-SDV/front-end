@@ -1,24 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Observable, take } from 'rxjs';
-import { ModalController, Platform, ToastController } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
 import { CartPage } from '../cart/cart.page';
+import {
+  trigger,
+  transition,
+  style,
+  animate
+} from '@angular/animations';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-tabs',
   templateUrl: './tabs.page.html',
   styleUrls: ['./tabs.page.scss'],
   standalone: false,
+  animations: [
+    trigger('slideMenu', [
+      transition(':enter', [
+        style({ transform: 'translateY(100%)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ transform: 'translateY(100%)', opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class TabsPage implements OnInit {
   isLoggedIn: Observable<boolean | null> | null = null;
   isDesktop: boolean = false;
+  menuOpen: boolean = false;
 
   constructor(
     private authService: AuthService,
     private modalController: ModalController,
     private platform: Platform,
-    private toastController: ToastController
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -27,10 +46,29 @@ export class TabsPage implements OnInit {
     this.isDesktop = this.platform.is('desktop');
   }
 
+  onTabChange() {
+    setTimeout(() => {
+      const contents = document.querySelectorAll('ion-content');
+      contents.forEach(content => {
+        if ('scrollToTop' in content) {
+          (content as any).scrollToTop(0);
+        }
+      });
+    }, 50);
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+  
+  closeMenu() {
+    this.menuOpen = false;
+  }
+
   async openCart() {
     this.isLoggedIn?.pipe(take(1)).subscribe(async (loggedIn) => {
       if (!loggedIn) {
-        this.presentToast('Vous devez être connecté pour voir le panier.', 'warning');
+        this.toastService.presentToast('Vous devez être connecté pour voir le panier.', 'warning');
         return;
       }
   
@@ -40,16 +78,5 @@ export class TabsPage implements OnInit {
       });
       await modal.present();
     });
-  }
-
-  async presentToast(message: string, color: string) {
-    const toast = await this.toastController.create({
-      message,
-      color,
-      duration: 4000,
-      position: 'top',
-      swipeGesture: 'vertical'
-    });
-    toast.present();
   }
 }

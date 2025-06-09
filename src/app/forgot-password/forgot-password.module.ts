@@ -2,9 +2,8 @@ import { IonicModule } from '@ionic/angular';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { LoginPage } from './login.page';
-
-import { LoginPageRoutingModule } from './login-routing.module';
+import { ForgotPasswordPage } from './forgot-password.page';
+import { ForgotPasswordPageRoutingModule } from './forgot-password-routing.module';
 import { FooterModule } from "../footer/footer.module";
 
 @NgModule({
@@ -13,9 +12,9 @@ import { FooterModule } from "../footer/footer.module";
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    LoginPageRoutingModule,
+    ForgotPasswordPageRoutingModule,
     FooterModule
 ],
-  declarations: [LoginPage]
+  declarations: [ForgotPasswordPage]
 })
-export class LoginPageModule {}
+export class ForgotPasswordPageModule {}

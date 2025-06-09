@@ -1,9 +1,7 @@
 form {
   background: white;
   padding: 24px;
-  margin: 16px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #007bff;
 }
 
 ion-item {
@@ -16,9 +14,14 @@ ion-label {
   font-weight: bold;
 }
 
-ion-button {
+.register-button {
   margin-top: 16px;
   width: 100%;
+}
+
+ion-button[disabled] {
+  --background: #cccccc;
+  color: #666666;
 }
 
 ion-input {
@@ -42,4 +45,18 @@ ion-input {
   color: #007bff;
   text-decoration: none;
   font-weight: bold;
+}
+
+::ng-deep input:-webkit-autofill,
+::ng-deep input:-webkit-autofill:hover,
+::ng-deep input:-webkit-autofill:focus,
+::ng-deep textarea:-webkit-autofill,
+::ng-deep select:-webkit-autofill {
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+:host{
+  --ion-color-success: #007bff;
 }

@@ -1,21 +1,56 @@
 ion-tab-button {
-    background: none;
-    --color: white;
-    --color-selected: #0099ff;
+  background: none;
+  --color: white;
 }
 
-ion-tab-bar {
+ion-tab-bar[slot='bottom'] {
+  position: relative;
+  bottom: -1px;
+  --background: linear-gradient(150deg, rgb(1, 0, 51) 9%, rgb(48, 32, 130) 100%);
+  --color-selected: #0099ff;
+}
+
+ion-tab-bar[slot='bottom']::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(132deg, rgb(1, 0, 51) 0%, rgba(255, 253, 253, 0.619) 74%);
+}
+
+ion-tab-bar[slot='top'] {
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 1);
+  ion-tab-button {
+    --color-selected: white;
+    font-weight: bold;
+    font-family: "Montserrat", sans-serif;
     position: relative;
-    bottom: -1px;
-    --background: linear-gradient(150deg, rgb(1, 0, 51) 9%, rgb(48, 32, 130) 100%);
-}
+    justify-content: center;
 
-ion-tab-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(132deg, rgb(1, 0, 51) 0%, rgba(255, 253, 253, 0.619) 74%);
+    &:hover {
+      --color-selected: initial;
+    }
+
+    &.tab-selected {
+      color: #0099ff;
+      font-weight: bolder;
+    }
+
+    &.tab-selected::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0; 
+      width: 100%;
+      height: 2px;
+      background-color: #0099ff;
+    }
+
+    ion-label {
+      text-transform: uppercase;
+      width: max-content;
+    }
+  }
 }

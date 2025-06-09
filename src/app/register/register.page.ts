@@ -1,25 +1,46 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
-import { ToastController, Platform } from '@ionic/angular';
+import { Platform } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+  query,
+  stagger
+} from '@angular/animations';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
-  standalone: false
+  standalone: false,
+  animations: [
+    trigger('pageAnimation', [
+      transition(':enter', [
+        query('ion-item, ion-button, h3, .login-link', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger(50, animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })))
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
-export class RegisterPage implements OnInit {
+export class RegisterPage {
   registerForm: FormGroup;
   isDesktop: boolean = false;
+  showPassword = false;
+  showForm: boolean = false;
 
   constructor(
     private apiService: ApiService,
     private router: Router,
-    private toastController: ToastController,
     private fb: FormBuilder,
-    private platform: Platform
+    private platform: Platform,
+    private toastService: ToastService
   ) {
     this.registerForm = this.fb.group({
       firstName: ['', [Validators.required]],
@@ -29,8 +50,10 @@ export class RegisterPage implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.isDesktop = this.platform.is('desktop');
+    this.showForm = false;
+    setTimeout(() => this.showForm = true, 10);
   }
 
   async register() {
@@ -38,30 +61,23 @@ export class RegisterPage implements OnInit {
       try {
         const response = await this.apiService.createUser(this.registerForm.value);
         if (response.data) {
-          this.presentToast('Inscription réussie. Veuillez vérifier votre email.', 'success');
+          this.toastService.presentToast('Inscription réussie. Veuillez vérifier votre email.', 'success');
           this.router.navigate(['/login']);
         }
       } catch (error: any) {
         console.log(error);
         if (error.response?.data?.code === 'EMAIL_ALREADY_IN_USE') {
-          this.presentToast('Email déjà utilisé.', 'danger');
+          this.toastService.presentToast('Email déjà utilisé.', 'danger');
         } else {
-          this.presentToast('Échec de l\'inscription.', 'danger');
+          this.toastService.presentToast('Échec de l\'inscription.', 'danger');
         }
       }
     } else {
-      this.presentToast('Veuillez remplir tous les champs.', 'warning');
+      this.toastService.presentToast('Veuillez remplir tous les champs.', 'warning');
     }
   }
 
-  async presentToast(message: string, color: string) {
-    const toast = await this.toastController.create({
-      message,
-      color,
-      duration: 4000,
-      position: 'top',
-      swipeGesture: 'vertical'
-    });
-    toast.present();
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

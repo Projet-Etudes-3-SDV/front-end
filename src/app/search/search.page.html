@@ -1,0 +1,70 @@
+<ion-content class="min-h-full" [fullscreen]="true">
+  <div [class]="isDesktop ? 'm-16' : ''" class="min-h-full">
+
+    <div class="w-full flex flex-col justify-center gap-2 px-6">
+      <div class="w-full flex items-center gap-2 mt-4 rounded-lg">
+        <ion-icon name="search" class="color-theme-title text-3xl"></ion-icon>
+        <h3 class="text-2xl font-bold text-black/80">Rechercher un produit ou une catégorie</h3>
+      </div>
+      <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+    </div>
+
+    <ion-searchbar
+      class="px-6"
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearchChange()"
+      debounce="500"
+      placeholder="Rechercher un produit ou une catégorie...">
+    </ion-searchbar>
+
+    <ion-segment [(ngModel)]="filter" (ionChange)="onSearchChange()" class="px-6 my-2">
+      <ion-segment-button value="products">
+        <ion-label>Produits</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="categories">
+        <ion-label>Catégories</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <ion-list *ngIf="!isLoading && filter === 'products' && results.length > 0 && showResults"
+              class="mx-6 p-0"
+              [@listAnimation]>
+      <ion-item *ngFor="let item of results" (click)="navigateToProduct(item.id ?? '')">
+        <ion-label>
+          <h2>{{ item.name }}</h2>
+        </ion-label>
+        <ion-label slot="end" class="text-right">
+          <p>{{ item.monthlyPrice }} €/mois</p>
+          <h3>{{ item.yearlyPrice }} €/an</h3>
+        </ion-label>
+        <ion-button fill="clear" slot="end">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-list *ngIf="!isLoading && filter === 'categories' && results.length > 0 && showResults"
+              class="mx-6 p-0"
+              [@listAnimation]>
+      <ion-item *ngFor="let item of results" (click)="navigateToCategory(item.id ?? '')">
+        <ion-label>
+          <h2>{{ item.name }}</h2>
+        </ion-label>
+        <ion-button fill="clear" slot="end">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+    <ion-spinner *ngIf="isLoading" name="crescent"
+      class="ion-padding w-full flex items-center justify-center"></ion-spinner>
+
+    <ion-text *ngIf="!isLoading && results.length === 0 && searchTerm"
+              class="w-full text-center flex items-center justify-center gap-2">
+      <ion-icon name="search-outline" class="text-gray-500"></ion-icon>
+      Aucun résultat
+    </ion-text>
+
+  </div>
+  <app-footer></app-footer>
+</ion-content>

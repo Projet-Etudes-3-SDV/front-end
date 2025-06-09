@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { ToastController, ModalController, Platform } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-cart',
@@ -15,9 +16,9 @@ export class CartPage implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private toastController: ToastController,
     private modalController: ModalController,
-    private platform: Platform
+    private platform: Platform,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -31,7 +32,7 @@ export class CartPage implements OnInit {
       this.cartItems = response.data.products;
     } catch (error) {
       console.error('Erreur lors du chargement du panier:', error);
-      this.presentToast('Impossible de charger le panier.', 'danger');
+      this.toastService.presentToast('Impossible de charger le panier.', 'danger');
     }
   }
 
@@ -39,10 +40,14 @@ export class CartPage implements OnInit {
     try {
       await this.apiService.deleteItemFromCart(productId);
       this.cartItems = this.cartItems.filter(item => item.product.id !== productId);
-      this.presentToast('Article supprimé du panier.', 'warning');
-    } catch (error) {
+      this.toastService.presentToast('Article supprimé du panier.', 'success');
+    } catch (error: any) {
+      if(error.response?.data?.code === 'CART_BUSY') {
+        this.toastService.presentToast('Vous ne pouvez pas supprimer cet article pendant le paiement.', 'danger');
+        return;
+      }
       console.error('Erreur lors de la suppression du produit:', error);
-      this.presentToast('Impossible de supprimer le produit.', 'danger');
+      this.toastService.presentToast('Impossible de supprimer le produit.', 'danger');
     }
   }  
 
@@ -50,36 +55,35 @@ export class CartPage implements OnInit {
     try {
       await this.apiService.resetCart();
       this.cartItems = [];
-      this.presentToast('Panier vidé.', 'warning');
-    } catch (error) {
+      this.toastService.presentToast('Panier vidé.', 'success');
+    } catch (error: any) {
+      if (error.response?.data?.code === 'CART_BUSY') {
+        this.toastService.presentToast('Vous ne pouvez pas vider le panier pendant le paiement.', 'danger');
+        return;
+      }
       console.error('Erreur lors de la suppression du panier:', error);
+      this.toastService.presentToast('Impossible de vider le panier.', 'danger');
     }
   }
 
-  async validateCart() {
+  async checkoutCart() {
     try {
-      await this.apiService.validateCart();
-      this.cartItems = [];
-      this.presentToast('Achat validé avec succès ! 🎉', 'success');
-    } catch (error: any) {
-      if(error.response.data.code === 'ALREADY_SUBSCRIBED') {
-        this.presentToast('Vous êtes déjà abonné à ce produit.', 'warning');
-        return;
+      const response = await this.apiService.checkoutPayment();
+      const stripeUrl = response.data.url;
+  
+      if (stripeUrl) {
+        window.location.href = stripeUrl;
       } else {
-        this.presentToast('Impossible de valider l\'achat.', 'danger');
+        this.toastService.presentToast('Lien de paiement invalide.', 'danger');
+      }
+    } catch (error: any) {
+      if (error.response?.data?.code === 'ALREADY_SUBSCRIBED') {
+        this.toastService.presentToast('Vous êtes déjà abonné à ce produit.', 'warning');
+      } else {
+        console.error('Erreur lors du paiement:', error);
+        this.toastService.presentToast('Erreur lors du paiement.', 'danger');
       }
     }
-  }
-
-  async presentToast(message: string, color: string) {
-    const toast = await this.toastController.create({
-      message,
-      color,
-      duration: 3000,
-      position: 'top',
-      swipeGesture: 'vertical'
-    });
-    toast.present();
   }
 
   closeModal() {

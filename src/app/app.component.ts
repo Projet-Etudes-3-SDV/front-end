@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +8,13 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class AppComponent {
-  constructor() {}
+  isDesktop: boolean = false;
+
+  constructor(
+    private platform: Platform
+  ) {}
+
+  ngOnInit() {
+    this.isDesktop = this.platform.is('desktop');
+  }
 }

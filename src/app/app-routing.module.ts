@@ -10,6 +10,10 @@ const routes: Routes = [
     path: 'account-validation/:token',
     loadChildren: () => import('./account-validation/account-validation.module').then(m => m.ValidateAccountPageModule)
   },
+  {
+    path: 'reset-password/:token',
+    loadChildren: () => import('./reset-password/reset-password.module').then(m => m.ResetPasswordPageModule)
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
 

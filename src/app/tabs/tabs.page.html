@@ -1,39 +1,117 @@
-<ion-tabs>
-
-  <ion-tab-bar [slot]="isDesktop ? 'top' : 'bottom'">
-    <ion-tab-button tab="home" href="/home">
+<ion-tabs (ionTabsWillChange)="onTabChange()">
+  <ion-tab-bar *ngIf="!isDesktop" slot="bottom">
+    <ion-tab-button tab="home"
+                    [routerLink]="['/home']"
+                    routerDirection="root">
       <ion-icon src="assets/images/cyna.svg"></ion-icon>
       <ion-label>Accueil</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="categories" href="/categories">
+    <ion-tab-button tab="categories"
+                    [routerLink]="['/categories']"
+                    routerDirection="root">
       <ion-icon name="layers"></ion-icon>
       <ion-label>Catégories</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="search" href="/search">
+    <ion-tab-button tab="search"
+                    [routerLink]="['/search']"
+                    routerDirection="root">
       <ion-icon name="search"></ion-icon>
       <ion-label>Recherche</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="cart" (click)="openCart()">
+    <ion-tab-button (click)="openCart()">
       <ion-icon name="cart"></ion-icon>
       <ion-label>Panier</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button *ngIf="isLoggedIn | async; else notLogged" tab="account" href="/account">
+    <ion-tab-button *ngIf="isLoggedIn | async; else notLogged"
+                    tab="account"
+                    [routerLink]="['/account']"
+                    routerDirection="root">
       <ion-icon name="person"></ion-icon>
       <ion-label>Mon Compte</ion-label>
     </ion-tab-button>
 
     <ng-template #notLogged>
-      <ion-tab-button tab="login" href="/login">
+      <ion-tab-button tab="login"
+                      [routerLink]="['/login']"
+                      routerDirection="root">
         <ion-icon name="log-in"></ion-icon>
         <ion-label>Connexion</ion-label>
       </ion-tab-button>
     </ng-template>
   </ion-tab-bar>
 
+  <ion-tab-bar slot="top" *ngIf="isDesktop" class="z-50 h-14 w-full flex items-center justify-between bg-theme-ellipsis border-none text-white font-medium uppercase">
+    <div class="flex gap-8 text-sm items-center pl-6">
+      <a [routerLink]="['/home']" class="icon flex items-center gap-2">
+        <img alt="logo long" class="h-6 sm:hidden md:block" src="assets/images/cyna-long-white.svg" />
+        <img alt="logo court" class="h-6 hidden sm:block md:hidden" src="assets/images/cyna.svg" />
+      </a>
+    </div>
+  
+    <div class="hidden h-full sm:flex items-center gap-6 mt-0">
+      <ion-tab-button tab="home" [routerLink]="['/home']" routerDirection="root">
+        <ion-label>Accueil</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="categories" [routerLink]="['/categories']" routerDirection="root">
+        <ion-label>Catégories</ion-label>
+      </ion-tab-button>
+      <ion-tab-button tab="search" [routerLink]="['/search']" routerDirection="root">
+        <ion-label>Recherche</ion-label>
+      </ion-tab-button>
+    </div>
+  
+    <div class="hidden h-full sm:flex items-center gap-6 mt-0 pr-6">
+      <ion-tab-button (click)="openCart()">
+        <ion-icon name="cart"></ion-icon>
+      </ion-tab-button>
+      <ion-tab-button *ngIf="isLoggedIn | async; else loginLink" tab="account" [routerLink]="['/account']" routerDirection="root">
+        <ion-label>Mon compte</ion-label>
+      </ion-tab-button>
+      <ng-template #loginLink>
+        <ion-tab-button tab="login" [routerLink]="['/login']" routerDirection="root">
+          <ion-label>Connexion</ion-label>
+        </ion-tab-button>
+      </ng-template>
+    </div>
+  
+    <div class="sm:hidden">
+      <ion-button fill="clear" (click)="menuOpen = !menuOpen" class="text-white">
+        <ion-icon [name]="menuOpen ? 'close-outline' : 'menu-outline'"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-tab-bar>
+  
+  <ng-container *ngIf="isDesktop">
+    <div *ngIf="menuOpen"
+         @slideMenu
+         class="w-full bg-theme-ellipsis text-white px-6 py-4 sm:hidden z-50 fixed bottom-0 left-0">
+      <div class="flex flex-col gap-4 text-sm">
+        <a [routerLink]="['/home']" (click)="menuOpen = false" class="flex items-center gap-2">
+          <ion-icon name="home"></ion-icon> Accueil
+        </a>
+        <a [routerLink]="['/categories']" (click)="menuOpen = false" class="flex items-center gap-2">
+          <ion-icon name="layers"></ion-icon> Catégories
+        </a>
+        <a [routerLink]="['/search']" (click)="menuOpen = false" class="flex items-center gap-2">
+          <ion-icon name="search"></ion-icon> Recherche
+        </a>
+        <a (click)="openCart(); menuOpen = false" class="cursor-pointer flex items-center gap-2">
+          <ion-icon name="cart"></ion-icon> Panier
+        </a>
+        <a *ngIf="(isLoggedIn | async); else notLogged" [routerLink]="['/account']" (click)="menuOpen = false" class="flex items-center gap-2">
+          <ion-icon name="person"></ion-icon> Mon compte
+        </a>
+        <ng-template #notLogged>
+          <a [routerLink]="['/login']" (click)="menuOpen = false" class="flex items-center gap-2">
+            <ion-icon name="log-in"></ion-icon> Connexion
+          </a>
+        </ng-template>
+      </div>
+    </div>
+  </ng-container>
   <app-cart #cartComponent></app-cart>
-  <app-footer *ngIf="isDesktop"></app-footer>
 </ion-tabs>

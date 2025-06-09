@@ -10,7 +10,7 @@ export class ApiService {
 
   constructor(private cookieService: CookieService) {
     this.axiosInstance = axios.create({
-      baseURL: !true ? 'http://localhost:3000/api' : 'http://10.111.9.38:3000/api',
+      baseURL: true ? 'http://localhost:3000/api' : 'http://10.111.9.38:3000/api',
       headers: {
         'Content-Type': 'application/json'
       }
@@ -70,10 +70,10 @@ export class ApiService {
     return this.axiosInstance.delete('/cart/reset', { data: { userId: userId } });
   }
 
-  validateCart(): Promise<AxiosResponse<any>> {
-    return this.post('/cart/validate', {});
+  checkoutPayment(): Promise<AxiosResponse<{ url: string }>> {
+    return this.axiosInstance.post('/payment/checkout', {});
   }
-
+  
   /** Gestion des catégories **/
 
   createCategory(data: any): Promise<AxiosResponse<any>> {

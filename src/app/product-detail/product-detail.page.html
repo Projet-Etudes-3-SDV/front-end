@@ -1,21 +1,31 @@
-<ion-content [fullscreen]="true">
-  <div [class]="isDesktop ? 'm-16' : ''">
-    <ng-container *ngIf="product">
-      <div class="w-full px-[16px] flex flex-col justify-center gap-[24px]">
-        <div class="bg-theme-ellipsis border border-white/30 w-full flex items-center gap-2 mt-6 rounded-lg p-4">
-          <h3 class="text-xl font-bold text-white">Détail du produit <br>
-            <p class="opacity-80 italic font-normal text-sm">→ {{ product.name }}</p>
-          </h3>
+<ion-content [fullscreen]="true" class="min-h-full">
+  <div [class]="isDesktop ? 'm-16' : ''" class="p-6 min-h-full">
+    <ng-container *ngIf="showProduct && product">
+      <div class="w-full flex flex-col justify-center gap-2">
+        <div class="w-full flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 mt-4 rounded-lg">
+          <div class="flex flex-row gap-2 items-center">
+            <ion-icon name="bag-add" class="color-theme-title text-3xl"></ion-icon>
+            <h3 class="text-2xl font-bold text-black/80">Détail du produit</h3>
+          </div>
+          <p class="cursor-pointer text-sm font-semibold italic color-theme-subtitle bg-theme-secondary rounded-lg p-2 flex items-center gap-1" [routerLink]="['/categories']">
+            <ion-icon name="caret-forward-circle" class="text-sm"></ion-icon>
+            {{ product.category?.name }}
+          </p>
+          <p class="cursor-pointer text-sm font-semibold italic color-theme-subtitle bg-theme-secondary rounded-lg p-2 flex items-center gap-1" [routerLink]="['/categories/products', product.category?.id]">
+            <ion-icon name="caret-forward-circle" class="text-sm"></ion-icon>
+            {{ product.name }}
+          </p>
         </div>
-        <hr class="w-full h-[2px] border-0 rounded-full" />
+        <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
       </div>
-      <div [class]="isDesktop ? 'grid grid-cols-4 p-6 w-full justify-items-center' : 'w-full'">
-        <ion-card>
+
+      <div [class]="isDesktop ? 'gap-7 grid grid-cols-4 py-6 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
+        <ion-card @fadeInCard>
           <img src="assets/images/placeholder-image.png" alt="{{ product.name }}" class="product-image" />
           <ion-card-header>
             <ion-card-title>{{ product.name }}</ion-card-title>
           </ion-card-header>
-        
+
           <ion-card-content>
             {{ product.description }}
           </ion-card-content>
@@ -26,11 +36,12 @@
             </ion-button>
 
             <ion-button expand="full" color="secondary" (click)="addToCart('yearly')">
-              Ajouter au panier - {{ product.yearlyPrice | currency: 'EUR' : 'symbol' }}/an
+              Ajouter au panier - {{ product.yearlyPrice | currency: 'EUR': 'symbol' }}/an
             </ion-button>
           </div>
         </ion-card>
       </div>
     </ng-container>
   </div>
+  <app-footer></app-footer>
 </ion-content>

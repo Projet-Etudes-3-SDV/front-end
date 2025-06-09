@@ -5,14 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { AccountValidationPage } from './account-validation.page';
 
 import { ValidateAccountPageRoutingModule } from './account-validation-routing.module';
+import { FooterModule } from "../footer/footer.module";
 
 @NgModule({
   imports: [
     IonicModule,
     CommonModule,
     FormsModule,
-    ValidateAccountPageRoutingModule
-  ],
+    ValidateAccountPageRoutingModule,
+    FooterModule
+],
   declarations: [AccountValidationPage]
 })
 export class ValidateAccountPageModule {}

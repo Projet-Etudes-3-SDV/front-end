@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { AccountPage } from './account.page';
+import { FooterModule } from '../footer/footer.module';
 
 @NgModule({
   declarations: [AccountPage],
@@ -11,7 +12,8 @@ import { AccountPage } from './account.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild([{ path: '', component: AccountPage }])
-  ]
+    FooterModule,
+    RouterModule.forChild([{ path: '', component: AccountPage }]),
+  ],
 })
 export class AccountPageModule {}

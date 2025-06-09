@@ -1,0 +1,25 @@
+<footer *ngIf="isDesktop" class="text-white text-sm py-8 px-4 text-center">
+  <div class="flex flex-col items-center space-y-4">
+
+    <div class="flex items-center space-x-2">
+      <img src="assets/images/cyna-long-white.svg" alt="Cyna Logo" class="w-32">
+      <ion-icon name="remove"></ion-icon>
+      <ion-icon class="text-xl" name="logo-linkedin"></ion-icon>
+      <ion-icon class="text-xl" name="logo-facebook"></ion-icon>
+      <ion-icon class="text-xl" name="logo-instagram"></ion-icon>
+      <ion-icon class="text-xl" name="logo-twitter"></ion-icon>
+    </div>
+
+    <nav class="flex flex-wrap justify-center gap-6 text-white/90 font-medium text-sm">
+      <a [routerLink]="['/home']" routerDirection="root">ACCUEIL</a>
+      <a [routerLink]="['/categories']" routerDirection="root">CATÉGORIES</a>
+      <a [routerLink]="['/search']" routerDirection="root">RECHERCHE</a>
+      <a href="#">CONTACT</a>
+    </nav>
+
+    <p class="text-white/70 text-xs mt-4">
+      © {{ getCurrentYear() }} - Tous droits réservés | Cyna
+    </p>
+    
+  </div>
+</footer>

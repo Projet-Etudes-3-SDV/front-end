@@ -63,7 +63,26 @@ export class AuthService {
       } catch (error: unknown) {
         return Promise.reject(error);
       }
-    } 
+    }
+
+    async requestPasswordReset(email: string): Promise<void> {
+      try {
+        await this.apiService.post('/users/forgot-password', { email });
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
+
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+      try {
+        await this.apiService.post('/users/reset-password', {
+          token,
+          newPassword
+        });
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
   
     logout() {
       localStorage.removeItem('auth_token');

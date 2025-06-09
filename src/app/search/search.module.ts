@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { CategoriesPageRoutingModule } from './categories-routing.module';
-import { CategoriesPage } from './categories.page';
+import { SearchPageRoutingModule } from './search-routing.module';
+import { SearchPage } from './search.page';
 import { FooterModule } from "../footer/footer.module";
 
 @NgModule({
@@ -12,9 +12,9 @@ import { FooterModule } from "../footer/footer.module";
     CommonModule,
     FormsModule,
     IonicModule,
-    CategoriesPageRoutingModule,
+    SearchPageRoutingModule,
     FooterModule
 ],
-  declarations: [CategoriesPage]
+  declarations: [SearchPage]
 })
-export class CategoriesPageModule {}
+export class SearchPageModule {}
