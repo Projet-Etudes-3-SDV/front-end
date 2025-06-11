@@ -146,6 +146,10 @@ export class ApiService {
     return this.axiosInstance.post('/users/register', data);
   }
 
+  getMe(): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.get('/users/me');
+  }
+
   getAllUsers(): Promise<AxiosResponse<any>> {
     return this.axiosInstance.get('/users');
   }

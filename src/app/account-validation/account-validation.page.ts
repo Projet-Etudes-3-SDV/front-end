@@ -29,7 +29,6 @@ export class AccountValidationPage implements OnInit {
   }
 
   async validateAccount() {
-    console.log(this.token)
     try {
       const response = await this.apiService.validateUserAccount({ authToken: this.token });
       if (response.data) {

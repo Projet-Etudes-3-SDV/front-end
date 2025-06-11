@@ -13,6 +13,7 @@ export class CartPage implements OnInit {
   cartItems: any[] = [];
   token: string = '';
   isDesktop: boolean = false;
+  loadingCart: boolean = true;
 
   constructor(
     private apiService: ApiService,
@@ -28,11 +29,13 @@ export class CartPage implements OnInit {
 
   async getCart() {
     try {
-      const response = await this.apiService.get<{ products: any[] }>('/cart/me');
+      const response = await this.apiService.getMe();
       this.cartItems = response.data.products;
     } catch (error) {
       console.error('Erreur lors du chargement du panier:', error);
       this.toastService.presentToast('Impossible de charger le panier.', 'danger');
+    } finally {
+      this.loadingCart = false;
     }
   }
 

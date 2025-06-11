@@ -1,5 +1,5 @@
 <ion-content class="ion-padding min-h-full" [fullscreen]="true">
-  <div [class]="isDesktop ? 'm-16' : ''" class="min-h-full">
+  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="min-h-full">
     <div *ngIf="user && showAccountContent; else loading">
       <div [@listAnimation]>
         <div class="title-section w-full flex flex-col justify-center gap-2 px-6">
@@ -42,21 +42,36 @@
         <ion-list *ngIf="userSubscriptions.length > 0" class="m-[24px]">
           <ion-item *ngFor="let sub of userSubscriptions" lines="none">
             <ion-label class="flex flex-col gap-1">
-          <h4 class="text-base font-semibold">{{ sub.product.name }}</h4>
-          <span class="text-sm text-blue-400 italic">{{ sub.product.category.name }}</span>
-
-          <div class="text-sm mt-1 text-gray-300">
-            <p>
-              {{ sub.plan === 'monthly' ? (sub.product.monthlyPrice | currency:'EUR') : (sub.product.yearlyPrice | currency:'EUR') }}
-              /{{ sub.plan === 'monthly' ? 'mois' : 'an' }}
-            </p>
-            <p>
-              Statut : <a [ngClass]="sub.status === 'active' ? 'text-green-500' : 'text-red-600'">{{ sub.status === 'active' ? 'Actif' : 'Annulé' }}</a>
-            </p>
-            <p>Début : {{ sub.startDate | date:'EEEE d MMMM y à HH:mm' }}</p>
-            <p>Fin : {{ sub.endDate | date:'EEEE d MMMM y à HH:mm' }}</p>
-            <p>Renouvellement automatique : {{ sub.autoRenew ? 'Oui' : 'Non' }}</p>
-          </div>
+              <h4 class="!text-base !font-semibold flex items-center gap-1">
+                <ion-icon name="chevron-forward" slot="start" class="text-blue-400 ml-0"></ion-icon>
+                {{ sub.name }}
+                <a class="px-1.5 py-0.5 uppercase rounded-xl font-bold text-white flex items-center gap-1 ml-1" [ngClass]="{
+                'active': sub.status === 'active' || sub.status === 'trialing',
+                'incomplete': sub.status === 'past_due' || sub.status === 'incomplete',
+                'canceled': sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'
+              }">
+                  <ion-icon name="close"
+                    *ngIf="sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'"
+                    class="text-red-500 m-0"></ion-icon>
+                  <ion-icon name="time-outline" *ngIf="sub.status === 'past_due' || sub.status === 'incomplete'"
+                    class="text-yellow-500 m-0"></ion-icon>
+                  <ion-icon name="checkmark" *ngIf="sub.status === 'active' || sub.status === 'trialing'"
+                    class="text-green-500 m-0"></ion-icon>
+                  {{ subscriptionStatusMap[sub.status] }}
+                </a>
+              </h4>
+              <div class="text-sm mt-1 text-gray-300">
+                <p class="flex items-center gap-2">
+                  <ion-icon name="card" slot="start" class="text-blue-400 ml-0"></ion-icon>
+                  {{ (sub.price | currency:'EUR') }}/{{ sub.planType === 'monthly' ? 'mois' : 'an' }}
+                </p>
+                <p class="flex items-center gap-1">
+                  <ion-icon name="time" slot="start" class="text-blue-400 ml-0 mr-1"></ion-icon>
+                  {{ sub.cancelAtPeriodEnd ? 'Renouvellement' : 'Fin' }} le <strong>{{ sub.endDate | date:'EEEE d MMMM y à HH:mm' }}</strong>
+                <p class="flex items-center gap-2">
+                  <ion-icon name="sync-circle" slot="start" class="text-blue-400 ml-0"></ion-icon>
+                  Renouvellement automatique : <strong>{{ sub.cancelAtPeriodEnd ? 'Oui' : 'Non' }}</strong></p>
+              </div>
             </ion-label>
             <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl"></ion-icon>
           </ion-item>
@@ -69,7 +84,7 @@
           </ion-item>
         </ion-list>
 
-        <ion-button class="m-6 uppercase" expand="full" color="danger" (click)="logout()">
+        <ion-button class="m-6 uppercase bg-red-600/5" fill="clear" expand="full" color="danger" (click)="logout()">
           <ion-icon name="log-out" class="mr-2"></ion-icon>
           Se Déconnecter
         </ion-button>

@@ -8,35 +8,43 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+
   <div [class]="isDesktop ? 'mx-16' : ''">
     <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
       <ion-icon name="cart" class="color-theme-title text-3xl"></ion-icon>
       <h3 class="text-2xl font-bold text-black/80">Votre panier</h3>
     </div>
     <hr class="w-full h-[2px] border-0 rounded-full my-[8px]" />
-    <div *ngIf="cartItems.length > 0; else emptyCart" class="my-2">
-      <ion-list>
-        <ion-item *ngFor="let item of cartItems">
-          <ion-label>
-            <h2>{{ item.product.name }}</h2>
-            <p>Quantité: {{ item.quantity }}</p>
-            <p>Prix: {{ (item.plan === "monthly" ? item.product?.monthlyPrice : item.product?.yearlyPrice) | currency: 'EUR': 'symbol' }}</p>
-            <p>Plan: {{ item.plan === "monthly" ? "Mensuel" : "Annuel" }}</p>
-          </ion-label>
-          <ion-button fill="clear" color="danger" (click)="removeFromCart(item.product.id)">
-            <ion-icon class="text-2xl" name="close-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
-      </ion-list>
-      <ion-button expand="full" color="danger" (click)="resetCart()">
+
+    <div *ngIf="loadingCart; else cartContent" class="flex justify-center items-center py-8">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+    <ng-template #cartContent>
+      <div *ngIf="cartItems.length > 0; else emptyCart" class="my-2">
+        <ion-list>
+          <ion-item *ngFor="let item of cartItems">
+            <ion-label>
+              <h2>{{ item.product.name }}</h2>
+              <p>Quantité: {{ item.quantity }}</p>
+              <p>Prix: {{ item.product?.price | currency: 'EUR': 'symbol' }}</p>
+              <p>Plan: {{ item.plan === 'monthly' ? 'Mensuel' : 'Annuel' }}</p>
+            </ion-label>
+            <ion-button fill="clear" color="danger" (click)="removeFromCart(item.product.id)">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="full" color="danger" (click)="resetCart()">
           <ion-icon class="mr-2" name="trash"></ion-icon>
           Vider le panier
-      </ion-button>
-      <ion-button expand="full" (click)="checkoutCart()">
-        <ion-icon class="mr-2" name="card"></ion-icon>
-        Procéder au paiement
-      </ion-button>
-    </div>
+        </ion-button>
+        <ion-button expand="full" (click)="checkoutCart()">
+          <ion-icon class="mr-2" name="card"></ion-icon>
+          Procéder au paiement
+        </ion-button>
+      </div>
+    </ng-template>
 
     <ng-template #emptyCart>
       <p class="text-center p-6 bg-theme-main my-2">Votre panier est vide.</p>

@@ -1,8 +1,8 @@
 <ion-content [fullscreen]="true" class="min-h-full">
-  <div [class]="isDesktop ? 'm-16' : ''" class="p-6 min-h-full">
+  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="p-6 min-h-full">
     <div class="w-full flex flex-col justify-center gap-2">
       <div class="w-full flex items-center gap-2 mt-4 rounded-lg">
-        <ion-icon name="list" class="color-theme-title text-3xl"></ion-icon>
+        <ion-icon name="file-tray-full" class="color-theme-title text-3xl"></ion-icon>
         <h3 class="text-2xl font-bold text-black/80">Catégories</h3>
       </div>
       <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
@@ -15,11 +15,12 @@
         class="m-0 shadow-none rounded-none"
         (click)="navigateToCategory(category.id)"
         button>
-        <img src="assets/images/placeholder-image.png"
+        <img [src]="category.imageUrl ? 'http://localhost:3000/api' + category.imageUrl : 'assets/images/placeholder-image.png'"
              alt="{{ category.name }}"
-             class="category-image" />
-        <ion-card-header>
-          <ion-card-title>{{ category.name }}</ion-card-title>
+             class="category-image max-h-[200px]" />
+        <ion-card-header class="flex flex-row items-center gap-2">
+          <ion-icon name="chevron-forward" class="text-lg color-theme-title flex-shrink-0"></ion-icon>
+          <ion-card-title class="mt-0">{{ category.name }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           {{ category.description }}

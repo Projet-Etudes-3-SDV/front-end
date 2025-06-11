@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { ApiService } from '../services/api.service';
 import { Observable, take } from 'rxjs';
 import { ModalController, Platform } from '@ionic/angular';
 import { CartPage } from '../cart/cart.page';
@@ -30,18 +31,23 @@ import { ToastService } from '../services/toast.service';
 })
 export class TabsPage implements OnInit {
   isLoggedIn: Observable<boolean | null> | null = null;
+  user: any = null;
   isDesktop: boolean = false;
   menuOpen: boolean = false;
+  adminRoles: string[] = ['admin', 'superadmin'];
 
   constructor(
     private authService: AuthService,
+    private apiService: ApiService,
     private modalController: ModalController,
     private platform: Platform,
     private toastService: ToastService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.isLoggedIn = this.authService.isAuthenticated();
+    const response = await this.apiService.getMe();
+    this.user = response.data;
     this.authService.checkAuthStatus();
     this.isDesktop = this.platform.is('desktop');
   }
@@ -55,6 +61,10 @@ export class TabsPage implements OnInit {
         }
       });
     }, 50);
+  }
+
+  isAdmin(): boolean {
+    return this.adminRoles.includes(this.user?.role);
   }
 
   toggleMenu() {

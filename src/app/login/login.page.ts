@@ -1,15 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { AxiosError } from 'axios';
 import {
-  trigger,
-  transition,
-  style,
-  animate,
-  query,
-  stagger
+  trigger, transition, style, animate, query, stagger
 } from '@angular/animations';
 import { ToastService } from '../services/toast.service';
 
@@ -31,10 +26,12 @@ import { ToastService } from '../services/toast.service';
 })
 export class LoginPage {
   loginForm: FormGroup;
-  errorMessage: string = '';
-  isDesktop: boolean = false;
+  codeForm: FormGroup;
+  isDesktop = false;
   showPassword = false;
-  showForm: boolean = false;
+  showForm = false;
+  requireCode = false;
+  obfuscatedEmail = '';
 
   constructor(
     private authService: AuthService,
@@ -45,6 +42,10 @@ export class LoginPage {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
+    });
+
+    this.codeForm = this.fb.group({
+      code: ['', [Validators.required]]
     });
   }
 
@@ -62,16 +63,19 @@ export class LoginPage {
       } catch (error: unknown) {
         const axiosError = error as AxiosError;
         const errorData = axiosError.response?.data as { code?: string };
-        console.error('Erreur de connexion:', errorData || axiosError.message);
 
-        if (errorData?.code === 'NO_USER_FOUND') {
-          this.toastService.presentToast('Utilisateur non trouvé. Vérifiez vos identifiants.', 'danger');
-        } else if (errorData?.code === 'ACCOUNT_NOT_VALIDATED') {
-          this.toastService.presentToast('Compte non validé. Vérifiez votre email.', 'warning');
-        } else if (errorData?.code === 'INVALID_CREDENTIALS') {
-          this.toastService.presentToast('Identifiants invalides. Veuillez réessayer.', 'danger');
+        if (axiosError.response?.status === 200 && errorData?.code === 'VERIFY_CODE') {
+          this.requireCode = true;
+          const email = this.loginForm.value.email;
+          this.obfuscatedEmail = this.obfuscateEmail(email);
+          this.toastService.presentToast(
+            `Un code de vérification a été envoyé à ${this.obfuscatedEmail}. Veuillez le saisir pour continuer.`,
+            'info'
+          );
+        } else if (errorData?.code === 'NO_USER_FOUND') {
+          this.toastService.presentToast('Utilisateur non trouvé.', 'danger');
         } else {
-          this.toastService.presentToast('Échec de connexion. Veuillez réessayer plus tard.', 'danger');
+          this.toastService.presentToast('Erreur de connexion.', 'danger');
         }
       }
     } else {
@@ -79,7 +83,39 @@ export class LoginPage {
     }
   }
 
+  async validateCode() {
+    if (this.codeForm.valid && this.loginForm.valid) {
+      try {
+        await this.authService.validateLoginCode({
+          email: this.loginForm.value.email,
+          authCode: this.codeForm.value.code
+        });
+        this.toastService.presentToast('Connexion validée !', 'success');
+        this.cancelCodeVerification();
+      } catch (error: any) {
+        if(error.response?.status === 400 && error.response.data.code === 'USER_CODE_INVALID') {
+          this.toastService.presentToast('Code de vérification invalide. Veuillez réessayer.', 'danger');
+        } else if(error.response?.status === 400 && error.response.data.code === 'USER_CODE_EXPIRED') {
+          this.toastService.presentToast('Code de vérification expiré. Veuillez demander un nouveau code.', 'danger');
+        } else {
+          this.toastService.presentToast('Erreur lors de la validation du code.', 'danger');
+        }
+      }
+    }
+  }
+
+  cancelCodeVerification() {
+    this.requireCode = false;
+    this.codeForm.reset();
+  }
+
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+
+  private obfuscateEmail(email: string): string {
+    const [local, domain] = email.split('@');
+    const obfuscatedLocal = local.slice(0, 4) + '*'.repeat(Math.max(0, local.length - 4));
+    return `${obfuscatedLocal}@${domain}`;
   }
 }

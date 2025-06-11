@@ -12,3 +12,18 @@ p {
 ion-list {
   padding: 0;
 }
+
+.active {
+  color: #36c23b;
+  border: 1px solid #36c23b;
+}
+
+.incomplete {
+  color: #FF9800;
+  border: 1px solid #FF9800;
+}
+
+.canceled {
+  color: #F44336;
+  border: 1px solid #F44336;
+}

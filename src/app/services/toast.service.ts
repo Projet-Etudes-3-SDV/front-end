@@ -14,7 +14,7 @@ export class ToastService {
    * Affiche un toast avec les bons styles pour desktop/mobile
    *
    * @param message - Texte du toast
-   * @param color - Couleur Ionic ('success' | 'danger' | 'warning'...)
+   * @param color - Couleur Ionic ('success' | 'danger' | 'warning' | 'info'...)
    * @param duration - Durée d'affichage (ms), par défaut 3000
    */
   async presentToast(message: string, color: string = 'success', duration: number = 3000) {
@@ -31,6 +31,8 @@ export class ToastService {
           ? 'warning'
           : color === 'success'
           ? 'checkmark-circle'
+          : color === 'info'
+          ? 'information-circle'
           : 'close-circle',
       cssClass: isDesktop ? 'desktop-toast' : ''
     });

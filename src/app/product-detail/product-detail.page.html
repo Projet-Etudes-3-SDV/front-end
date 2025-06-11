@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" class="min-h-full">
-  <div [class]="isDesktop ? 'm-16' : ''" class="p-6 min-h-full">
+  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="p-6 min-h-full">
     <ng-container *ngIf="showProduct && product">
       <div class="w-full flex flex-col justify-center gap-2">
         <div class="w-full flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 mt-4 rounded-lg">
@@ -19,27 +19,55 @@
         <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
       </div>
 
-      <div [class]="isDesktop ? 'gap-7 grid grid-cols-4 py-6 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
-        <ion-card @fadeInCard>
-          <img src="assets/images/placeholder-image.png" alt="{{ product.name }}" class="product-image" />
-          <ion-card-header>
-            <ion-card-title>{{ product.name }}</ion-card-title>
-          </ion-card-header>
-
-          <ion-card-content>
-            {{ product.description }}
-          </ion-card-content>
-
-          <div class="flex flex-col gap-3 p-4">
-            <ion-button expand="full" color="primary" (click)="addToCart('monthly')">
-              Ajouter au panier - {{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois
-            </ion-button>
-
-            <ion-button expand="full" color="secondary" (click)="addToCart('yearly')">
-              Ajouter au panier - {{ product.yearlyPrice | currency: 'EUR': 'symbol' }}/an
-            </ion-button>
+      <div [class]="isDesktop ? 'grid gap-4 mt-4 grid-cols-1 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
+        <ion-card @fadeInCard class="flex flex-col lg:flex-row items-center justify-center" *ngIf="product">
+          <div *ngIf="product" class="h-full">
+            <img [src]="product.imageUrl ? 'http://localhost:3000/api' + product.imageUrl : 'assets/images/placeholder-image.png'"
+             alt="{{ product.name }}"
+             class="product-image" />
           </div>
-        </ion-card>
+          <div *ngIf="product" class="w-full flex flex-col justify-between h-full">
+            <div>
+              <ion-card-header class="flex flex-row items-center gap-2">
+                <ion-icon name="chevron-forward" class="text-lg color-theme-title flex-shrink-0"></ion-icon>
+                <ion-card-title class="mt-0">{{ product.name }}</ion-card-title>
+              </ion-card-header>
+
+              <ion-card-content>
+                {{ product.description }}
+              </ion-card-content>
+            </div>
+
+            <div *ngIf="product.features && product.features.length > 0">
+              <ion-card-header class="flex flex-row items-center gap-2">
+                <ion-icon name="chevron-forward" class="text-lg color-theme-title flex-shrink-0"></ion-icon>
+                <ion-card-title class="mt-0">Fonctionnalités incluses</ion-card-title>
+              </ion-card-header>
+            
+              <ion-card-content *ngIf="product.features && product.features.length > 0">
+                <ion-list class="p-0">
+                  <ion-item *ngFor="let feature of product.features">
+                    <ion-icon name="shield-checkmark" slot="start" color="primary"></ion-icon>
+                    <ion-label>
+                      <h4 class="font-semibold text-base">{{ feature.title }}</h4>
+                      <p class="text-sm text-gray-600">{{ feature.description }}</p>
+                    </ion-label>
+                  </ion-item>
+                </ion-list>
+              </ion-card-content>
+            </div>
+
+            <div class="flex flex-col gap-3 p-4">
+              <ion-button expand="full" color="primary" (click)="addToCart('monthly')">
+                Ajouter au panier - {{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois
+              </ion-button>
+
+              <ion-button expand="full" color="secondary" (click)="addToCart('yearly')">
+                Ajouter au panier - {{ product.yearlyPrice | currency: 'EUR': 'symbol' }}/an
+              </ion-button>
+            </div>
+          </div>    
+        </ion-card>    
       </div>
     </ng-container>
   </div>

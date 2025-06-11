@@ -35,6 +35,15 @@ export class AccountPage {
   userSubscriptions: any[] = [];
   isDesktop: boolean = false;
   showAccountContent: boolean = false;
+  subscriptionStatusMap: { [key: string]: string } = {
+    active: 'Actif',
+    trialing: 'En essai',
+    past_due: 'En retard',
+    incomplete: 'Incomplet',
+    canceled: 'Annulé',
+    incomplete_expired: 'Incomplet expiré',
+    unpaid: 'Non payé'
+  };
 
   constructor(
     private authService: AuthService,
@@ -50,7 +59,7 @@ export class AccountPage {
 
     setTimeout(async () => {
       try {
-        const response = await this.apiService.get('/users/me');
+        const response = await this.apiService.getMe();
         this.user = response.data;
         this.userSubscriptions = this.user.subscriptions || [];
         this.showAccountContent = true;

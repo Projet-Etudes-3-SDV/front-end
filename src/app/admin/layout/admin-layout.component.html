@@ -1,0 +1,23 @@
+<c-sidebar class="sidebar" colorScheme="dark" position="fixed" unfoldable>
+  <c-sidebar-brand>
+    <strong>CynaAdmin</strong>
+  </c-sidebar-brand>
+
+  <c-sidebar-nav>
+    <c-nav-item routerLink="/admin/dashboard" icon="cil-speedometer">Dashboard</c-nav-item>
+    <c-nav-item routerLink="/admin/users" icon="cil-user">Utilisateurs</c-nav-item>
+    <c-nav-item routerLink="/admin/products" icon="cil-apps">Produits</c-nav-item>
+    <c-nav-item routerLink="/admin/orders" icon="cil-cart">Commandes</c-nav-item>
+    <c-nav-item routerLink="/admin/settings" icon="cil-settings">Paramètres</c-nav-item>
+  </c-sidebar-nav>
+</c-sidebar>
+
+<div class="wrapper d-flex flex-column min-vh-100 bg-light">
+  <c-header position="sticky">
+    <c-header-brand>Cyna - Admin</c-header-brand>
+  </c-header>
+
+  <div class="body flex-grow-1 px-3">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 <ion-content class="min-h-full" [fullscreen]="true">
-  <div [class]="isDesktop ? 'm-16' : ''" class="min-h-full">
+  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="min-h-full">
 
     <div class="w-full flex flex-col justify-center gap-2 px-6">
       <div class="w-full flex items-center gap-2 mt-4 rounded-lg">
@@ -30,8 +30,9 @@
               class="mx-6 p-0"
               [@listAnimation]>
       <ion-item *ngFor="let item of results" (click)="navigateToProduct(item.id ?? '')">
-        <ion-label>
+        <ion-label class="overflow-hidden">
           <h2>{{ item.name }}</h2>
+          <p class="text-sm text-gray-500 truncate">{{ item.description }}</p>
         </ion-label>
         <ion-label slot="end" class="text-right">
           <p>{{ item.monthlyPrice }} €/mois</p>
@@ -47,8 +48,9 @@
               class="mx-6 p-0"
               [@listAnimation]>
       <ion-item *ngFor="let item of results" (click)="navigateToCategory(item.id ?? '')">
-        <ion-label>
+        <ion-label class="overflow-hidden w-2/3">
           <h2>{{ item.name }}</h2>
+          <p class="text-sm text-gray-500 truncate">{{ item.description }}</p>
         </ion-label>
         <ion-button fill="clear" slot="end">
           <ion-icon name="chevron-forward-outline"></ion-icon>

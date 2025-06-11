@@ -1,0 +1,13 @@
+@use "sass:math";
+@use "@coreui/coreui/scss/coreui" as *;
+
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.body {
+  padding-top: 1rem;
+}

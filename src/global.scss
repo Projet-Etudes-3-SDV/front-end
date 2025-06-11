@@ -56,6 +56,11 @@
   &-secondary {
     background: linear-gradient(150deg, rgb(1, 0, 51) 9%, rgb(48, 32, 130) 100%)
   }
+
+  &-red {
+    background-color: #7a0000 !important;
+    background-image: linear-gradient(90deg, #e90000 0, hsla(0, 0%, 100%, 0)) !important;
+  }
 }
 
 .color-theme {
@@ -79,6 +84,10 @@ ion-card {
   margin: 0;
   padding: 0;
   transition: all 0.2s;
+
+  img {
+    object-fit: cover;
+  }
 
   &:hover {
     border: 2px solid #00aaff;
@@ -165,9 +174,9 @@ hr {
   background: linear-gradient(150deg, rgb(133, 131, 255) 9%, rgb(48, 32, 130) 90%);
 }
 
-// html, body, ion-app, ion-content, :host {
-//   --background: linear-gradient(180deg,rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 74%, rgba(96, 83, 237, 0.4) 100%);
-// }
+.desktop-toast {
+  margin-top: 60px;
+}
 
 :root {
   --ion-color-primary: #00aaff;

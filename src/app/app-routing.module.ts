@@ -7,6 +7,10 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+  },
+  {
     path: 'account-validation/:token',
     loadChildren: () => import('./account-validation/account-validation.module').then(m => m.ValidateAccountPageModule)
   },

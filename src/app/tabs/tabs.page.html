@@ -65,9 +65,14 @@
     </div>
   
     <div class="hidden h-full sm:flex items-center gap-6 mt-0 pr-6">
-      <ion-tab-button (click)="openCart()">
+     <ion-tab-button (click)="openCart()">
         <ion-icon name="cart"></ion-icon>
       </ion-tab-button>
+      <span matTooltip="Administration" class="cursor-pointer bg-theme-red admin-button">
+        <ion-tab-button *ngIf="isAdmin()" tab="admin" [routerLink]="['/admin']" routerDirection="root">
+          <ion-icon name="shield-half"></ion-icon>
+        </ion-tab-button>
+      </span>
       <ion-tab-button *ngIf="isLoggedIn | async; else loginLink" tab="account" [routerLink]="['/account']" routerDirection="root">
         <ion-label>Mon compte</ion-label>
       </ion-tab-button>

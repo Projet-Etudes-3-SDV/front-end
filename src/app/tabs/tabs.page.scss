@@ -54,3 +54,28 @@ ion-tab-bar[slot='top'] {
     }
   }
 }
+
+.admin-button {
+  padding: 8px !important;
+  border-radius: 12px;
+  height: initial !important;
+  box-shadow: 0px 0px 12px 5px rgba(0, 0, 0, 0.377)
+}
+
+.admin-button ion-tab-button {
+  --padding-end: 0px;
+  --padding-start: 0px;
+}
+
+::ng-deep .mdc-tooltip {
+  background-color: #1f2937;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  max-width: 250px;
+  text-align: center;
+}

@@ -1,5 +1,5 @@
 <ion-content class="ion-padding min-h-full">
-  <div [class]="isDesktop ? 'm-16' : ''" class="p-6 min-h-full">
+  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="p-6 min-h-full">
     <div class="w-full flex flex-col justify-center gap-2">
       <div class="w-full flex items-center gap-2 mt-4 rounded-lg">
         <ion-icon name="log-in" class="color-theme-title text-3xl"></ion-icon>
@@ -8,15 +8,14 @@
       <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
     </div>
     <div *ngIf="showForm" [@pageAnimation]>
-      <form class="w-full mt-4" [formGroup]="loginForm" (ngSubmit)="login()">
+
+      <form *ngIf="!requireCode" [formGroup]="loginForm" (ngSubmit)="login()" class="w-full mt-4">
         <ion-item>
           <ion-input labelPlacement="stacked" label="Email" placeholder="email@example.com" type="email" formControlName="email" required>
-            <ion-icon slot="start" name="mail" aria-hidden="true"></ion-icon>
+            <ion-icon slot="start" name="mail"></ion-icon>
           </ion-input>
         </ion-item>
-        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error">
-          Email invalide
-        </div>
+    
         <ion-item>
           <ion-input
             labelPlacement="stacked"
@@ -24,34 +23,56 @@
             placeholder="Mot de passe"
             [type]="showPassword ? 'text' : 'password'"
             formControlName="password"
-            required
-          >
-            <ion-icon slot="start" name="lock-closed" aria-hidden="true"></ion-icon>
-            <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()" type="button" aria-label="Afficher ou masquer le mot de passe">
-              <ion-icon
-                slot="icon-only"
-                [name]="showPassword ? 'eye-off' : 'eye'"
-                aria-hidden="true"
-              ></ion-icon>
+            required>
+            <ion-icon slot="start" name="lock-closed"></ion-icon>
+            <ion-button fill="clear" slot="end" (click)="togglePasswordVisibility()" type="button">
+              <ion-icon slot="icon-only" [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
             </ion-button>
           </ion-input>
         </ion-item>
-        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error">
-          Mot de passe requis
-        </div>
+    
         <div class="forgot-pwd text-center mt-4">
           <a [routerLink]="['/forgot-password']" class="text-sm text-blue-500 hover:underline">
             Mot de passe oublié ?
           </a>
         </div>
-        <ion-button class="connect-button" expand="full" type="submit" [disabled]="loginForm.invalid">
+    
+        <ion-button expand="full" type="submit" [disabled]="loginForm.invalid">
           Se connecter
         </ion-button>
       </form>
-      <div class="register-link">
+    
+      <form *ngIf="requireCode" [formGroup]="codeForm" (ngSubmit)="validateCode()" class="w-full mt-4">
+        <p class="text-center text-sm text-gray-600">
+          Entrez le code reçu dans cet email : <strong>{{ obfuscatedEmail }}</strong>
+        </p>
+    
+        <ion-item class="mt-3">
+          <ion-input
+            labelPlacement="stacked"
+            label="Code de vérification"
+            formControlName="code"
+            placeholder="123456"
+            required>
+            <ion-icon slot="start" name="key"></ion-icon>
+          </ion-input>
+        </ion-item>
+    
+        <ion-button expand="full" type="submit" [disabled]="codeForm.invalid">
+          Vérifier le code
+        </ion-button>
+
+        <ion-button fill="clear" expand="full" color="medium" (click)="cancelCodeVerification()">
+          Annuler
+        </ion-button>
+      </form>
+    
+      <div class="register-link mt-4">
         <p>Pas encore de compte ? <a [routerLink]="['/register']">Inscrivez-vous</a></p>
       </div>
+    
     </div>
+       
   </div>
   <app-footer></app-footer>
 </ion-content>

@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" class="min-h-full">
-  <div [class]="isDesktop ? 'm-16' : ''" class="p-6 min-h-full">
+  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="p-6 min-h-full">
     <div class="w-full flex flex-col justify-center gap-2">
       <div class="w-full flex flex-col sm:flex-row items-start sm:items-center gap-0 sm:gap-2 mt-4 rounded-lg">
         <div class="flex flex-row gap-2 items-center">
@@ -16,12 +16,14 @@
 
     <div *ngIf="showProducts && products.length"
          [@listAnimation]
-         [class]="isDesktop ? 'gap-7 grid grid-cols-4 py-6 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
+         [class]="isDesktop ? 'grid gap-4 mt-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
       <ion-card button *ngFor="let product of products" (click)="navigateToProduct(product.id)">
-        <img src="assets/images/placeholder-image.png" alt="{{ product.name }}" class="product-image" />
-        <ion-card-header>
-          <ion-card-title>{{ product.name }}</ion-card-title>
-          <ion-card-subtitle>{{ product.price | currency }}</ion-card-subtitle>
+        <img [src]="product.imageUrl ? 'http://localhost:3000/api' + product.imageUrl : 'assets/images/placeholder-image.png'"
+             alt="{{ product.name }}"
+             class="product-image max-h-[200px]" />
+        <ion-card-header class="flex flex-row items-center gap-2">
+          <ion-icon name="chevron-forward" class="text-lg color-theme-title flex-shrink-0"></ion-icon>
+          <ion-card-title class="mt-0">{{ product.name }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
           {{ product.description }}
