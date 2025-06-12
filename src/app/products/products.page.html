@@ -17,10 +17,10 @@
     <div *ngIf="showProducts && products.length"
          [@listAnimation]
          [class]="isDesktop ? 'grid gap-4 mt-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
-      <ion-card button *ngFor="let product of products" (click)="navigateToProduct(product.id)">
+      <ion-card button *ngFor="let product of products" (click)="navigateToProduct(product.id)" class="w-full">
         <img [src]="product.imageUrl ? 'http://localhost:3000/api' + product.imageUrl : 'assets/images/placeholder-image.png'"
              alt="{{ product.name }}"
-             class="product-image max-h-[200px]" />
+             class="product-image max-h-[300px]" />
         <ion-card-header class="flex flex-row items-center gap-2">
           <ion-icon name="chevron-forward" class="text-lg color-theme-title flex-shrink-0"></ion-icon>
           <ion-card-title class="mt-0">{{ product.name }}</ion-card-title>

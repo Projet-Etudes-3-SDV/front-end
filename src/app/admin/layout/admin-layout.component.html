@@ -1,23 +1,39 @@
-<c-sidebar class="sidebar" colorScheme="dark" position="fixed" unfoldable>
-  <c-sidebar-brand>
-    <strong>CynaAdmin</strong>
-  </c-sidebar-brand>
+<c-layout>
+  <c-sidebar position="fixed" unfoldable>
+    <c-sidebar-brand>CynaAdmin</c-sidebar-brand>
+    <c-sidebar-nav>
+      <c-nav-item routerLink="/admin/dashboard">
+        <c-icon name="cil-speedometer" class="me-2"></c-icon> Dashboard
+      </c-nav-item>
+      <c-nav-item routerLink="/admin/users">
+        <c-icon name="cil-user"></c-icon> Utilisateurs
+      </c-nav-item>
+      <c-nav-item routerLink="/admin/products">
+        <c-icon name="cil-box"></c-icon> Produits
+      </c-nav-item>
+      <c-nav-item routerLink="/admin/orders">
+        <c-icon name="cil-cart"></c-icon> Commandes
+      </c-nav-item>
+      <c-nav-item routerLink="/admin/settings">
+        <c-icon name="cil-settings"></c-icon> Paramètres
+      </c-nav-item>
+    </c-sidebar-nav>
+  </c-sidebar>
 
-  <c-sidebar-nav>
-    <c-nav-item routerLink="/admin/dashboard" icon="cil-speedometer">Dashboard</c-nav-item>
-    <c-nav-item routerLink="/admin/users" icon="cil-user">Utilisateurs</c-nav-item>
-    <c-nav-item routerLink="/admin/products" icon="cil-apps">Produits</c-nav-item>
-    <c-nav-item routerLink="/admin/orders" icon="cil-cart">Commandes</c-nav-item>
-    <c-nav-item routerLink="/admin/settings" icon="cil-settings">Paramètres</c-nav-item>
-  </c-sidebar-nav>
-</c-sidebar>
+  <c-wrapper>
+    <c-header position="sticky">
+      <c-header-brand>Dashboard Admin</c-header-brand>
+      <c-header-nav class="ms-auto">
+        <c-nav-item>
+          <c-icon name="cil-user"></c-icon>
+        </c-nav-item>
+      </c-header-nav>
+    </c-header>
 
-<div class="wrapper d-flex flex-column min-vh-100 bg-light">
-  <c-header position="sticky">
-    <c-header-brand>Cyna - Admin</c-header-brand>
-  </c-header>
-
-  <div class="body flex-grow-1 px-3">
-    <router-outlet></router-outlet>
-  </div>
-</div>
+    <c-main>
+      <div class="container-fluid mt-4">
+        <router-outlet></router-outlet>
+      </div>
+    </c-main>
+  </c-wrapper>
+</c-layout>

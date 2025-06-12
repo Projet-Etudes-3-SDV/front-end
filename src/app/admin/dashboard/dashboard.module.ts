@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardPage } from './dashboard.page';
 
-import { CardModule } from '@coreui/angular';
+import { CardModule, GridModule, SpinnerModule } from '@coreui/angular';
+import { IconModule } from '@coreui/icons-angular';
 
 const routes: Routes = [
   {
@@ -17,7 +18,10 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    CardModule
+    CardModule,
+    GridModule,
+    IconModule,
+    SpinnerModule
   ]
 })
 export class DashboardPageModule { }

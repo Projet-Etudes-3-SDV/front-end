@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NavController, Platform } from '@ionic/angular';
 import { ApiService } from '../services/api.service';
 import {
@@ -38,7 +38,6 @@ export class ProductsPage {
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private router: Router,
     private navCtrl: NavController,
     private platform: Platform
   ) {}

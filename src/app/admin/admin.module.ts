@@ -9,7 +9,9 @@ import {
   NavModule,
   CardModule,
   ButtonModule,
-  TableModule
+  TableModule,
+  GridModule,
+  ProgressModule
 } from '@coreui/angular';
 
 @NgModule({
@@ -22,7 +24,9 @@ import {
     NavModule,
     CardModule,
     ButtonModule,
-    TableModule
+    TableModule,
+    GridModule,
+    ProgressModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

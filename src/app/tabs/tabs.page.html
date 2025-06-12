@@ -68,9 +68,9 @@
      <ion-tab-button (click)="openCart()">
         <ion-icon name="cart"></ion-icon>
       </ion-tab-button>
-      <span matTooltip="Administration" class="cursor-pointer bg-theme-red admin-button">
-        <ion-tab-button *ngIf="isAdmin()" tab="admin" [routerLink]="['/admin']" routerDirection="root">
-          <ion-icon name="shield-half"></ion-icon>
+      <span matTooltip="Administration" class="cursor-pointer bg-theme-red admin-button" [routerLink]="['/admin']" routerDirection="root" tab="admin" *ngIf="isLoggedIn && isAdmin()">
+        <ion-tab-button tab="admin">
+          <mat-icon>manage_accounts</mat-icon>
         </ion-tab-button>
       </span>
       <ion-tab-button *ngIf="isLoggedIn | async; else loginLink" tab="account" [routerLink]="['/account']" routerDirection="root">

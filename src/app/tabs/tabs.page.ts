@@ -42,14 +42,15 @@ export class TabsPage implements OnInit {
     private modalController: ModalController,
     private platform: Platform,
     private toastService: ToastService
-  ) {}
-
-  async ngOnInit() {
+  ) {
     this.isLoggedIn = this.authService.isAuthenticated();
-    const response = await this.apiService.getMe();
-    this.user = response.data;
     this.authService.checkAuthStatus();
     this.isDesktop = this.platform.is('desktop');
+  }
+
+  async ngOnInit() {
+    const response = await this.apiService.getMe();
+    this.user = response.data;
   }
 
   onTabChange() {

@@ -1,44 +1,226 @@
-<div class="container mt-4">
-  <div class="row mb-4">
-    <div class="col-sm-6 col-lg-3 mb-4" *ngFor="let stat of statList(); let i = index">
-      <c-card class="text-white" [ngClass]="'bg-' + getColor(i)">
-        <c-card-body>
-          <div class="!text-white small text-uppercase fw-semibold">{{ stat.label }}</div>
-          <div class="fs-4">{{ stat.value ?? '...' }}</div>
-          <div class="small text-white-50">Depuis ce mois</div>
-        </c-card-body>
-      </c-card>
+<!-- Dashboard Admin Template -->
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Dashboard Admin</h2>
+      <p class="text-muted mb-0">Vue d'ensemble de votre plateforme</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary btn-sm" (click)="loadDashboardData()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Actualiser
+      </button>
     </div>
   </div>
 
-  <c-card>
-    <c-card-header><strong>Dernières commandes</strong></c-card-header>
-    <c-card-body>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Total</th>
-            <th>Date</th>
-            <th>Statut</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let order of lastOrders">
-            <td>{{ order.id }}</td>
-            <td>{{ order.client }}</td>
-            <td>{{ order.total | currency: 'EUR' }}</td>
-            <td>{{ order.date | date:'short' }}</td>
-            <td>
-              <span class="badge text-bg-success" *ngIf="order.status === 'paid'">Payée</span>
-              <span class="badge text-bg-warning" *ngIf="order.status === 'pending'">En attente</span>
-              <span class="badge text-bg-danger" *ngIf="order.status === 'cancelled'">Annulée</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </c-card-body>
-  </c-card>
+  <!-- Loading Skeleton -->
+  <div *ngIf="isLoading" class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-4" *ngFor="let i of [1,2,3,4,5,6]">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="placeholder-glow">
+            <div class="placeholder col-6 mb-2"></div>
+            <div class="placeholder col-4 mb-3"></div>
+            <div class="placeholder col-8"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Stats Cards -->
+  <div *ngIf="!isLoading" class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-4" *ngFor="let stat of getStatCards()">
+      <div class="card h-100 border-0 shadow-sm hover-shadow">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="text-muted small fw-medium text-uppercase">{{ stat.title }}</div>
+            <div class="p-2 rounded-circle" [ngClass]="'bg-' + stat.color + '-subtle'">
+              <i [class]="'bi bi-' + stat.icon + ' text-' + stat.color"></i>
+            </div>
+          </div>
+          
+          <div class="mb-2">
+            <span class="display-6 fw-bold text-dark" 
+                  [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.value) : stat.value">
+            </span>
+          </div>
+          
+          <div *ngIf="stat.subValue !== undefined" class="d-flex align-items-center text-muted small">
+            <span class="fw-medium me-1" 
+                  [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.subValue) : stat.subValue">
+            </span>
+            <span>{{ stat.subLabel }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div *ngIf="!isLoading" class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title mb-3">Taux de conversion des commandes</h6>
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-success" 
+                     [style.width.%]="getOrdersSuccessRate()">
+                </div>
+              </div>
+            </div>
+            <div class="ms-3">
+              <span class="fw-bold text-success">{{ getOrdersSuccessRate() }}%</span>
+            </div>
+          </div>
+          <small class="text-muted">
+            {{ stats.paidOrders }} commandes payées sur {{ stats.totalOrders }} total
+          </small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="card-title mb-3">Répartition des statuts</h6>
+          <div class="row g-2">
+            <div class="col-4 text-center">
+              <div class="text-success fw-bold">{{ stats.paidOrders }}</div>
+              <small class="text-muted">Payées</small>
+            </div>
+            <div class="col-4 text-center">
+              <div class="text-warning fw-bold">{{ stats.pendingOrders }}</div>
+              <small class="text-muted">En attente</small>
+            </div>
+            <div class="col-4 text-center">
+              <div class="text-danger fw-bold">{{ stats.cancelledOrders }}</div>
+              <small class="text-muted">Annulées</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Grid -->
+  <div class="row g-4">
+    <!-- Recent Orders -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+          <h6 class="mb-0 fw-semibold">Commandes récentes</h6>
+          <a href="/admin/orders" class="btn btn-sm btn-outline-primary">
+            Voir toutes <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+        
+        <div class="card-body p-0">
+          <div *ngIf="isLoadingOrders" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!isLoadingOrders && recentOrders.length === 0" class="text-center py-5 text-muted">
+            <i class="bi bi-receipt fs-1 mb-3"></i>
+            <p>Aucune commande récente</p>
+          </div>
+
+          <div *ngIf="!isLoadingOrders && recentOrders.length > 0" class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="border-0 fw-semibold">Client</th>
+                  <th class="border-0 fw-semibold">Produits</th>
+                  <th class="border-0 fw-semibold">Total</th>
+                  <th class="border-0 fw-semibold">Statut</th>
+                  <th class="border-0 fw-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of recentOrders" class="align-middle">
+                  <td>
+                    <div>
+                      <div class="fw-medium">{{ order.customerName }}</div>
+                      <small class="text-muted">{{ order.customerEmail }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-light text-dark rounded-pill">
+                      {{ order.productsCount }} produit<span *ngIf="order.productsCount > 1">s</span>
+                    </span>
+                  </td>
+                  <td class="fw-bold">{{ formatCurrency(order.total) }}</td>
+                  <td>
+                    <span class="badge rounded-pill px-3 py-2" [ngClass]="getStatusBadgeClass(order.status)">
+                      {{ getStatusLabel(order.status) }}
+                    </span>
+                  </td>
+                  <td class="text-muted">
+                    {{ order.date | date:'dd/MM/yyyy' }}<br>
+                    <small>{{ order.date | date:'HH:mm' }}</small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0">
+          <h6 class="mb-0 fw-semibold">Produits les plus vendus</h6>
+        </div>
+        
+        <div class="card-body">
+          <div *ngIf="isLoadingProducts" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!isLoadingProducts && topProducts.length === 0" class="text-center py-4 text-muted">
+            <i class="bi bi-box fs-1 mb-3"></i>
+            <p>Aucune vente enregistrée</p>
+          </div>
+
+          <div *ngIf="!isLoadingProducts && topProducts.length > 0">
+            <div class="mb-3" *ngFor="let product of topProducts; let i = index">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="flex-grow-1">
+                  <div class="fw-medium">{{ product.name }}</div>
+                  <small class="text-muted">{{ product.category }}</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold text-primary">#{{ i + 1 }}</div>
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-muted">{{ product.orderCount }} vente<span *ngIf="product.orderCount > 1">s</span></small>
+                <small class="fw-medium">{{ formatCurrency(product.revenue) }}</small>
+              </div>
+              
+              <div class="progress" style="height: 4px;" *ngIf="i === 0">
+                <div class="progress-bar bg-primary" style="width: 100%"></div>
+              </div>
+              <div class="progress" style="height: 4px;" *ngIf="i > 0">
+                <div class="progress-bar bg-light" 
+                     [style.width.%]="(product.orderCount / topProducts[0].orderCount) * 100"></div>
+              </div>
+              
+              <hr *ngIf="i < topProducts.length - 1" class="my-3">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
