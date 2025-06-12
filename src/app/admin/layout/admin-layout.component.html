@@ -1,39 +1,30 @@
-<c-layout>
-  <c-sidebar position="fixed" unfoldable>
-    <c-sidebar-brand>CynaAdmin</c-sidebar-brand>
-    <c-sidebar-nav>
-      <c-nav-item routerLink="/admin/dashboard">
-        <c-icon name="cil-speedometer" class="me-2"></c-icon> Dashboard
-      </c-nav-item>
-      <c-nav-item routerLink="/admin/users">
-        <c-icon name="cil-user"></c-icon> Utilisateurs
-      </c-nav-item>
-      <c-nav-item routerLink="/admin/products">
-        <c-icon name="cil-box"></c-icon> Produits
-      </c-nav-item>
-      <c-nav-item routerLink="/admin/orders">
-        <c-icon name="cil-cart"></c-icon> Commandes
-      </c-nav-item>
-      <c-nav-item routerLink="/admin/settings">
-        <c-icon name="cil-settings"></c-icon> Paramètres
-      </c-nav-item>
-    </c-sidebar-nav>
-  </c-sidebar>
+<c-sidebar
+  #sidebar="cSidebar"
+  class="d-print-none sidebar sidebar-fixed"
+  id="sidebar"
+  placement="start"
+  [visible]="true">
+  
+  <c-sidebar-brand class="d-md-down-none">
+    <img src="assets/images/cyna-long-white.svg" alt="Cyna Admin" height="35" class="sidebar-brand-full">
+    <img src="assets/images/cyna.svg" alt="Cyna" height="35" class="sidebar-brand-narrow">
+  </c-sidebar-brand>
 
-  <c-wrapper>
-    <c-header position="sticky">
-      <c-header-brand>Dashboard Admin</c-header-brand>
-      <c-header-nav class="ms-auto">
-        <c-nav-item>
-          <c-icon name="cil-user"></c-icon>
-        </c-nav-item>
-      </c-header-nav>
-    </c-header>
+  <c-sidebar-nav
+    [navItems]="navItems"
+    [perfectScrollbar]="true"
+    [options]="{ suppressScrollX: true }">
+  </c-sidebar-nav>
 
-    <c-main>
-      <div class="container-fluid mt-4">
-        <router-outlet></router-outlet>
-      </div>
-    </c-main>
-  </c-wrapper>
-</c-layout>
+  <c-sidebar-toggler
+    *ngIf="!sidebar.narrow"
+    toggle="unfoldable"
+    cSidebarToggle="sidebar">
+  </c-sidebar-toggler>
+</c-sidebar>
+
+<div class="wrapper d-flex flex-column min-vh-100">
+  <c-container class="px-4 flex-grow-1 overflow-auto" fluid>
+    <router-outlet></router-outlet>
+  </c-container>
+</div>

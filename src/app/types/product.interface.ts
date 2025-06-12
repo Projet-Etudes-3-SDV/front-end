@@ -7,7 +7,12 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  category: string;
+  category: {
+    id: string;
+    name: string;
+    description: string;
+    imageUrl?: string;
+  }
   available: boolean;
   addedDate: Date;
   stripeProductId: string;
