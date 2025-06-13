@@ -9,11 +9,7 @@
       <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
     </div>
 
-    <ion-searchbar
-      class="px-6"
-      [(ngModel)]="searchTerm"
-      (ionInput)="onSearchChange()"
-      debounce="500"
+    <ion-searchbar class="px-6" [(ngModel)]="searchTerm" (ionInput)="onSearchChange()" debounce="500"
       placeholder="Rechercher un produit ou une catégorie...">
     </ion-searchbar>
 
@@ -26,9 +22,102 @@
       </ion-segment-button>
     </ion-segment>
 
-    <ion-list *ngIf="!isLoading && filter === 'products' && results.length > 0 && showResults"
-              class="mx-6 p-0"
-              [@listAnimation]>
+    <div class="px-6 mb-2">
+      <ion-button fill="outline" size="small" (click)="toggleFilters()" class="w-full">
+        <ion-icon name="options-outline" slot="start"></ion-icon>
+        Filtres avancés
+        <ion-icon [name]="showFilters ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Panneau de filtres -->
+    <div *ngIf="showFilters" class="px-6 mb-4" [@slideAnimation]>
+      <ion-card class="m-0">
+        <ion-card-content class="p-4">
+
+          <!-- Filtre de disponibilité -->
+          <div class="mb-4" *ngIf="filter === 'products'">
+            <ion-item lines="none" class="px-0">
+              <ion-checkbox [(ngModel)]="filters.available" slot="start">
+              </ion-checkbox>
+              <ion-label class="ml-2">Produits disponibles uniquement</ion-label>
+            </ion-item>
+          </div>
+
+          <!-- Filtres de prix -->
+          <div class="mb-4" *ngIf="filter === 'products'">
+            <ion-label class="font-semibold text-sm text-gray-700">Prix</ion-label>
+
+            <!-- Toggle prix annuel/mensuel -->
+            <ion-item lines="none" class="px-0 mb-2">
+              <ion-checkbox [(ngModel)]="filters.isYearlyPrice" slot="start">
+              </ion-checkbox>
+              <ion-label class="ml-2">Prix annuel</ion-label>
+            </ion-item>
+
+            <div class="flex gap-2">
+              <ion-item class="flex-1">
+                <ion-input type="number" [(ngModel)]="filters.minimumPrice"
+                  placeholder="Prix min" min="0">
+                </ion-input>
+                <ion-note slot="end">€</ion-note>
+              </ion-item>
+
+              <ion-item class="flex-1">
+                <ion-input type="number" [(ngModel)]="filters.maximumPrice"
+                  placeholder="Prix max" min="0">
+                </ion-input>
+                <ion-note slot="end">€</ion-note>
+              </ion-item>
+            </div>
+          </div>
+
+          <!-- Filtre par catégorie -->
+          <div class="mb-4" *ngIf="filter === 'products' && categories.length > 0">
+            <ion-label class="font-semibold text-sm text-gray-700">Catégorie</ion-label>
+            <ion-select [(ngModel)]="filters.category"
+              placeholder="Sélectionner une catégorie" interface="popover">
+              <ion-select-option value="">Toutes les catégories</ion-select-option>
+              <ion-select-option *ngFor="let category of categories" [value]="category.id">
+                {{ category.name }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Filtre par description -->
+          <div class="mb-4">
+            <ion-label class="font-semibold text-sm text-gray-700">Description contient</ion-label>
+            <ion-input [(ngModel)]="filters.description"
+              placeholder="Mots-clés dans la description" debounce="500">
+            </ion-input>
+          </div>
+
+          <!-- Boutons d'action -->
+          <div class="flex gap-2 mt-4">
+            <ion-button fill="clear" size="small" (click)="clearFilters()" class="flex-1">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Réinitialiser
+            </ion-button>
+
+            <ion-button fill="solid" size="small" (click)="applyFilters()" class="flex-1">
+              <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+              Appliquer
+            </ion-button>
+          </div>
+
+          <!-- Compteur de filtres actifs -->
+          <div *ngIf="activeFiltersCount > 0" class="mt-2 text-center">
+            <ion-chip color="primary" outline="true">
+              <ion-label>{{ activeFiltersCount }} filtre(s) actif(s)</ion-label>
+            </ion-chip>
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <ion-list *ngIf="!isLoading && filter === 'products' && results.length > 0 && showResults" class="mx-6 p-0"
+      [@listAnimation]>
       <ion-item *ngFor="let item of results" (click)="navigateToProduct(item.id ?? '')">
         <ion-label class="overflow-hidden">
           <h2>{{ item.name }}</h2>
@@ -44,9 +133,8 @@
       </ion-item>
     </ion-list>
 
-    <ion-list *ngIf="!isLoading && filter === 'categories' && results.length > 0 && showResults"
-              class="mx-6 p-0"
-              [@listAnimation]>
+    <ion-list *ngIf="!isLoading && filter === 'categories' && results.length > 0 && showResults" class="mx-6 p-0"
+      [@listAnimation]>
       <ion-item *ngFor="let item of results" (click)="navigateToCategory(item.id ?? '')">
         <ion-label class="overflow-hidden w-2/3">
           <h2>{{ item.name }}</h2>
@@ -62,10 +150,17 @@
       class="ion-padding w-full flex items-center justify-center"></ion-spinner>
 
     <ion-text *ngIf="!isLoading && results.length === 0 && searchTerm"
-              class="w-full text-center flex items-center justify-center gap-2">
+      class="w-full text-center flex items-center justify-center gap-2">
       <ion-icon name="search-outline" class="text-gray-500"></ion-icon>
       Aucun résultat
     </ion-text>
+
+    <!-- Affichage du nombre de résultats -->
+    <div *ngIf="!isLoading && results.length > 0" class="px-6 py-2 text-center">
+      <ion-text color="medium">
+        {{ results.length }} résultat(s) sur {{ total }}
+      </ion-text>
+    </div>
 
   </div>
   <app-footer></app-footer>
