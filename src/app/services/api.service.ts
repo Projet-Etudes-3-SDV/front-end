@@ -29,10 +29,10 @@ export class ApiService {
 
   /** Méthodes génériques pour les requêtes API **/
   
-  get<T>(endpoint: string): Promise<AxiosResponse<T>> {
-    return this.axiosInstance.get<T>(endpoint);
+  get<T>(endpoint: string, data?: any): any {
+    return this.axiosInstance.get<T>(endpoint, data);
   }
-
+      
   post<T>(endpoint: string, data: any): Promise<AxiosResponse<T>> {
     return this.axiosInstance.post<T>(endpoint, data);
   }
@@ -43,6 +43,10 @@ export class ApiService {
 
   delete<T>(endpoint: string): Promise<AxiosResponse<T>> {
     return this.axiosInstance.delete<T>(endpoint);
+  }
+
+  patch<T>(endpoint: string, data: any): Promise<AxiosResponse<T>> {
+    return this.axiosInstance.patch<T>(endpoint, data);
   }
 
   /** Gestion du panier **/

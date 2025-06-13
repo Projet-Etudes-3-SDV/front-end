@@ -1,8 +1,375 @@
-<c-card>
-  <c-card-header>
-    <strong>Users</strong>
-  </c-card-header>
-  <c-card-body>
-    Bienvenue sur la page users.
-  </c-card-body>
-</c-card>
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Gestion des utilisateurs</h2>
+      <p class="text-muted mb-0">
+        <i class="bi bi-people me-1"></i>
+        {{ totalItems }} utilisateur<span *ngIf="totalItems > 1">s</span> trouvé<span *ngIf="totalItems > 1">s</span>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-success btn-sm" (click)="exportCSV()" *ngIf="filteredUsers.length > 0">
+        <i class="bi bi-download me-1"></i>
+        Exporter CSV
+      </button>
+      <button class="btn btn-outline-primary btn-sm" (click)="loadUsers()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label small fw-medium">Recherche</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Nom ou email..." [(ngModel)]="searchTerm"
+              (input)="applyFiltersAndSort()">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-medium">Statut</label>
+          <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFiltersAndSort()">
+            <option value="">Tous les statuts</option>
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-medium">Rôle</label>
+          <select class="form-select" [(ngModel)]="roleFilter" (change)="applyFiltersAndSort()">
+            <option value="">Tous les rôles</option>
+            <option value="client">Client</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions groupées -->
+  <div class="d-flex justify-content-between align-items-center mb-3" *ngIf="hasSelectedUsers">
+    <div class="alert alert-info mb-0 py-2 px-3">
+      <i class="bi bi-info-circle me-1"></i>
+      {{ selectedUsers.size }} utilisateur<span *ngIf="selectedUsers.size > 1">s</span> sélectionné<span
+        *ngIf="selectedUsers.size > 1">s</span>
+    </div>
+    <button class="btn btn-outline-danger btn-sm" (click)="deleteSelectedUsers()">
+      <i class="bi bi-trash me-1"></i>
+      Supprimer la sélection
+    </button>
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="card border-0 shadow-sm">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3 text-muted">Chargement des utilisateurs...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && filteredUsers.length === 0" class="text-center py-5">
+      <i class="bi bi-people fs-1 text-muted mb-3"></i>
+      <h5 class="text-muted">Aucun utilisateur trouvé</h5>
+      <p class="text-muted mb-0">
+        <span *ngIf="searchTerm || statusFilter || roleFilter">
+          Essayez de modifier vos critères de recherche
+        </span>
+        <span *ngIf="!searchTerm && !statusFilter && !roleFilter">
+          Aucun utilisateur n'est encore enregistré
+        </span>
+      </p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading && filteredUsers.length > 0" class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="border-0" style="width: 40px;">
+              <input type="checkbox" class="form-check-input" [checked]="allCurrentPageSelected"
+                (change)="toggleAllSelection()">
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('fullName')">
+              Utilisateur
+              <i class="bi ms-1" [class]="getSortIcon('fullName')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('role')">
+              Rôle
+              <i class="bi ms-1" [class]="getSortIcon('role')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('status')">
+              Statut
+              <i class="bi ms-1" [class]="getSortIcon('status')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('createdAt')">
+              Inscription
+              <i class="bi ms-1" [class]="getSortIcon('createdAt')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('lastLoginAt')">
+              Dernière connexion
+              <i class="bi ms-1" [class]="getSortIcon('lastLoginAt')"></i>
+            </th>
+            <th class="border-0 fw-semibold text-center">
+              Abonnements actifs
+            </th>
+            <th class="border-0 fw-semibold text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of getPaginatedUsers()" class="align-middle">
+            <td>
+              <input type="checkbox" class="form-check-input" [checked]="user.selected"
+                (change)="toggleUserSelection(user.id)">
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle me-3">
+                  {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                </div>
+                <div>
+                  <div class="fw-medium">{{ user.fullName }}</div>
+                  <small class="text-muted">{{ user.email }}</small>
+                  <div *ngIf="user.phone" class="small text-muted">
+                    <i class="bi bi-telephone me-1"></i>{{ user.phone }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-3 py-2" [ngClass]="getRoleBadgeClass(user.role)">
+                {{ getRoleLabel(user.role) }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <span class="badge rounded-pill px-3 py-2 me-2" [ngClass]="getStatusBadgeClass(user.status)">
+                  {{ getStatusLabel(user.status) }}
+                </span>
+                <button class="btn btn-sm btn-outline-secondary"
+                  [title]="user.status === 'active' ? 'Désactiver' : 'Activer'" (click)="toggleUserStatus(user.id)">
+                  <i class="bi" [class.bi-toggle-on]="user.status === 'active'"
+                    [class.bi-toggle-off]="user.status !== 'active'"></i>
+                </button>
+              </div>
+            </td>
+            <td class="text-muted">
+              {{ formatDate(user.createdAt) }}
+            </td>
+            <td class="text-muted">
+              <span *ngIf="user.lastLoginAt; else neverLogin">
+                {{ formatDateTime(user.lastLoginAt) }}
+              </span>
+              <ng-template #neverLogin>
+                <span class="text-muted fst-italic">Jamais</span>
+              </ng-template>
+            </td>
+            <td class="text-center">
+              <span class="badge bg-light text-dark rounded-pill">
+                {{ user.activeSubscriptionsCount || 0 }}
+              </span>
+            </td>
+            <td class="text-end">
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-primary" [title]="'Voir les détails'"
+                  (click)="viewUserDetails(user)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" [title]="'Modifier'" (click)="editUser(user)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" [title]="'Supprimer'" (click)="deleteUser(user.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && filteredUsers.length > 0" class="card-footer bg-white border-0">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+          Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
+          {{ getMin(currentPage * itemsPerPage, totalItems) }}
+          sur {{ totalItems }} résultat<span *ngIf="totalItems > 1">s</span>
+        </div>
+
+        <nav *ngIf="getTotalPages() > 1">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+
+            <li *ngFor="let page of [].constructor(getTotalPages()); let i = index" class="page-item"
+              [class.active]="i + 1 === currentPage">
+              <button class="page-link" (click)="goToPage(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+              <button class="page-link" (click)="goToPage(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal détails utilisateur -->
+<div class="modal fade" [class.show]="showDetailsModal" [style.display]="showDetailsModal ? 'block' : 'none'"
+  tabindex="-1" *ngIf="showDetailsModal && currentUser">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-person-circle me-2"></i>
+          Détails de l'utilisateur
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">Informations personnelles</h6>
+                <div class="mb-2">
+                  <strong>Nom complet :</strong> {{ currentUser.firstName }} {{ currentUser.lastName }}
+                </div>
+                <div class="mb-2">
+                  <strong>Email :</strong> {{ currentUser.email }}
+                </div>
+                <div class="mb-2" *ngIf="currentUser.phone">
+                  <strong>Téléphone :</strong> {{ currentUser.phone }}
+                </div>
+                <div class="mb-2">
+                  <strong>Rôle :</strong>
+                  <span class="badge ms-2" [ngClass]="getRoleBadgeClass(currentUser.role)">
+                    {{ getRoleLabel(currentUser.role) }}
+                  </span>
+                </div>
+                <div>
+                  <strong>Statut :</strong>
+                  <span class="badge ms-2" [ngClass]="getStatusBadgeClass(currentUser.status)">
+                    {{ getStatusLabel(currentUser.status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">Activité</h6>
+                <div class="mb-2">
+                  <strong>Date d'inscription :</strong> {{ formatDate(currentUser.createdAt) }}
+                </div>
+                <div class="mb-2">
+                  <strong>Dernière connexion :</strong>
+                  <span *ngIf="currentUser.lastLoginAt; else neverLogin2">
+                    {{ formatDateTime(currentUser.lastLoginAt) }}
+                  </span>
+                  <ng-template #neverLogin2>
+                    <span class="text-muted fst-italic">Jamais</span>
+                  </ng-template>
+                </div>
+                <div>
+                  <strong>Nombre de commandes :</strong> {{ currentUser.orderCount || 0 }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailsModal()">
+          Fermer
+        </button>
+        <button type="button" class="btn btn-primary" (click)="editUser(currentUser)">
+          <i class="bi bi-pencil me-1"></i>
+          Modifier
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal édition utilisateur -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" tabindex="-1"
+  *ngIf="showEditModal && currentUser">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square me-2"></i>
+          Modifier l'utilisateur
+        </h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form #editUserForm="ngForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Prénom</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.firstName" name="firstName" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Nom</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.lastName" name="lastName" required>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" [(ngModel)]="editForm.email" name="email" required>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Téléphone</label>
+              <input type="text" class="form-control" [(ngModel)]="editForm.phone" name="phone">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Rôle</label>
+              <select class="form-select" [(ngModel)]="editForm.role" name="role" required>
+                <option value="client">Client</option>
+                <option value="admin">Administrateur</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Statut</label>
+              <select class="form-select" [(ngModel)]="editForm.status" name="status" required>
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="saveUser()" [disabled]="!editUserForm.form.valid">
+          <i class="bi bi-save me-1"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

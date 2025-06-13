@@ -1,4 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ApiService } from 'src/app/services/api.service';
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  role: 'client' | 'admin';
+  status: 'active' | 'inactive';
+  createdAt: string;
+  lastLoginAt?: string;
+  orderCount?: number;
+  subscriptions?: any[];
+  activeSubscriptionsCount?: number;
+}
+
+interface UserTableData extends User {
+  fullName: string;
+  selected: boolean;
+}
 
 @Component({
   selector: 'app-users',
@@ -6,4 +27,391 @@ import { Component } from '@angular/core';
   styleUrls: ['./users.page.scss'],
   standalone: false
 })
-export class UsersPage { }
+export class UsersPage implements OnInit {
+  users: UserTableData[] = [];
+  filteredUsers: UserTableData[] = [];
+  selectedUsers: Set<string> = new Set();
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalItems = 0;
+
+  // Tri
+  sortColumn = 'createdAt';
+  sortDirection: 'asc' | 'desc' = 'desc';
+
+  // Filtres et recherche
+  searchTerm = '';
+  statusFilter = '';
+  roleFilter = '';
+
+  // États
+  isLoading = true;
+  isDeleting = false;
+  showDeleteModal = false;
+  showEditModal = false;
+  showDetailsModal = false;
+
+  // Utilisateur en cours d'édition/affichage
+  currentUser: User | null = null;
+  editForm: Partial<User> = {};
+
+  // Utilisateurs à supprimer
+  usersToDelete: string[] = [];
+
+  constructor(private apiService: ApiService) { }
+
+  ngOnInit() {
+    this.loadUsers();
+  }
+
+  async loadUsers(): Promise<void> {
+    try {
+      this.isLoading = true;
+
+      const response = await this.apiService.get('/users', {
+        params: {
+          page: this.currentPage,
+          limit: this.itemsPerPage
+        }
+      });
+
+      const usersData = this.extractDataArray(response.data.result);
+      console.log(response)
+      this.totalItems = response.data.total || usersData.length;
+
+      this.users = usersData.map(user => ({
+        ...user,
+        fullName: `${user.firstName} ${user.lastName}`,
+        selected: false,
+        activeSubscriptionsCount: Array.isArray(user.subscriptions)
+          ? user.subscriptions.filter((sub: any) => sub.status === 'active').length
+          : 0,
+        status: user.status || 'active',
+        createdAt: user.createdAt || new Date().toISOString()
+      }));
+
+      this.applyFiltersAndSort(); // <-- Ajoute cette ligne ici
+
+    } catch (error) {
+      console.error('Erreur lors du chargement des utilisateurs:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private extractDataArray(response: any): User[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+    if (response && response.result && Array.isArray(response.result)) {
+      console.log(response.result)
+      return response.result;
+    }
+    if (response && response.data && Array.isArray(response.data)) {
+      return response.data;
+    }
+    return [];
+  }
+
+  applyFiltersAndSort(): void {
+    let filtered = [...this.users];
+
+    // Recherche
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(user =>
+        user.fullName.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term)
+      );
+    }
+
+    // Filtres
+    if (this.statusFilter) {
+      filtered = filtered.filter(user => user.status === this.statusFilter);
+    }
+
+    if (this.roleFilter) {
+      filtered = filtered.filter(user => user.role === this.roleFilter);
+    }
+
+    // Tri
+    filtered.sort((a, b) => {
+      let aValue: any = a[this.sortColumn as keyof UserTableData];
+      let bValue: any = b[this.sortColumn as keyof UserTableData];
+
+      if (aValue == null) aValue = '';
+      if (bValue == null) bValue = '';
+
+      if (this.sortColumn === 'createdAt' || this.sortColumn === 'lastLoginAt') {
+        aValue = new Date(aValue).getTime();
+        bValue = new Date(bValue).getTime();
+      }
+
+      const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      return this.sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    // Ne pas toucher à this.totalItems ici !
+    this.filteredUsers = filtered;
+
+    if (this.currentPage > this.getTotalPages()) {
+      this.currentPage = 1;
+    }
+  }
+
+  sort(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applyFiltersAndSort();
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) return 'bi-arrow-down-up';
+    return this.sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
+  }
+
+  // Pagination
+  getPaginatedUsers(): UserTableData[] {
+    return this.filteredUsers;
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.getTotalPages()) {
+      this.currentPage = page;
+      this.loadUsers(); // Ajoute cet appel pour recharger les données depuis l'API
+    }
+  }
+
+  // Sélection
+  toggleUserSelection(userId: string): void {
+    const user = this.users.find(u => u.id === userId);
+    if (user) {
+      user.selected = !user.selected;
+      if (user.selected) {
+        this.selectedUsers.add(userId);
+      } else {
+        this.selectedUsers.delete(userId);
+      }
+    }
+  }
+
+  toggleAllSelection(): void {
+    const currentPageUsers = this.getPaginatedUsers();
+    const allSelected = currentPageUsers.every(user => user.selected);
+
+    currentPageUsers.forEach(user => {
+      user.selected = !allSelected;
+      if (user.selected) {
+        this.selectedUsers.add(user.id);
+      } else {
+        this.selectedUsers.delete(user.id);
+      }
+    });
+  }
+
+  get hasSelectedUsers(): boolean {
+    return this.selectedUsers.size > 0;
+  }
+
+  get allCurrentPageSelected(): boolean {
+    const currentPageUsers = this.getPaginatedUsers();
+    return currentPageUsers.length > 0 && currentPageUsers.every(user => user.selected);
+  }
+
+  // Actions CRUD
+  viewUserDetails(user: User): void {
+    this.currentUser = user;
+    this.showDetailsModal = true;
+  }
+
+  editUser(user: User): void {
+    this.currentUser = user;
+    this.editForm = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      status: user.status
+    };
+    this.showEditModal = true;
+  }
+
+  async saveUser(): Promise<void> {
+    if (!this.currentUser || !this.editForm) return;
+
+    try {
+      await this.apiService.put(`/users/${this.currentUser.id}`, this.editForm);
+
+      // Mettre à jour localement
+      const userIndex = this.users.findIndex(u => u.id === this.currentUser!.id);
+      if (userIndex !== -1) {
+        this.users[userIndex] = {
+          ...this.users[userIndex],
+          ...this.editForm,
+          fullName: `${this.editForm.firstName} ${this.editForm.lastName}`
+        };
+      }
+
+      this.applyFiltersAndSort();
+      this.closeEditModal();
+
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  }
+
+  deleteUser(userId: string): void {
+    this.usersToDelete = [userId];
+    this.showDeleteModal = true;
+  }
+
+  deleteSelectedUsers(): void {
+    this.usersToDelete = Array.from(this.selectedUsers);
+    this.showDeleteModal = true;
+  }
+
+  async confirmDelete(): Promise<void> {
+    if (this.usersToDelete.length === 0) return;
+
+    try {
+      this.isDeleting = true;
+
+      // Supprimer chaque utilisateur
+      for (const userId of this.usersToDelete) {
+        await this.apiService.delete(`/users/${userId}`);
+      }
+
+      // Mettre à jour localement
+      this.users = this.users.filter(user => !this.usersToDelete.includes(user.id));
+      this.selectedUsers.clear();
+      this.applyFiltersAndSort();
+
+      this.closeDeleteModal();
+
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    } finally {
+      this.isDeleting = false;
+    }
+  }
+
+  async toggleUserStatus(userId: string): Promise<void> {
+    try {
+      const user = this.users.find(u => u.id === userId);
+      if (!user) return;
+
+      const newStatus = user.status === 'active' ? 'inactive' : 'active';
+
+      await this.apiService.patch(`/users/admin/${userId}`, { status: newStatus });
+
+      // Mettre à jour localement
+      user.status = newStatus;
+      this.applyFiltersAndSort();
+
+    } catch (error) {
+      console.error('Erreur lors du changement de statut:', error);
+    }
+  }
+
+  // Gestion des modales
+  closeDetailsModal(): void {
+    this.showDetailsModal = false;
+    this.currentUser = null;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.currentUser = null;
+    this.editForm = {};
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.usersToDelete = [];
+  }
+
+  // Utilitaires
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('fr-FR');
+  }
+
+  formatDateTime(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getRoleLabel(role: string): string {
+    return role === 'admin' ? 'Administrateur' : 'Client';
+  }
+
+  getStatusLabel(status: string): string {
+    return status === 'active' ? 'Actif' : 'Inactif';
+  }
+
+  getStatusBadgeClass(status: string): string {
+    return status === 'active' ? 'bg-success' : 'bg-secondary';
+  }
+
+  getRoleBadgeClass(role: string): string {
+    return role === 'admin' ? 'bg-primary' : 'bg-info';
+  }
+
+  // Export CSV
+  exportCSV(): void {
+    const headers = [
+      'Nom complet',
+      'Email',
+      'Téléphone',
+      'Rôle',
+      'Statut',
+      'Date d\'inscription',
+      'Dernière connexion',
+      'Abonnements actifs'
+    ];
+
+    const csvData = this.filteredUsers.map(user => [
+      user.fullName,
+      user.email,
+      user.phone || '',
+      this.getRoleLabel(user.role),
+      this.getStatusLabel(user.status),
+      this.formatDate(user.createdAt),
+      user.lastLoginAt ? this.formatDate(user.lastLoginAt) : 'Jamais',
+      user.activeSubscriptionsCount?.toString() || '0'
+    ]);
+
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `utilisateurs_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  getMin(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+}
