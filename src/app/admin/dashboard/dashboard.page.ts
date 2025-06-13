@@ -73,6 +73,28 @@ interface OrderWithUser {
   }[];
 }
 
+interface ProductAdmin {
+  id: string;
+  name: string;
+  description: string;
+  category: {
+    id: string;
+    name: string;
+    description: string;
+    imageUrl?: string;
+  };
+  monthlyPrice: number;
+  yearlyPrice: number;
+  available: boolean;
+  features: any[];
+  imageUrl?: string;
+  stripeProductId: string;
+  stripePriceId: string;
+  stripePriceIdYearly: string;
+  monthlyPurchaseAmount: number;
+  yearlyPurchaseAmount: number;
+}
+
 interface StatCard {
   title: string;
   value: number;
@@ -124,6 +146,8 @@ export class DashboardPage implements OnInit {
     category: string;
     orderCount: number;
     revenue: number;
+    monthlyCount?: number;
+    yearlyCount?: number;
   }[] = [];
 
   topSubscriptions: {
@@ -152,41 +176,38 @@ export class DashboardPage implements OnInit {
         usersResponse,
         productsResponse,
         ordersResponse,
-        subscriptionsResponse
+        subscriptionsResponse,
+        productsAdminResponse
       ] = await Promise.all([
-        this.apiService.get('/users') as Promise<ApiResponse<User>>,
-        this.apiService.get('/products') as Promise<ApiResponse<Product>>,
-        this.apiService.get('/orders') as Promise<ApiResponse<OrderWithUser>>,
-        this.apiService.get('/subscriptions')
+        this.apiService.get('/users'),
+        this.apiService.get('/products'),
+        this.apiService.get('/orders'),
+        this.apiService.get('/subscriptions'),
+        this.apiService.get('/products/admin')
       ]);
 
+      // Debug: voir la structure exacte des réponses
+      console.log('Raw responses:', {
+        users: usersResponse,
+        products: productsResponse,
+        orders: ordersResponse,
+        subscriptions: subscriptionsResponse,
+        productsAdmin: productsAdminResponse
+      });
+
       // Récupérer les données depuis les réponses
-      // Les APIs retournent response.data qui contient { result: [...], total: number }
-      const usersData = (usersResponse as any).result || (usersResponse as any).data?.result || [];
-      const productsData = (productsResponse as any).result || (productsResponse as any).data?.result || [];
-      const ordersData = (ordersResponse as any).result || (ordersResponse as any).data?.result || [];
-      // Les subscriptions sont retournées directement comme un tableau dans response.data
-      const subscriptionsData = Array.isArray(subscriptionsResponse) ? subscriptionsResponse : 
-                               Array.isArray((subscriptionsResponse as any).data) ? (subscriptionsResponse as any).data : 
-                               (subscriptionsResponse as any).result || [];
-      
-      console.log('Users data:', usersData);
-      console.log('Products data:', productsData);
-      console.log('Orders data:', ordersData);
-      console.log('Subscriptions data:', subscriptionsData);
-      
-      // Vérifier que nous avons bien des tableaux
-      if (!Array.isArray(usersData)) console.error('Users data is not an array:', usersData);
-      if (!Array.isArray(productsData)) console.error('Products data is not an array:', productsData);
-      if (!Array.isArray(ordersData)) console.error('Orders data is not an array:', ordersData);
-      if (!Array.isArray(subscriptionsData)) console.error('Subscriptions data is not an array:', subscriptionsData);
+      const usersData = this.extractDataArray(usersResponse);
+      const productsData = this.extractDataArray(productsResponse);
+      const ordersData = this.extractDataArray(ordersResponse);
+      const subscriptionsData = this.extractDataArray(subscriptionsResponse);
+      const productsAdminData = this.extractDataArray(productsAdminResponse);
       
       // Calculer les statistiques
       this.calculateStats(usersData, productsData, ordersData, subscriptionsData);
       
       // Préparer les données pour l'affichage
       this.prepareRecentOrders(ordersData);
-      this.prepareTopProducts(ordersData, productsData);
+      this.prepareTopProductsFromAdmin(productsAdminData);
       this.prepareTopSubscriptions(subscriptionsData);
 
     } catch (error) {
@@ -196,6 +217,31 @@ export class DashboardPage implements OnInit {
       this.isLoadingOrders = false;
       this.isLoadingProducts = false;
     }
+  }
+
+  private extractDataArray(response: any): any[] {
+    // Si c'est déjà un tableau
+    if (Array.isArray(response)) {
+      return response;
+    }
+    
+    // Si c'est un objet avec result
+    if (response && response.result && Array.isArray(response.result)) {
+      return response.result;
+    }
+    
+    // Si c'est un objet avec data qui contient result
+    if (response && response.data && response.data.result && Array.isArray(response.data.result)) {
+      return response.data.result;
+    }
+    
+    // Si c'est un objet avec data qui est un tableau
+    if (response && response.data && Array.isArray(response.data)) {
+      return response.data;
+    }
+    
+    console.warn('Could not extract array from response:', response);
+    return [];
   }
 
   private calculateStats(users: User[], products: Product[], orders: OrderWithUser[], subscriptions: Subscription[]): void {
@@ -243,16 +289,14 @@ export class DashboardPage implements OnInit {
       })
       .reduce((sum, order) => sum + order.total, 0);
 
-    // Ajouter les revenus des abonnements actifs pour le mois en cours
-    const monthlySubscriptionRevenue = subscriptions
-      .filter(sub => sub.status === 'active')
-      .reduce((sum, sub) => sum + sub.price, 0);
-
-    this.stats.monthlyRevenue = monthlyOrderRevenue + monthlySubscriptionRevenue;
+    this.stats.monthlyRevenue = monthlyOrderRevenue;
   }
 
   private prepareRecentOrders(orders: OrderWithUser[]): void {
-    this.recentOrders = orders
+    // S'assurer que orders est un tableau
+    const ordersArray = Array.isArray(orders) ? orders : [];
+    
+    this.recentOrders = ordersArray
       .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
       .slice(0, 10)
       .map(order => ({
@@ -266,57 +310,49 @@ export class DashboardPage implements OnInit {
       }));
   }
 
-  private prepareTopProducts(orders: OrderWithUser[], products: Product[]): void {
-    // Pour l'instant, utiliser les données disponibles
-    // Note: Les produits dans les commandes n'ont pas de nom/catégorie
-    // On pourrait faire une correspondance avec les IDs si nécessaire
+  private prepareTopProductsFromAdmin(productsAdmin: ProductAdmin[]): void {
+    // S'assurer que productsAdmin est un tableau
+    const productsArray = Array.isArray(productsAdmin) ? productsAdmin : [];
     
-    const productSales = new Map<string, { count: number; revenue: number }>();
-    
-    orders
-      .filter(order => order.status === 'paid')
-      .forEach(order => {
-        order.products.forEach(item => {
-          const productId = item.product.id;
-          const current = productSales.get(productId) || { count: 0, revenue: 0 };
-          productSales.set(productId, {
-            count: current.count + 1,
-            revenue: current.revenue + (order.total / order.products.length)
-          });
-        });
-      });
-
-    // Créer la liste des top produits
-    this.topProducts = Array.from(productSales.entries())
-      .map(([productId, sales]) => {
-        const product = products.find(p => p.id === productId);
-        let categoryName = 'N/A';
-        
-        if (product && product.category) {
-          if (typeof product.category === 'object' && 'name' in product.category) {
-            categoryName = product.category.name;
-          } else if (typeof product.category === 'string') {
-            categoryName = product.category;
-          }
-        }
+    // Filtrer et trier les produits par nombre total de ventes
+    this.topProducts = productsArray
+      .filter(product => (product.monthlyPurchaseAmount || 0) + (product.yearlyPurchaseAmount || 0) > 0)
+      .map(product => {
+        const totalSales = (product.monthlyPurchaseAmount || 0) + (product.yearlyPurchaseAmount || 0);
+        const monthlyRevenue = (product.monthlyPurchaseAmount || 0) * product.monthlyPrice;
+        const yearlyRevenue = (product.yearlyPurchaseAmount || 0) * product.yearlyPrice;
+        const totalRevenue = monthlyRevenue + yearlyRevenue;
         
         return {
-          id: productId,
-          name: product?.name || 'Produit supprimé',
-          category: categoryName,
-          orderCount: sales.count,
-          revenue: sales.revenue
+          id: product.id,
+          name: product.name,
+          category: product.category?.name || 'N/A',
+          orderCount: totalSales,
+          revenue: totalRevenue,
+          monthlyCount: product.monthlyPurchaseAmount || 0,
+          yearlyCount: product.yearlyPurchaseAmount || 0
         };
       })
-      .sort((a, b) => b.revenue - a.revenue)
+      // Tri principal par nombre de ventes, puis par revenue en cas d'égalité
+      .sort((a, b) => {
+        // Si le nombre de ventes est différent, on trie par nombre de ventes
+        if (a.orderCount !== b.orderCount) {
+          return b.orderCount - a.orderCount;
+        }
+        // Si le nombre de ventes est identique, on trie par revenue
+        return b.revenue - a.revenue;
+      })
       .slice(0, 5);
   }
 
   private prepareTopSubscriptions(subscriptions: Subscription[]): void {
+    // S'assurer que subscriptions est un tableau
+    const subscriptionsArray = Array.isArray(subscriptions) ? subscriptions : [];
+    
     // Grouper les abonnements par nom de produit
     const subscriptionGroups = new Map<string, { count: number; revenue: number }>();
     
-    subscriptions
+    subscriptionsArray
       .filter(sub => sub.status === 'active')
       .forEach(sub => {
         const current = subscriptionGroups.get(sub.name) || { count: 0, revenue: 0 };
