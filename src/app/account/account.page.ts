@@ -20,7 +20,7 @@ import { ToastService } from '../services/toast.service';
   animations: [
     trigger('listAnimation', [
       transition(':enter', [
-        query('ion-list, .title-section, ion-label', [
+        query('ion-list, .title-section, ion-label, ion-item', [
           style({ opacity: 0, transform: 'translateY(20px)' }),
           stagger(50, [
             animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
@@ -54,7 +54,25 @@ export class AccountPage {
     private alertController: AlertController,
     private modalController: ModalController
   ) { }
+  subscriptionsPerPage = 5;
+  currentPage = 1;
 
+  get paginatedSubscriptions() {
+    const startIndex = (this.currentPage - 1) * this.subscriptionsPerPage;
+    const endIndex = startIndex + this.subscriptionsPerPage;
+    return this.userSubscriptions.slice(startIndex, endIndex);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.userSubscriptions.length / this.subscriptionsPerPage);
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+  
   async ionViewWillEnter() {
     this.isDesktop = this.platform.is('desktop');
     this.showAccountContent = false;

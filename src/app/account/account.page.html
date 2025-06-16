@@ -73,7 +73,7 @@
           <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
         </div>
         <ion-list *ngIf="userSubscriptions.length > 0" class="m-[24px]">
-          <ion-item *ngFor="let sub of userSubscriptions" lines="none">
+          <ion-item *ngFor="let sub of paginatedSubscriptions" lines="none">
             <ion-label class="flex flex-col gap-1">
               <h4 class="!text-base !font-semibold flex items-center gap-1">
                 <ion-icon name="chevron-forward" slot="start" class="text-blue-400 ml-0"></ion-icon>
@@ -111,6 +111,17 @@
             </ion-label>
             <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl"></ion-icon>
           </ion-item>
+          <div class="flex items-center justify-center gap-2 mt-4">
+            <ion-button size="small" fill="outline" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+              <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          
+            <span class="text-sm font-medium text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</span>
+          
+            <ion-button size="small" fill="outline" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+              <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
         </ion-list>
 
         <ion-list *ngIf="userSubscriptions.length === 0" class="m-[24px]">
