@@ -43,16 +43,16 @@
               <i [class]="'bi bi-' + stat.icon + ' text-' + stat.color"></i>
             </div>
           </div>
-          
+
           <div class="mb-2">
-            <span class="display-6 fw-bold text-dark" 
-                  [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.value) : stat.value">
+            <span class="display-6 fw-bold text-dark"
+              [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.value) : stat.value">
             </span>
           </div>
-          
+
           <div *ngIf="stat.subValue !== undefined" class="d-flex align-items-center text-muted small">
-            <span class="fw-medium me-1" 
-                  [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.subValue) : stat.subValue">
+            <span class="fw-medium me-1"
+              [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.subValue) : stat.subValue">
             </span>
             <span>{{ stat.subLabel }}</span>
           </div>
@@ -70,8 +70,7 @@
           <div class="d-flex align-items-center">
             <div class="flex-grow-1">
               <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-success" 
-                     [style.width.%]="getOrdersSuccessRate()">
+                <div class="progress-bar bg-success" [style.width.%]="getOrdersSuccessRate()">
                 </div>
               </div>
             </div>
@@ -85,7 +84,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-md-6">
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -120,7 +119,7 @@
             Voir toutes <i class="bi bi-arrow-right ms-1"></i>
           </a>
         </div>
-        
+
         <div class="card-body p-0">
           <div *ngIf="isLoadingOrders" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
@@ -178,10 +177,13 @@
     <!-- Top Products & Subscriptions -->
     <div class="col-lg-4">
       <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0">
+        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
           <h6 class="mb-0 fw-semibold">Produits les plus vendus</h6>
+          <a href="/admin/products" class="btn btn-sm btn-outline-primary">
+            Voir tous <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
-        
+
         <div class="card-body">
           <div *ngIf="isLoadingProducts" class="text-center py-4">
             <div class="spinner-border text-primary" role="status">
@@ -206,7 +208,7 @@
                   <small class="text-muted">CA total</small>
                 </div>
               </div>
-              
+
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <small class="text-muted">
                   {{ product.orderCount }} vente<span *ngIf="product.orderCount > 1">s</span>
@@ -216,14 +218,12 @@
                 </small>
                 <small class="fw-medium">{{ formatCurrency(product.revenue) }}</small>
               </div>
-              
+
               <div class="progress" style="height: 4px;">
-                <div class="progress-bar" 
-                     [class.bg-primary]="i === 0"
-                     [class.bg-secondary]="i > 0"
-                     [style.width.%]="(product.orderCount / topProducts[0].orderCount) * 100"></div>
+                <div class="progress-bar" [class.bg-primary]="i === 0" [class.bg-secondary]="i > 0"
+                  [style.width.%]="(product.orderCount / topProducts[0].orderCount) * 100"></div>
               </div>
-              
+
               <hr *ngIf="i < topProducts.length - 1" class="my-3">
             </div>
           </div>
@@ -235,7 +235,7 @@
         <div class="card-header bg-white border-0">
           <h6 class="mb-0 fw-semibold">Abonnements actifs</h6>
         </div>
-        
+
         <div class="card-body">
           <div *ngIf="topSubscriptions.length === 0" class="text-center py-4 text-muted">
             <i class="bi bi-arrow-repeat fs-1 mb-3"></i>

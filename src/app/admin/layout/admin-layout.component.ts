@@ -26,6 +26,11 @@ export class AdminLayoutComponent {
       iconComponent: { name: 'cil-user' }
     },
     {
+      name: 'Catégories',
+      url: '/admin/categories',
+      iconComponent: { name: 'cil-menu' }
+    },
+    {
       name: 'Produits',
       url: '/admin/products',
       iconComponent: { name: 'cil-inbox' }

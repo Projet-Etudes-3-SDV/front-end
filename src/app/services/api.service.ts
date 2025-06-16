@@ -33,11 +33,11 @@ export class ApiService {
     return this.axiosInstance.get<T>(endpoint, data);
   }
       
-  post<T>(endpoint: string, data: any): Promise<AxiosResponse<T>> {
+  post<T>(endpoint: string, data: any): any {
     return this.axiosInstance.post<T>(endpoint, data);
   }
 
-  put<T>(endpoint: string, data: any): Promise<AxiosResponse<T>> {
+  put<T>(endpoint: string, data?: any): Promise<AxiosResponse<T>> {
     return this.axiosInstance.put<T>(endpoint, data);
   }
 
@@ -47,6 +47,14 @@ export class ApiService {
 
   patch<T>(endpoint: string, data: any): Promise<AxiosResponse<T>> {
     return this.axiosInstance.patch<T>(endpoint, data);
+  }
+
+  postImage<T>(endpoint: string, data: any): any {
+    return this.axiosInstance.post<T>(endpoint, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
   }
 
   /** Gestion du panier **/

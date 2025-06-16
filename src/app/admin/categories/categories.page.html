@@ -1,0 +1,372 @@
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Gestion des catégories</h2>
+      <p class="text-muted mb-0">
+        <i class="bi bi-grid-3x3-gap me-1"></i>
+        {{ totalItems }} catégorie<span *ngIf="totalItems > 1">s</span> trouvée<span *ngIf="totalItems > 1">s</span>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-success btn-sm" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle me-1"></i>
+        Ajouter une catégorie
+      </button>
+      <button class="btn btn-outline-success btn-sm" (click)="exportToCSV()" *ngIf="filteredCategories.length > 0">
+        <i class="bi bi-download me-1"></i>
+        Exporter CSV
+      </button>
+      <button class="btn btn-outline-primary btn-sm" (click)="refreshCategories()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small fw-medium">Recherche</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Nom de catégorie..." [(ngModel)]="searchTerm"
+              (input)="applyFiltersAndSort()">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Trier par</label>
+          <select class="form-select" [(ngModel)]="sortBy" (change)="applyFiltersAndSort()">
+            <option value="name">Nom</option>
+            <option value="createdAt">Date de création</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Ordre</label>
+          <select class="form-select" [(ngModel)]="sortDirection" (change)="applyFiltersAndSort()">
+            <option value="asc">Croissant</option>
+            <option value="desc">Décroissant</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions groupées -->
+  <div class="d-flex justify-content-between align-items-center mb-3" *ngIf="hasSelectedCategories">
+    <div class="alert alert-info mb-0 py-2 px-3">
+      <i class="bi bi-info-circle me-1"></i>
+      {{ selectedCategories.size }} catégorie<span *ngIf="selectedCategories.size > 1">s</span> sélectionnée<span
+        *ngIf="selectedCategories.size > 1">s</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline-danger btn-sm" (click)="deleteSelectedCategories()">
+        <i class="bi bi-trash me-1"></i>
+        Supprimer la sélection
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau des catégories -->
+  <div class="card border-0 shadow-sm">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3 text-muted">Chargement des catégories...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && filteredCategories.length === 0" class="text-center py-5">
+      <i class="bi bi-grid-3x3-gap fs-1 text-muted mb-3"></i>
+      <h5 class="text-muted">Aucune catégorie trouvée</h5>
+      <p class="text-muted mb-3">
+        <span *ngIf="searchTerm">
+          Essayez de modifier vos critères de recherche
+        </span>
+        <span *ngIf="!searchTerm">
+          Aucune catégorie n'est encore enregistrée
+        </span>
+      </p>
+      <button class="btn btn-primary" (click)="openCreateModal()" *ngIf="!searchTerm">
+        <i class="bi bi-plus-circle me-1"></i>
+        Créer la première catégorie
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading && filteredCategories.length > 0" class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="border-0" style="width: 40px;">
+              <input type="checkbox" class="form-check-input" [checked]="allCurrentPageSelected"
+                (change)="toggleAllSelection()">
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('name')">
+              Catégorie
+              <i class="bi ms-1" [class]="getSortIcon('name')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('description')">
+              Description
+              <i class="bi ms-1" [class]="getSortIcon('description')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('createdAt')">
+              Date de création
+              <i class="bi ms-1" [class]="getSortIcon('createdAt')"></i>
+            </th>
+            <th class="border-0 fw-semibold text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of getPaginatedCategories()" class="align-middle">
+            <td>
+              <input type="checkbox" class="form-check-input" [checked]="category.selected"
+                (change)="toggleCategorySelection(category.id)">
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img *ngIf="category.imageUrl" 
+                     [src]="getImageUrl(category.imageUrl)" 
+                     [alt]="category.name" 
+                     class="category-thumbnail me-3"
+                     style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;"
+                     (error)="onImageError($event)">
+                <div *ngIf="!category.imageUrl" 
+                     class="category-placeholder me-3 d-flex align-items-center justify-content-center"
+                     style="width: 48px; height: 48px; background: linear-gradient(135deg, #3b82f6, #60a5fa); border-radius: 8px;">
+                  <span class="text-white fw-bold">{{ getCategoryInitials(category.name) }}</span>
+                </div>
+                <div>
+                  <div class="fw-medium">{{ category.name }}</div>
+                  <small class="text-muted">{{ truncateText(category.description, 60) }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="text-muted" style="max-width: 300px;">
+                {{ truncateText(category.description, 100) }}
+              </div>
+            </td>
+            <td>
+              <div>{{ formatDate(category.createdAt || '') }}</div>
+              <small class="text-muted">{{ formatTime(category.createdAt || '') }}</small>
+            </td>
+            <td class="text-end">
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-primary" [title]="'Voir les détails'"
+                  (click)="viewCategoryDetails(category)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" [title]="'Modifier'" (click)="openEditModal(category)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" [title]="'Supprimer'" (click)="deleteCategory(category.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && filteredCategories.length > 0" class="card-footer bg-white border-0">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+          Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
+          {{ getMin(currentPage * itemsPerPage, totalItems) }}
+          sur {{ totalItems }} résultat<span *ngIf="totalItems > 1">s</span>
+        </div>
+
+        <nav *ngIf="getTotalPages() > 1">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+
+            <li *ngFor="let page of getPaginationArray(); let i = index" class="page-item"
+              [class.active]="i + 1 === currentPage">
+              <button class="page-link" (click)="goToPage(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+              <button class="page-link" (click)="goToPage(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal détails catégorie -->
+<div class="modal fade" [class.show]="showDetailsModal" [style.display]="showDetailsModal ? 'block' : 'none'"
+  tabindex="-1" *ngIf="showDetailsModal && currentCategory">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-grid-3x3-gap me-2"></i>
+          Détails de la catégorie
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body text-center">
+                <img *ngIf="currentCategory.imageUrl" 
+                     [src]="getImageUrl(currentCategory.imageUrl)" 
+                     [alt]="currentCategory.name" 
+                     class="img-fluid rounded mb-3"
+                     style="max-height: 200px;"
+                     (error)="onImageError($event)">
+                <div *ngIf="!currentCategory.imageUrl" 
+                     class="category-placeholder-large mx-auto mb-3 d-flex align-items-center justify-content-center"
+                     style="width: 120px; height: 120px; background: linear-gradient(135deg, #3b82f6, #60a5fa); border-radius: 12px;">
+                  <span class="text-white fw-bold fs-2">{{ getCategoryInitials(currentCategory.name) }}</span>
+                </div>
+                <h6 class="card-title">{{ currentCategory.name }}</h6>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-8">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">Informations</h6>
+                <div class="mb-3">
+                  <strong>Description :</strong>
+                  <p class="mb-0 mt-1">{{ currentCategory.description }}</p>
+                </div>
+                <div class="mb-3" *ngIf="currentCategory.imageUrl">
+                  <strong>URL de l'image :</strong>
+                  <p class="mb-0 mt-1">
+                    <a [href]="getImageUrl(currentCategory.imageUrl)" target="_blank" class="text-decoration-none">
+                      {{ currentCategory.imageUrl }}
+                      <i class="bi bi-box-arrow-up-right ms-1"></i>
+                    </a>
+                  </p>
+                </div>
+                <div class="mb-2" *ngIf="currentCategory.createdAt">
+                  <strong>Date de création :</strong> {{ formatDate(currentCategory.createdAt) }}
+                </div>
+                <div *ngIf="currentCategory.updatedAt">
+                  <strong>Dernière modification :</strong> {{ formatDate(currentCategory.updatedAt) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailsModal()">
+          Fermer
+        </button>
+        <button type="button" class="btn btn-primary" (click)="openEditModal(currentCategory)">
+          <i class="bi bi-pencil me-1"></i>
+          Modifier
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal création/édition catégorie -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" tabindex="-1"
+  *ngIf="showEditModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle me-2" *ngIf="!currentCategory"></i>
+          <i class="bi bi-pencil-square me-2" *ngIf="currentCategory"></i>
+          {{ currentCategory ? 'Modifier la catégorie' : 'Créer une nouvelle catégorie' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form #editCategoryForm="ngForm">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Nom de la catégorie *</label>
+              <input type="text" class="form-control" [(ngModel)]="categoryForm.name" name="name" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description *</label>
+              <textarea class="form-control" rows="4" [(ngModel)]="categoryForm.description" name="description" required></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">URL de l'image</label>
+              <input type="url" class="form-control" [(ngModel)]="categoryForm.imageUrl" name="imageUrl"
+                     placeholder="https://example.com/image.jpg">
+              <small class="text-muted">Optionnel - URL d'une image pour illustrer la catégorie</small>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="saveCategory()" 
+                [disabled]="!editCategoryForm.form.valid || isSaving">
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+          <i class="bi bi-save me-1" *ngIf="!isSaving"></i>
+          {{ currentCategory ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" [class.show]="showDeleteModal" [style.display]="showDeleteModal ? 'block' : 'none'" tabindex="-1"
+  *ngIf="showDeleteModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+          Confirmer la suppression
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Êtes-vous sûr de vouloir supprimer 
+          <span *ngIf="categoriesToDelete.length === 1">cette catégorie</span>
+          <span *ngIf="categoriesToDelete.length > 1">ces {{ categoriesToDelete.length }} catégories</span> ?
+        </p>
+        <p class="text-danger">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          Cette action est irréversible.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+          <span *ngIf="isDeleting" class="spinner-border spinner-border-sm me-2"></span>
+          <i class="bi bi-trash me-1" *ngIf="!isDeleting"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { ProductsPage } from './products.page';
 
+import { FormsModule } from '@angular/forms';
 import { CardModule } from '@coreui/angular';
 
 const routes: Routes = [
@@ -17,7 +18,8 @@ const routes: Routes = [
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
-    CardModule
+    CardModule,
+    FormsModule
   ]
 })
 export class ProductsPageModule { }
