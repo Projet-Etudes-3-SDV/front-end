@@ -212,4 +212,8 @@ export class ApiService {
     return this.axiosInstance.get(`/orders/me`);
   }
 
+  getUserOrderById(orderId: string): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.get(`/orders/${orderId}`);
+  }
+
 }

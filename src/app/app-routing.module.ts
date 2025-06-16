@@ -30,7 +30,11 @@ const routes: Routes = [
   {
     path: 'privacy-policy',
     loadChildren: () => import('./privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule)
+  },  {
+    path: 'checkout-success',
+    loadChildren: () => import('./checkout-success/checkout-success.module').then( m => m.CheckoutSuccessPageModule)
   },
+
 
 ];
 

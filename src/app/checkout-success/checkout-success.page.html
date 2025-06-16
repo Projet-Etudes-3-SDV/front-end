@@ -1,0 +1,144 @@
+<ion-content [fullscreen]="true" class="checkout-success-content">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="dots" color="primary"></ion-spinner>
+    <p>Chargement de votre commande...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && showContent && order" [@slideInAnimation] class="content-wrapper">
+
+    <!-- Success Header -->
+    <div class="success-container" [class.desktop]="isDesktop">
+      <div class="success-icon" [ngClass]="{'success': isOrderSuccessful(), 'warning': !isOrderSuccessful()}">
+        <ion-icon [name]="isOrderSuccessful() ? 'checkmark-circle' : 'warning'"
+          [color]="isOrderSuccessful() ? 'success' : 'warning'">
+        </ion-icon>
+      </div>
+
+      <div class="success-content">
+        <h1 *ngIf="isOrderSuccessful()">Commande confirmée !</h1>
+        <h1 *ngIf="!isOrderSuccessful()">Commande en cours de traitement</h1>
+
+        <p *ngIf="isOrderSuccessful()" class="success-message">
+          Votre commande a été traitée avec succès. Vous recevrez un email de confirmation sous peu.
+        </p>
+        <p *ngIf="!isOrderSuccessful()" class="warning-message">
+          Votre commande est en cours de traitement. Nous vous tiendrons informé de son évolution.
+        </p>
+      </div>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="order-card" [class.desktop]="isDesktop">
+      <div class="order-header">
+        <h2>Récapitulatif de votre commande</h2>
+        <ion-chip [color]="getStatusColor(order.status)" class="status-chip">
+          <ion-label>{{ orderStatusMap[order.status] || order.status }}</ion-label>
+        </ion-chip>
+      </div>
+
+      <div class="order-info">
+        <div class="info-row">
+          <ion-icon name="receipt-outline" color="medium"></ion-icon>
+          <div class="info-content">
+            <span class="label">Numéro de commande</span>
+            <span class="value">{{ order.id }}</span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <ion-icon name="calendar-outline" color="medium"></ion-icon>
+          <div class="info-content">
+            <span class="label">Date de commande</span>
+            <span class="value">{{ getFormattedDate(order.orderDate) }}</span>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <ion-icon name="card-outline" color="medium"></ion-icon>
+          <div class="info-content">
+            <span class="label">Montant total</span>
+            <span class="value total-amount">{{ order.total.toFixed(2) }} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Summary -->
+    <div class="order-summary" [class.desktop]="isDesktop">
+      <div class="summary-header">
+        <h3>Produits commandés ({{ getTotalProducts() }})</h3>
+        <ion-button fill="clear" size="small" (click)="viewFullOrderDetails()" class="details-button">
+          <ion-icon name="eye-outline" slot="start"></ion-icon>
+          Voir les détails
+        </ion-button>
+      </div>
+
+      <div class="products-list">
+        <div *ngFor="let orderProduct of order.products" class="product-item">
+          <div class="product-info">
+            <h4>{{ orderProduct.product.name }}</h4>
+            <p class="product-category">{{ orderProduct.product.category.name }}</p>
+            <p class="product-plan">
+              <ion-icon name="time-outline" color="medium"></ion-icon>
+              Plan {{ orderProduct.plan === 'monthly' ? 'Mensuel' : 'Annuel' }}
+            </p>
+          </div>
+          <div class="product-price">
+            <span class="price">{{ orderProduct.price?.toFixed(2) || '0.00' }} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" [class.desktop]="isDesktop">
+      <ion-button expand="block" fill="solid" color="primary" (click)="goToAccount()" class="primary-button">
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        Voir mes commandes
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" color="medium" (click)="goToHome()" class="secondary-button">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        Retour à l'accueil
+      </ion-button>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="additional-info" [class.desktop]="isDesktop">
+      <ion-card class="info-card">
+        <ion-card-content>
+          <div class="info-section">
+            <ion-icon name="mail-outline" color="primary"></ion-icon>
+            <div>
+              <h4>Email de confirmation</h4>
+              <p>Un email de confirmation a été envoyé à votre adresse email avec tous les détails de votre commande.
+              </p>
+            </div>
+          </div>
+
+          <div class="info-section" *ngIf="isOrderSuccessful()">
+            <ion-icon name="download-outline" color="success"></ion-icon>
+            <div>
+              <h4>Accès à vos produits</h4>
+              <p>Vous pouvez désormais accéder à vos produits depuis votre compte utilisateur.</p>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !order" class="error-container">
+    <ion-icon name="alert-circle-outline" color="danger" size="large"></ion-icon>
+    <h2>Commande introuvable</h2>
+    <p>Impossible de charger les détails de cette commande.</p>
+    <ion-button color="primary" (click)="goToAccount()">
+      Retour à mon compte
+    </ion-button>
+  </div>
+
+</ion-content>

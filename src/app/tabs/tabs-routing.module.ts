@@ -22,6 +22,7 @@ const routes: Routes = [
       { path: 'legal-notice', loadChildren: () => import('../legal-notice/legal-notice.module').then(m => m.LegalNoticePageModule) },
       { path: 'cgu', loadChildren: () => import('../cgu/cgu.module').then(m => m.CguPageModule) },
       { path: 'privacy-policy', loadChildren: () => import('../privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule) },
+      { path: 'checkout-success/:id', loadChildren: () => import('../checkout-success/checkout-success.module').then(m => m.CheckoutSuccessPageModule), canActivate: [AuthGuard] },
     ],
   },
 ];
