@@ -19,6 +19,15 @@ const routes: Routes = [
     loadChildren: () => import('./reset-password/reset-password.module').then(m => m.ResetPasswordPageModule)
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },
+  {
+    path: 'legal-notice',
+    loadChildren: () => import('./legal-notice/legal-notice.module').then( m => m.LegalNoticePageModule)
+  },
+  {
+    path: 'cgu',
+    loadChildren: () => import('./cgu/cgu.module').then( m => m.CguPageModule)
+  },
+
 ];
 
 @NgModule({

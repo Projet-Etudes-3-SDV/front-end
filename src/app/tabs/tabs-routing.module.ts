@@ -19,6 +19,8 @@ const routes: Routes = [
       { path: 'forgot-password', loadChildren: () => import('../forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule) },
       { path: 'categories/products/:categoryId', loadChildren: () => import('../products/products.module').then(m => m.ProductsPageModule) },
       { path: 'categories/product/:productId', loadChildren: () => import('../product-detail/product-detail.module').then(m => m.ProductDetailPageModule) },
+      { path: 'legal-notice', loadChildren: () => import('../legal-notice/legal-notice.module').then(m => m.LegalNoticePageModule) },
+      { path: 'cgu', loadChildren: () => import('../cgu/cgu.module').then(m => m.CguPageModule) },
     ],
   },
 ];
