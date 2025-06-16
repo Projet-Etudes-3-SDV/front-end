@@ -11,6 +11,7 @@ import {
   stagger
 } from '@angular/animations';
 import { ToastService } from '../services/toast.service';
+import { OrderDetailsModalComponent } from '../order-details-modal/order-details-modal.component';
 
 @Component({
   selector: 'app-account',
@@ -33,8 +34,10 @@ import { ToastService } from '../services/toast.service';
 export class AccountPage {
   user: any = null;
   userSubscriptions: any[] = [];
+  userOrders: any[] = [];
   isDesktop: boolean = false;
   showAccountContent: boolean = false;
+
   subscriptionStatusMap: { [key: string]: string } = {
     active: 'Actif',
     trialing: 'En essai',
@@ -45,6 +48,22 @@ export class AccountPage {
     unpaid: 'Non payé'
   };
 
+  orderStatusMap: { [key: string]: string } = {
+    paid: 'Payée',
+    pending: 'En attente',
+    failed: 'Échouée',
+    cancelled: 'Annulée',
+    processing: 'En cours'
+  };
+
+  // Pagination des abonnements
+  subscriptionsPerPage = 5;
+  currentPage = 1;
+
+  // Pagination des commandes
+  ordersPerPage = 5;
+  currentOrderPage = 1;
+
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
@@ -52,10 +71,8 @@ export class AccountPage {
     private toastService: ToastService,
     private platform: Platform,
     private alertController: AlertController,
-    private modalController: ModalController
-  ) { }
-  subscriptionsPerPage = 5;
-  currentPage = 1;
+    private modalCtrl: ModalController
+    ) { }
 
   get paginatedSubscriptions() {
     const startIndex = (this.currentPage - 1) * this.subscriptionsPerPage;
@@ -67,12 +84,28 @@ export class AccountPage {
     return Math.ceil(this.userSubscriptions.length / this.subscriptionsPerPage);
   }
 
+  get paginatedOrders() {
+    const startIndex = (this.currentOrderPage - 1) * this.ordersPerPage;
+    const endIndex = startIndex + this.ordersPerPage;
+    return this.userOrders.slice(startIndex, endIndex);
+  }
+
+  get totalOrderPages(): number {
+    return Math.ceil(this.userOrders.length / this.ordersPerPage);
+  }
+
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
     }
   }
-  
+
+  goToOrderPage(page: number) {
+    if (page >= 1 && page <= this.totalOrderPages) {
+      this.currentOrderPage = page;
+    }
+  }
+
   async ionViewWillEnter() {
     this.isDesktop = this.platform.is('desktop');
     this.showAccountContent = false;
@@ -82,11 +115,71 @@ export class AccountPage {
         const response = await this.apiService.getMe();
         this.user = response.data;
         this.userSubscriptions = this.user.subscriptions || [];
+
+        // Charger les commandes
+        await this.loadUserOrders();
+
         this.showAccountContent = true;
       } catch (error) {
         console.error('Erreur lors du chargement des infos utilisateur:', error);
       }
     }, 10);
+  }
+
+  async loadUserOrders() {
+    try {
+      const ordersResponse = await this.apiService.getUserOrders();
+      this.userOrders = ordersResponse.data.result || [];
+
+      this.userOrders.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+    } catch (error) {
+      console.error('Erreur lors du chargement des commandes:', error);
+      this.userOrders = [];
+    }
+  }
+
+  async viewOrderDetails(order: any) {
+    const modal = await this.modalCtrl.create({
+      component: OrderDetailsModalComponent,
+      componentProps: {
+        order,
+        orderStatusMap: this.orderStatusMap
+      },
+    });
+
+    await modal.present();
+  }
+
+  private buildOrderDetailsMessage(order: any): string {
+    const formattedDate = new Date(order.orderDate).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    let productsText = '';
+    order.products.forEach((orderProduct: any, index: number) => {
+      productsText += `${index + 1}. ${orderProduct.product.name}\n`;
+      productsText += `   Catégorie: ${orderProduct.product.category.name}\n`;
+      productsText += `   Plan: ${orderProduct.plan === 'monthly' ? 'Mensuel' : 'Annuel'}\n`;
+      if (orderProduct.product.description) {
+        productsText += `   Description: ${orderProduct.product.description.substring(0, 100)}${orderProduct.product.description.length > 100 ? '...' : ''}\n`;
+      }
+      productsText += '\n';
+    });
+
+    return `Date: ${formattedDate}
+
+Statut: ${this.orderStatusMap[order.status]}
+
+Total: ${order.total.toFixed(2)} €
+
+Produits commandés:
+
+${productsText}`;
   }
 
   logout() {

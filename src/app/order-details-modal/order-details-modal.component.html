@@ -1,0 +1,31 @@
+<ion-header translucent class="bg-white shadow-md rounded-t-2xl">
+  <ion-toolbar>
+    <ion-title class="text-lg font-semibold text-gray-800">Détails de la commande</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline" class="text-xl text-gray-600"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding bg-gray-50 rounded-b-2xl">
+  <div class="px-4 py-2">
+    <h2 class="text-xl font-bold text-gray-800 mb-2">Commande #{{ order.id }}</h2>
+    <div class="text-sm text-gray-600 space-y-1 mb-4">
+      <p><span class="font-medium text-gray-700">Date :</span> {{ order.orderDate }}</p>
+      <p><span class="font-medium text-gray-700">Montant :</span> {{ order.total }} €</p>
+      <p><span class="font-medium text-gray-700">Statut :</span> {{ orderStatusMap[order?.status] }}</p>
+    </div>
+
+    <ion-list class="bg-white rounded-lg shadow-sm">
+      <ion-item *ngFor="let item of order?.products" class="border-b last:border-none">
+        <ion-label>
+          <h3 class="text-base font-semibold text-gray-800">{{ item.product.name }}</h3>
+          <p class="text-sm text-gray-600">{{ item.product.category.name }}</p>
+          <p class="text-sm text-gray-600 italic">Plan : {{ item.plan === 'monthly' ? 'mensuel' : 'annuel' }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

@@ -205,4 +205,11 @@ export class ApiService {
   patchUserById(id: string, data: any): Promise<AxiosResponse<any>> {
     return this.axiosInstance.patch(`/users/${id}`, data);
   }
+
+  /** Gestion des Commandes **/
+
+  getUserOrders(): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.get(`/orders/me`);
+  }
+
 }
