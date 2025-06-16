@@ -29,8 +29,8 @@ export class CartPage implements OnInit {
 
   async getCart() {
     try {
-      const response = await this.apiService.getMe();
-      this.cartItems = response.data.cart.products || [];
+      const response = await this.apiService.getCart();
+      this.cartItems = response.data.products || [];
     } catch (error) {
       console.error('Erreur lors du chargement du panier:', error);
       this.toastService.presentToast('Impossible de charger le panier.', 'danger');

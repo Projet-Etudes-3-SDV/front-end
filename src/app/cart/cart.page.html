@@ -27,7 +27,7 @@
             <ion-label>
               <h2>{{ item.product.name }}</h2>
               <p>Quantité: {{ item.quantity }}</p>
-              <p>Prix: {{ item.product?.price | currency: 'EUR': 'symbol' }}</p>
+              <p>Prix: {{ (item.plan === 'monthly' ? item.product.monthlyPrice : item.product.yearlyPrice) | currency: 'EUR': 'symbol' }}</p>
               <p>Plan: {{ item.plan === 'monthly' ? 'Mensuel' : 'Annuel' }}</p>
             </ion-label>
             <ion-button fill="clear" color="danger" (click)="removeFromCart(item.product.id)">

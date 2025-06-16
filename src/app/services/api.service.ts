@@ -60,7 +60,7 @@ export class ApiService {
   /** Gestion du panier **/
   
   getCart(): Promise<AxiosResponse<any>> {
-    return this.axiosInstance.get('/cart');
+    return this.axiosInstance.get('/cart/me');
   }
 
   addItemToCart(productId: string, plan: 'monthly' | 'yearly'): Promise<AxiosResponse<any>> {
