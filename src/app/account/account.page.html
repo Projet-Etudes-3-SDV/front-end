@@ -26,6 +26,39 @@
             <p>{{ user.email }}</p>
           </ion-item>
           <ion-item>
+            <ion-icon name="location" slot="start"></ion-icon>
+            <ion-label>Adresses</ion-label>
+            <div *ngIf="user.addresses && user.addresses.length > 0; else noAddresses">
+              <ul class="pl-2">
+                <li *ngFor="let address of user.addresses; let i = index"
+                  class="flex flex-row mb-2 items-center justify-between">
+                  <div class="flex-1">
+                    <p>{{ address.street }}, {{ address.postalCode }} {{ address.city }}, {{ address.country }}{{
+                      address.phone ? ' | ' + address.phone : '' }}</p>
+                  </div>
+                  <ion-button size="small" fill="clear" color="medium" (click)="editAddress(i)">
+                    <ion-icon slot="icon-only" name="pencil"></ion-icon>
+                  </ion-button>
+                </li>
+                <li>
+                  <div class="mt-2 flex justify-end w-full">
+                    <ion-button size="small" fill="outline" color="primary" (click)="addAddress()">
+                      <ion-icon slot="icon-only" name="add"></ion-icon>
+                    </ion-button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <ng-template #noAddresses>
+              <div class="flex items-center justify-between">
+                <p>Aucune adresse enregistrée.</p>
+                <ion-button size="small" fill="outline" color="primary" (click)="addAddress()">
+                  <ion-icon slot="icon-only" name="add"></ion-icon>
+                </ion-button>
+              </div>
+            </ng-template>
+          </ion-item>
+          <ion-item>
             <ion-icon name="calendar" slot="start"></ion-icon>
             <ion-label>Nombre d'abonnements actifs</ion-label>
             <p>{{ getActiveSubscriptionCount() }}</p>
@@ -45,7 +78,8 @@
               <h4 class="!text-base !font-semibold flex items-center gap-1">
                 <ion-icon name="chevron-forward" slot="start" class="text-blue-400 ml-0"></ion-icon>
                 {{ sub.name }}
-                <a class="px-1.5 py-0.5 uppercase rounded-xl font-bold text-white flex items-center gap-1 ml-1" [ngClass]="{
+                <a class="px-1.5 py-0.5 uppercase rounded-xl font-bold text-white flex items-center gap-1 ml-1"
+                  [ngClass]="{
                 'active': sub.status === 'active' || sub.status === 'trialing',
                 'incomplete': sub.status === 'past_due' || sub.status === 'incomplete',
                 'canceled': sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'
@@ -67,10 +101,12 @@
                 </p>
                 <p class="flex items-center gap-1">
                   <ion-icon name="time" slot="start" class="text-blue-400 ml-0 mr-1"></ion-icon>
-                  {{ sub.cancelAtPeriodEnd ? 'Renouvellement' : 'Fin' }} le <strong>{{ sub.endDate | date:'EEEE d MMMM y à HH:mm' }}</strong>
+                  {{ sub.cancelAtPeriodEnd ? 'Renouvellement' : 'Fin' }} le <strong>{{ sub.endDate | date:'EEEE d MMMM y
+                    à HH:mm' }}</strong>
                 <p class="flex items-center gap-2">
                   <ion-icon name="sync-circle" slot="start" class="text-blue-400 ml-0"></ion-icon>
-                  Renouvellement automatique : <strong>{{ sub.cancelAtPeriodEnd ? 'Oui' : 'Non' }}</strong></p>
+                  Renouvellement automatique : <strong>{{ sub.cancelAtPeriodEnd ? 'Oui' : 'Non' }}</strong>
+                </p>
               </div>
             </ion-label>
             <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl"></ion-icon>
