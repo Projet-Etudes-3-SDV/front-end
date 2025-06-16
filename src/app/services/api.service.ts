@@ -186,6 +186,18 @@ export class ApiService {
     return this.axiosInstance.put(`/users/${id}`, data);
   }
 
+  addUserAddress(address: any): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.post(`/users/add-address`, address);
+  }
+
+  updateAddress(id: number, address: any): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.put(`/users/update-address/${id}`, address);
+  }
+
+  deleteUserAddress(id: number): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.delete(`/users/remove-address/${id}`);
+  }
+
   deleteUserById(id: string): Promise<AxiosResponse<any>> {
     return this.axiosInstance.delete(`/users/${id}`);
   }
