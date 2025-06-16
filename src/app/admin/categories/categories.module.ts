@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { OrdersPage } from './orders.page';
+import { CategoriesPage } from './categories.page';
 
 import { CardModule } from '@coreui/angular';
 import { FormsModule } from '@angular/forms';
@@ -9,12 +9,12 @@ import { FormsModule } from '@angular/forms';
 const routes: Routes = [
   {
     path: '',
-    component: OrdersPage
+    component: CategoriesPage
   }
 ];
 
 @NgModule({
-  declarations: [OrdersPage],
+  declarations: [CategoriesPage],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -22,4 +22,4 @@ const routes: Routes = [
     FormsModule
   ]
 })
-export class OrdersPageModule { }
+export class CategoriesPageModule { }

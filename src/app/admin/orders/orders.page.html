@@ -1,8 +1,561 @@
-<c-card>
-  <c-card-header>
-    <strong>Orders</strong>
-  </c-card-header>
-  <c-card-body>
-    Bienvenue sur la page orders.
-  </c-card-body>
-</c-card>
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Gestion des commandes</h2>
+      <p class="text-muted mb-0">
+        <i class="bi bi-cart-check me-1"></i>
+        {{ totalItems }} commande<span *ngIf="totalItems > 1">s</span> trouvée<span *ngIf="totalItems > 1">s</span>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-success btn-sm" (click)="exportCSV()" *ngIf="filteredOrders.length > 0">
+        <i class="bi bi-download me-1"></i>
+        Exporter CSV
+      </button>
+      <button class="btn btn-outline-primary btn-sm" (click)="loadOrders()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Métriques -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h6 class="card-title text-muted mb-0">Total des commandes</h6>
+              <h4 class="mb-0">{{ orderMetrics.total }}</h4>
+            </div>
+            <div class="text-primary">
+              <i class="bi bi-cart-check fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h6 class="card-title text-muted mb-0">Commandes actives</h6>
+              <h4 class="mb-0 text-success">{{ orderMetrics.active }}</h4>
+            </div>
+            <div class="text-success">
+              <i class="bi bi-check-circle fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h6 class="card-title text-muted mb-0">En attente</h6>
+              <h4 class="mb-0 text-warning">{{ orderMetrics.pending }}</h4>
+            </div>
+            <div class="text-warning">
+              <i class="bi bi-clock fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h6 class="card-title text-muted mb-0">CA total</h6>
+              <h4 class="mb-0 text-success">{{ formatCurrency(orderMetrics.totalRevenue) }}</h4>
+            </div>
+            <div class="text-success">
+              <i class="bi bi-currency-euro fs-3"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Recherche</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Email client ou ID commande..." 
+                   [(ngModel)]="searchTerm" (input)="applyFiltersAndSort()">
+          </div>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-medium">Statut</label>
+          <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFiltersAndSort()">
+            <option value="">Tous les statuts</option>
+            <option value="active">Active</option>
+            <option value="pending">En attente</option>
+            <option value="cancelled">Annulée</option>
+            <option value="past_due">Impayée</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-medium">Type d'abonnement</label>
+          <select class="form-select" [(ngModel)]="subscriptionTypeFilter" (change)="applyFiltersAndSort()">
+            <option value="">Tous les types</option>
+            <option value="monthly">Mensuel</option>
+            <option value="yearly">Annuel</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-medium">Produit</label>
+          <select class="form-select" [(ngModel)]="productFilter" (change)="applyFiltersAndSort()">
+            <option value="">Tous les produits</option>
+            <option *ngFor="let product of availableProducts" [value]="product.id">
+              {{ product.name }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-medium">Période</label>
+          <div class="row g-1">
+            <div class="col-6">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom" 
+                     (change)="applyFiltersAndSort()" placeholder="Du">
+            </div>
+            <div class="col-6">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo" 
+                     (change)="applyFiltersAndSort()" placeholder="Au">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions groupées -->
+  <div class="d-flex justify-content-between align-items-center mb-3" *ngIf="hasSelectedOrders">
+    <div class="alert alert-info mb-0 py-2 px-3">
+      <i class="bi bi-info-circle me-1"></i>
+      {{ selectedOrders.size }} commande<span *ngIf="selectedOrders.size > 1">s</span> sélectionnée<span
+        *ngIf="selectedOrders.size > 1">s</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline-warning btn-sm" (click)="bulkUpdateStatus('pending')">
+        <i class="bi bi-clock me-1"></i>
+        Marquer en attente
+      </button>
+      <button class="btn btn-outline-danger btn-sm" (click)="bulkUpdateStatus('cancelled')">
+        <i class="bi bi-x-circle me-1"></i>
+        Annuler
+      </button>
+      <button class="btn btn-outline-danger btn-sm" (click)="bulkDeleteOrders()">
+        <i class="bi bi-trash me-1"></i>
+        Supprimer
+      </button>
+    </div>
+  </div>
+
+  <!-- Tableau des commandes -->
+  <div class="card border-0 shadow-sm">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3 text-muted">Chargement des commandes...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && filteredOrders.length === 0" class="text-center py-5">
+      <i class="bi bi-cart-x fs-1 text-muted mb-3"></i>
+      <h5 class="text-muted">Aucune commande trouvée</h5>
+      <p class="text-muted mb-3">
+        <span *ngIf="searchTerm || statusFilter || subscriptionTypeFilter || productFilter || dateFrom || dateTo">
+          Essayez de modifier vos critères de recherche
+        </span>
+        <span *ngIf="!searchTerm && !statusFilter && !subscriptionTypeFilter && !productFilter && !dateFrom && !dateTo">
+          Aucune commande n'est encore enregistrée
+        </span>
+      </p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading && filteredOrders.length > 0" class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="border-0" style="width: 40px;">
+              <input type="checkbox" class="form-check-input" [checked]="allCurrentPageSelected"
+                (change)="toggleAllSelection()">
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('customerEmail')">
+              Client
+              <i class="bi ms-1" [class]="getSortIcon('customerEmail')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('productName')">
+              Produit
+              <i class="bi ms-1" [class]="getSortIcon('productName')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('subscriptionType')">
+              Abonnement
+              <i class="bi ms-1" [class]="getSortIcon('subscriptionType')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('amount')">
+              Montant
+              <i class="bi ms-1" [class]="getSortIcon('amount')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('status')">
+              Statut
+              <i class="bi ms-1" [class]="getSortIcon('status')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('createdAt')">
+              Date création
+              <i class="bi ms-1" [class]="getSortIcon('createdAt')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('nextBillingDate')">
+              Prochaine facturation
+              <i class="bi ms-1" [class]="getSortIcon('nextBillingDate')"></i>
+            </th>
+            <th class="border-0 fw-semibold text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of getPaginatedOrders()" class="align-middle">
+            <td>
+              <input type="checkbox" class="form-check-input" [checked]="order.selected"
+                (change)="toggleOrderSelection(order.id)">
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                     style="width: 36px; height: 36px; font-size: 14px; font-weight: 600;">
+                  {{ getCustomerInitials(order.customerEmail || '') }}
+                </div>
+                <div>
+                  <div class="fw-medium">{{ order.customerEmail }}</div>
+                  <small class="text-muted">{{ order.user.firstName }} {{ order.user.lastName }}</small>
+                  <small class="text-muted d-block" *ngIf="order.customerId">ID: {{ order.customerId }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img [src]="'http://localhost:3000/api' + order.product?.imageUrl || 'assets/images/product-placeholder.svg'" 
+                     alt="{{ order.productName }}" 
+                     class="me-3"
+                     style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;">
+                <div>
+                  <div class="fw-medium">{{ order.productName }}</div>
+                  <small class="text-muted" *ngIf="order.product?.category?.name">{{ order.product!.category!.name }}</small>
+                  <small class="text-muted d-block" *ngIf="order.products && order.products.length > 1">
+                    +{{ order.products.length - 1 }} autre(s) produit(s)
+                  </small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-3 py-2" [ngClass]="getSubscriptionBadgeClass(order.subscriptionType || 'monthly')">
+                <i class="bi me-1" [class]="getSubscriptionIcon(order.subscriptionType || 'monthly')"></i>
+                {{ getSubscriptionLabel(order.subscriptionType || 'monthly') }}
+              </span>
+            </td>
+            <td class="fw-bold">
+              {{ formatCurrency(order.amount || order.total || 0) }}
+              <small class="text-muted d-block">{{ getPaymentFrequency(order.subscriptionType || 'monthly') }}</small>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-3 py-2" [ngClass]="getStatusBadgeClass(order.status)">
+                <i class="bi me-1" [class]="getStatusIcon(order.status)"></i>
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </td>
+            <td>
+              <div>{{ formatDate(order.createdAt || order.orderDate || '') }}</div>
+              <small class="text-muted">{{ formatTime(order.createdAt || order.orderDate || '') }}</small>
+            </td>
+            <td>
+              <div *ngIf="order.nextBillingDate">{{ formatDate(order.nextBillingDate) }}</div>
+              <small class="text-muted" *ngIf="order.nextBillingDate">{{ getNextBillingStatus(order.nextBillingDate) }}</small>
+              <span class="text-muted" *ngIf="!order.nextBillingDate">-</span>
+            </td>
+            <td class="text-end">
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-primary" [title]="'Voir les détails'"
+                  (click)="viewOrderDetails(order)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" [title]="'Modifier le statut'"
+                  (click)="editOrderStatus(order)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <div class="btn-group" role="group">
+                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots"></i>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" (click)="downloadInvoice(order.id)">
+                      <i class="bi bi-download me-2"></i>Télécharger facture
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" (click)="cancelOrder(order.id)">
+                      <i class="bi bi-x-circle me-2"></i>Annuler commande
+                    </a></li>
+                  </ul>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && filteredOrders.length > 0" class="card-footer bg-white border-0">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+          Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
+          {{ getMin(currentPage * itemsPerPage, totalItems) }}
+          sur {{ totalItems }} résultat<span *ngIf="totalItems > 1">s</span>
+        </div>
+
+        <nav *ngIf="getTotalPages() > 1">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+
+            <li *ngFor="let page of [].constructor(getTotalPages()); let i = index" class="page-item"
+              [class.active]="i + 1 === currentPage">
+              <button class="page-link" (click)="goToPage(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+              <button class="page-link" (click)="goToPage(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal détails commande -->
+<div class="modal fade" [class.show]="showDetailsModal" [style.display]="showDetailsModal ? 'block' : 'none'"
+  tabindex="-1" *ngIf="showDetailsModal && currentOrder">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-cart-check me-2"></i>
+          Détails de la commande {{ currentOrder.id }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-4">
+          <!-- Informations client -->
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">
+                  <i class="bi bi-person me-2"></i>
+                  Informations client
+                </h6>
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                       style="width: 48px; height: 48px; font-weight: 600;">
+                    {{ getCustomerInitials(currentOrder.customerEmail || '') }}
+                  </div>
+                  <div>
+                    <div class="fw-medium">{{ currentOrder.customerEmail }}</div>
+                    <small class="text-muted">{{ currentOrder.customerId }}</small>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <strong>Date d'inscription :</strong> {{ formatDate(currentOrder.createdAt || currentOrder.orderDate || '') }}
+                </div>
+                <div>
+                  <strong>Stripe Customer ID :</strong>
+                  <small class="text-muted d-block">{{ currentOrder.stripeCustomerId }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations produit -->
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">
+                  <i class="bi bi-box me-2"></i>
+                  Produit commandé
+                </h6>
+                <div class="text-center mb-3">
+                  <img [src]="'http://localhost:3000/api' + currentOrder.product?.imageUrl || 'assets/images/product-placeholder.svg'" 
+                       alt="{{ currentOrder.productName }}" 
+                       class="img-fluid rounded mb-2"
+                       style="max-height: 80px;">
+                  <h6>{{ currentOrder.productName }}</h6>
+                  <span class="badge bg-primary" *ngIf="currentOrder.product?.category?.name">
+                    {{ currentOrder.product!.category!.name }}
+                  </span>
+                </div>
+                <div class="text-center">
+                  <span class="badge rounded-pill px-3 py-2" [ngClass]="getSubscriptionBadgeClass(currentOrder.subscriptionType || 'monthly')">
+                    {{ getSubscriptionLabel(currentOrder.subscriptionType || 'monthly') }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations facturation -->
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">
+                  <i class="bi bi-credit-card me-2"></i>
+                  Facturation
+                </h6>
+                <div class="mb-2">
+                  <strong>Montant :</strong>
+                  <span class="fs-5 fw-bold text-success ms-2">{{ formatCurrency(currentOrder.amount || currentOrder.total || 0) }}</span>
+                </div>
+                <div class="mb-2">
+                  <strong>Fréquence :</strong> {{ getPaymentFrequency(currentOrder.subscriptionType || 'monthly') }}
+                </div>
+                <div class="mb-2" *ngIf="currentOrder.nextBillingDate">
+                  <strong>Prochaine facturation :</strong>
+                  <div>{{ formatDate(currentOrder.nextBillingDate) }}</div>
+                  <small class="text-muted">{{ getNextBillingStatus(currentOrder.nextBillingDate) }}</small>
+                </div>
+                <div class="mb-2">
+                  <strong>Stripe Subscription ID :</strong>
+                  <small class="text-muted d-block">{{ currentOrder.stripeSubscriptionId }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statut et historique -->
+          <div class="col-12">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title mb-3">
+                  <i class="bi bi-clock-history me-2"></i>
+                  Statut actuel et historique
+                </h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <strong>Statut actuel :</strong>
+                      <span class="badge rounded-pill px-3 py-2 ms-2" [ngClass]="getStatusBadgeClass(currentOrder.status)">
+                        <i class="bi me-1" [class]="getStatusIcon(currentOrder.status)"></i>
+                        {{ getStatusLabel(currentOrder.status) }}
+                      </span>
+                    </div>
+                    <div>
+                      <strong>Dernière mise à jour :</strong> {{ formatDate(currentOrder.updatedAt || currentOrder.orderDate || '') }}
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="timeline" *ngIf="currentOrder.statusHistory">
+                      <div class="timeline-item" *ngFor="let status of currentOrder.statusHistory">
+                        <div class="timeline-marker" [ngClass]="getStatusTimelineClass(status.status)"></div>
+                        <div class="timeline-content">
+                          <div class="fw-medium">{{ getStatusLabel(status.status) }}</div>
+                          <small class="text-muted">{{ formatDate(status.date) }}</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDetailsModal()">
+          Fermer
+        </button>
+        <button type="button" class="btn btn-primary" (click)="editOrderStatus(currentOrder)">
+          <i class="bi bi-pencil me-1"></i>
+          Modifier le statut
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="deleteOrder(currentOrder.id)">
+          <i class="bi bi-trash me-1"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal modification statut -->
+<div class="modal fade" [class.show]="showStatusModal" [style.display]="showStatusModal ? 'block' : 'none'" tabindex="-1"
+  *ngIf="showStatusModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square me-2"></i>
+          Modifier le statut de la commande
+        </h5>
+        <button type="button" class="btn-close" (click)="closeStatusModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form #statusFormRef="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Nouveau statut</label>
+            <select class="form-select" [(ngModel)]="statusForm.newStatus" name="newStatus" required>
+              <option value="active">Active</option>
+              <option value="pending">En attente</option>
+              <option value="cancelled">Annulée</option>
+              <option value="past_due">Impayée</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Commentaire (optionnel)</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="statusForm.comment" name="comment" 
+                      placeholder="Raison du changement de statut..."></textarea>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="statusForm.notifyCustomer" 
+                   name="notifyCustomer" id="notifyCustomer">
+            <label class="form-check-label" for="notifyCustomer">
+              Notifier le client par email (fonctionnalité à venir)
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeStatusModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="saveOrderStatus()" 
+                [disabled]="!statusFormRef.form.valid || isSaving">
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+          <i class="bi bi-save me-1" *ngIf="!isSaving"></i>
+          Mettre à jour
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
