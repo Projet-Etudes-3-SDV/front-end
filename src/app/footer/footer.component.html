@@ -19,8 +19,9 @@
 
     <p class="text-white/70 text-xs mt-4">
       © {{ getCurrentYear() }} - Tous droits réservés | Cyna
-      <span class="text-white/70"> | </span> <a href="/legal-notice" class="text-white/70 hover:text-white">Mentions légales</a>
-      <span class="text-white/70"> | </span> <a href="/cgu" class="text-white/70 hover:text-white">Politique de confidentialité</a>
+      <span class="text-white/70"> | </span> <a [routerLink]="['/legal-notice']" class="text-white/70 hover:text-white">Mentions légales</a>
+      <span class="text-white/70"> | </span> <a [routerLink]="['/cgu']" class="text-white/70 hover:text-white">Conditions Générales d'Utilisation</a>
+      <span class="text-white/70"> | </span> <a [routerLink]="['/privacy-policy']" class="text-white/70 hover:text-white">Politique de Confidentialité</a>
     </p>
     
   </div>

@@ -27,6 +27,10 @@ const routes: Routes = [
     path: 'cgu',
     loadChildren: () => import('./cgu/cgu.module').then( m => m.CguPageModule)
   },
+  {
+    path: 'privacy-policy',
+    loadChildren: () => import('./privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule)
+  },
 
 ];
 

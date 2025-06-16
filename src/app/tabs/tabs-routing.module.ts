@@ -21,6 +21,7 @@ const routes: Routes = [
       { path: 'categories/product/:productId', loadChildren: () => import('../product-detail/product-detail.module').then(m => m.ProductDetailPageModule) },
       { path: 'legal-notice', loadChildren: () => import('../legal-notice/legal-notice.module').then(m => m.LegalNoticePageModule) },
       { path: 'cgu', loadChildren: () => import('../cgu/cgu.module').then(m => m.CguPageModule) },
+      { path: 'privacy-policy', loadChildren: () => import('../privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule) },
     ],
   },
 ];

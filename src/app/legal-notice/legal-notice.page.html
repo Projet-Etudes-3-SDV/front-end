@@ -2,16 +2,68 @@
   <div class="px-6 py-4 min-h-full">
     <div class="flex items-center gap-2 mt-4">
       <ion-icon name="document-text-outline" class="text-3xl text-primary"></ion-icon>
-      <h2 class="text-2xl font-bold text-black/80">Mentions légales</h2>
+      <h2 class="text-2xl font-bold text-black">Mentions légales</h2>
     </div>
     <hr class="my-2 h-[2px] rounded-full border-0 bg-gray-300" />
 
-    <section class="space-y-4 text-sm text-gray-700 mt-4">
-      <p><strong>Éditeur :</strong> Cyna, entreprise spécialisée dans les solutions de cybersécurité SaaS.</p>
-      <p><strong>Adresse :</strong> 123 Rue de la Cybersécurité, 75000 Paris, France</p>
-      <p><strong>Responsable de la publication :</strong> Mme. Sophie Martin, Directrice Générale</p>
-      <p><strong>Hébergement :</strong> OVH, 2 rue Kellermann, 59100 Roubaix, France</p>
-      <p><strong>Contact :</strong> contact&#64;cyna-securite.com</p>
+    <section class="space-y-6 text-sm text-gray-800 mt-6">
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">1. Éditeur du site</h3>
+        <p>Le site www.cyna-securite.com est édité par la société <strong>Cyna</strong>, spécialisée dans la vente de
+          solutions de cybersécurité SaaS (SOC, EDR, XDR).</p>
+        <p><strong>Raison sociale :</strong> Cyna</p>
+        <p><strong>Forme juridique :</strong> SAS</p>
+        <p><strong>Siège social :</strong> 123 Rue de la Cybersécurité, 75000 Paris, France</p>
+        <p><strong>Directrice de publication :</strong> Mme Sophie Martin</p>
+        <p><strong>Email :</strong> contact&#64;cyna-securite.com</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">2. Hébergement</h3>
+        <p>Le site est hébergé par :</p>
+        <p><strong>Hébergeur :</strong> OVH SAS</p>
+        <p><strong>Adresse :</strong> 2 rue Kellermann, 59100 Roubaix, France</p>
+        <p><strong>Site : </strong> <a href="https://www.ovh.com" class="text-primary underline" target="_blank"
+            rel="noopener">www.ovh.com</a></p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">3. Propriété intellectuelle</h3>
+        <p>L’ensemble des contenus du site (textes, images, logos, interfaces, codes) est la propriété exclusive de Cyna
+          ou de ses partenaires, sauf mention contraire.</p>
+        <p>Toute reproduction, représentation, modification, publication, ou adaptation, partielle ou totale, de ces
+          éléments est interdite sans autorisation écrite préalable.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">4. Données personnelles</h3>
+        <p>Cyna s’engage à protéger les données personnelles de ses utilisateurs conformément au RGPD. Pour plus
+          d'informations, consultez notre <a [routerLink]="['/privacy-policy']" class="text-primary underline">Politique de Confidentialité</a>.
+        </p>
+        <p>Vous disposez d’un droit d’accès, de rectification, d’opposition, de suppression et de portabilité de vos
+          données, que vous pouvez exercer en envoyant un e-mail à <a href="mailto:contact@cyna-securite.com"
+            class="text-primary underline">contact&#64;cyna-securite.com</a>.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">5. Cookies</h3>
+        <p>Le site peut utiliser des cookies pour améliorer l’expérience utilisateur. Vous pouvez à tout moment
+          configurer votre navigateur pour refuser les cookies.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">6. Limitation de responsabilité</h3>
+        <p>Les informations disponibles sur le site sont fournies à titre indicatif. Cyna ne saurait être tenue
+          responsable des erreurs, omissions ou résultats obtenus par un mauvais usage de ces informations.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-black/80">7. Droit applicable</h3>
+        <p>Le présent site est soumis au droit français. En cas de litige, les tribunaux de Paris seront seuls
+          compétents.</p>
+      </div>
+
     </section>
   </div>
   <app-footer></app-footer>
