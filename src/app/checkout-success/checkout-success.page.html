@@ -86,7 +86,7 @@
             </p>
           </div>
           <div class="product-price">
-            <span class="price">{{ orderProduct.price?.toFixed(2) || '0.00' }} €</span>
+            <span class="price">{{ orderProduct.plan === 'monthly' ? orderProduct.product.monthlyPrice?.toFixed(2) : orderProduct.product.yearlyPrice?.toFixed(2) || '0.00' }} €</span>
           </div>
         </div>
       </div>
