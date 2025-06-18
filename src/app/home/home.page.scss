@@ -32,7 +32,7 @@ ion-card {
   box-shadow: none;
 }
 
-img {
+.product-image {
   cursor: pointer;
   display: inline-block;
   object-fit: cover;
@@ -49,4 +49,99 @@ img {
 
 swiper-slide {
   cursor: pointer;
+}
+
+// Styles pour les alertes dynamiques
+.alert-card {
+  border-left: 4px solid;
+  margin: 0;
+  
+  &.alert-primary {
+    border-left-color: #0d6efd;
+    background-color: #cff4fc;
+    
+    ion-card-content {
+      color: #055160;
+    }
+  }
+  
+  &.alert-success {
+    border-left-color: #198754;
+    background-color: #d1e7dd;
+    
+    ion-card-content {
+      color: #0a3622;
+    }
+  }
+  
+  &.alert-warning {
+    border-left-color: #ffc107;
+    background-color: #fff3cd;
+    
+    ion-card-content {
+      color: #664d03;
+    }
+  }
+  
+  &.alert-danger {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+    
+    ion-card-content {
+      color: #58151c;
+    }
+  }
+}
+
+// Responsive pour les sections
+@media (max-width: 768px) {
+  .banner {
+    margin: 8px;
+    padding: 16px;
+  }
+  
+  .categories {
+    padding: 8px;
+  }
+  
+  .alert-card {
+    margin: 0 8px;
+  }
+}
+
+// Utilitaires Bootstrap-like pour Ion
+.d-flex {
+  display: flex !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.fw-bold {
+  font-weight: bold !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mt-1 {
+  margin-top: 0.25rem !important;
+}
+
+.me-3 {
+  margin-right: 1rem !important;
+}
+
+.fs-4 {
+  font-size: 1.5rem !important;
 }

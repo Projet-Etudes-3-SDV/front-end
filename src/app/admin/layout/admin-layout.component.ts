@@ -39,6 +39,11 @@ export class AdminLayoutComponent {
       icon: 'bi bi-receipt'
     },
     {
+      name: 'Landing Pages',
+      url: '/admin/landing',
+      icon: 'bi bi-layout-text-window'
+    },
+    {
       name: 'Paramètres',
       url: '/admin/settings',
       icon: 'bi bi-gear'

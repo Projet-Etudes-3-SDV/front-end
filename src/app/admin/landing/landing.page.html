@@ -1,0 +1,555 @@
+<div class="container-fluid p-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Gestion des landing pages</h2>
+      <p class="text-muted mb-0">
+        <i class="bi bi-layout-text-window me-1"></i>
+        {{ totalItems }} page<span *ngIf="totalItems > 1">s</span> trouvée<span *ngIf="totalItems > 1">s</span>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-success btn-sm text-white" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle me-1"></i>
+        Créer une landing page
+      </button>
+      <button class="btn btn-outline-primary btn-sm" (click)="loadLandings()">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Landing page principale actuelle -->
+  <div class="card border-0 shadow-sm mb-4" *ngIf="mainLanding">
+    <div class="card-header bg-primary text-white">
+      <h6 class="mb-0">
+        <i class="bi bi-star-fill me-2"></i>
+        Landing page principale active
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h5 class="mb-1">{{ mainLanding.header.title }}</h5>
+          <p class="text-muted mb-2" *ngIf="mainLanding.header.subtitle">{{ mainLanding.header.subtitle }}</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="badge bg-info" *ngIf="mainLanding.carouselSection && mainLanding.carouselSection.products.length > 0">
+              <i class="bi bi-images me-1"></i>
+              Carousel produits ({{ mainLanding.carouselSection.products.length }} produit<span *ngIf="mainLanding.carouselSection.products.length > 1">s</span>)
+            </span>
+            <span class="badge bg-secondary" *ngIf="mainLanding.categorySection">
+              <i class="bi bi-grid-3x3-gap me-1"></i>
+              Section catégories
+            </span>
+            <span class="badge" *ngIf="mainLanding.alert" [ngClass]="getAlertBadgeClass(mainLanding.alert.type)">
+              <i class="bi bi-exclamation-circle me-1"></i>
+              Alerte {{ mainLanding.alert.type }}
+            </span>
+          </div>
+        </div>
+        <div class="col-md-4 text-end">
+          <button class="btn btn-outline-primary btn-sm me-2" (click)="previewLanding(mainLanding)">
+            <i class="bi bi-eye me-1"></i>
+            Aperçu
+          </button>
+          <button class="btn btn-primary btn-sm" (click)="editLanding(mainLanding)">
+            <i class="bi bi-pencil me-1"></i>
+            Modifier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des landing pages -->
+  <div class="card border-0 shadow-sm">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3 text-muted">Chargement des landing pages...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoading && filteredLandings.length === 0" class="text-center py-5">
+      <i class="bi bi-layout-text-window fs-1 text-muted mb-3"></i>
+      <h5 class="text-muted">Aucune landing page trouvée</h5>
+      <p class="text-muted mb-3">Créez votre première landing page pour commencer</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <i class="bi bi-plus-circle me-1"></i>
+        Créer la première landing page
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!isLoading && filteredLandings.length > 0" class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('header.title')">
+              Titre
+              <i class="bi ms-1" [class]="getSortIcon('header.title')"></i>
+            </th>
+            <th class="border-0 fw-semibold">Sections configurées</th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('isMain')">
+              Statut
+              <i class="bi ms-1" [class]="getSortIcon('isMain')"></i>
+            </th>
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('updatedAt')">
+              Dernière modification
+              <i class="bi ms-1" [class]="getSortIcon('updatedAt')"></i>
+            </th>
+            <th class="border-0 fw-semibold text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let landing of getPaginatedLandings()" class="align-middle">
+            <td>
+              <div>
+                <div class="fw-medium d-flex align-items-center">
+                  {{ landing.header.title }}
+                  <i class="bi bi-star-fill text-warning ms-2" *ngIf="landing.isMain" title="Page principale"></i>
+                </div>
+                <small class="text-muted" *ngIf="landing.header.subtitle">{{ landing.header.subtitle }}</small>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                <span class="badge bg-info" *ngIf="landing.carouselSection && landing.carouselSection.products.length > 0">
+                  <i class="bi bi-images me-1"></i>
+                  Carousel ({{ landing.carouselSection.products.length }})
+                </span>
+                <span class="badge bg-secondary" *ngIf="landing.categorySection">
+                  <i class="bi bi-grid-3x3-gap me-1"></i>
+                  Catégories
+                </span>
+                <span class="badge" *ngIf="landing.alert && landing.alert.type" [ngClass]="getAlertBadgeClass(landing.alert.type)">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Alerte {{ landing.alert.type }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <span class="badge rounded-pill px-3 py-2" [ngClass]="landing.isMain ? 'bg-success' : 'bg-light text-dark'">
+                {{ landing.isMain ? 'Principale' : 'Brouillon' }}
+              </span>
+            </td>
+            <td class="text-muted">
+              {{ formatDate(landing.updatedAt || landing.createdAt || '') }}
+            </td>
+            <td class="text-end">
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-info" [title]="'Aperçu'" (click)="previewLanding(landing)">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary" [title]="'Modifier'" (click)="editLanding(landing)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-success" [title]="'Définir comme principale'" 
+                        (click)="setAsMain(landing.id)" *ngIf="!landing.isMain">
+                  <i class="bi bi-star"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" [title]="'Supprimer'" 
+                        (click)="deleteLanding(landing.id)" *ngIf="!landing.isMain">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && filteredLandings.length > 0" class="card-footer bg-white border-0">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+          Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à
+          {{ getMin(currentPage * itemsPerPage, totalItems) }}
+          sur {{ totalItems }} résultat<span *ngIf="totalItems > 1">s</span>
+        </div>
+
+        <nav *ngIf="getTotalPages() > 1">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+            <li *ngFor="let page of [].constructor(getTotalPages()); let i = index" class="page-item"
+              [class.active]="i + 1 === currentPage">
+              <button class="page-link" (click)="goToPage(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+              <button class="page-link" (click)="goToPage(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal création/édition landing page -->
+<div class="modal fade" [class.show]="showEditModal" [style.display]="showEditModal ? 'block' : 'none'" tabindex="-1"
+  *ngIf="showEditModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle me-2" *ngIf="!currentLanding"></i>
+          <i class="bi bi-pencil-square me-2" *ngIf="currentLanding"></i>
+          {{ currentLanding ? 'Modifier la landing page' : 'Créer une nouvelle landing page' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form #editLandingForm="ngForm">
+          <!-- Header section -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="bi bi-header me-2"></i>
+                En-tête de la page
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Titre principal *</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.header.title" 
+                         name="headerTitle" required placeholder="Bienvenue sur notre boutique">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Sous-titre (optionnel)</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.header.subtitle" 
+                         name="headerSubtitle" placeholder="Découvrez nos produits phares">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carousel section -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                  <i class="bi bi-images me-2"></i>
+                  Section carousel de produits
+                </h6>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.carouselSection.enabled" 
+                         name="carouselEnabled" id="carouselEnabled">
+                  <label class="form-check-label" for="carouselEnabled">
+                    Activer cette section
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" *ngIf="editForm.carouselSection.enabled">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Titre de la section *</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.carouselSection.title" 
+                         name="carouselTitle" placeholder="Produits en vedette">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Description (optionnel)</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.carouselSection.description" 
+                         name="carouselDescription" placeholder="Nos meilleures offres">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Ordre d'affichage</label>
+                  <input type="number" class="form-control" [(ngModel)]="editForm.carouselSection.order" 
+                         name="carouselOrder" min="1" max="10">
+                </div>
+                <div class="col-12" *ngIf="availableProducts.length > 0">
+                  <label class="form-label">Produits à afficher *</label>
+                  <div class="row g-2" style="max-height: 200px; overflow-y: auto;">
+                    <div class="col-md-6" *ngFor="let product of availableProducts">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" 
+                               [checked]="isProductSelected(product.id)"
+                               (change)="toggleProductSelection(product.id)" 
+                               [id]="'product-' + product.id">
+                        <label class="form-check-label d-flex align-items-center" [for]="'product-' + product.id">
+                          <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/product-placeholder.svg'" 
+                               alt="{{ product.name }}" class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
+                          <div>
+                            <div class="fw-medium">{{ product.name }}</div>
+                            <small class="text-muted">{{ formatCurrency(product.monthlyPrice) }}/mois</small>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ editForm.carouselSection.selectedProducts.length }} produit(s) sélectionné(s)</small>
+                </div>
+                
+                <!-- Ordre des produits sélectionnés -->
+                <div class="col-12">
+                  <div class="alert alert-warning" *ngIf="editForm.carouselSection.selectedProducts.length === 0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Sélectionnez des produits ci-dessus pour pouvoir gérer leur ordre d'affichage.
+                  </div>
+                  
+                  <div *ngIf="editForm.carouselSection.selectedProducts.length > 0">
+                    <label class="form-label">Ordre d'affichage des produits</label>
+                    <small class="form-text text-muted d-block mb-2">
+                      Réorganisez l'ordre d'affichage des produits sélectionnés.
+                    </small>
+                    <div class="list-group">
+                      <div class="list-group-item d-flex align-items-center" 
+                           *ngFor="let selectedProduct of getOrderedSelectedProducts(); let i = index">
+                        <div class="me-3">
+                          <button type="button" class="btn btn-sm btn-outline-secondary me-1" 
+                                  [disabled]="i === 0" (click)="moveProductUp(selectedProduct.productId)">
+                            <i class="bi bi-arrow-up"></i>
+                          </button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                  [disabled]="i === editForm.carouselSection.selectedProducts.length - 1" 
+                                  (click)="moveProductDown(selectedProduct.productId)">
+                            <i class="bi bi-arrow-down"></i>
+                          </button>
+                        </div>
+                        <div class="me-3">
+                          <span class="badge bg-primary">{{ selectedProduct.order }}</span>
+                        </div>
+                        <img [src]="'http://localhost:3000/api' + getProductById(selectedProduct.productId)?.imageUrl || 'assets/images/product-placeholder.svg'" 
+                             alt="{{ getProductById(selectedProduct.productId)?.name }}" 
+                             class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
+                        <div class="flex-grow-1">
+                          <div class="fw-medium">{{ getProductById(selectedProduct.productId)?.name }}</div>
+                          <small class="text-muted">{{ formatCurrency(getProductById(selectedProduct.productId)?.monthlyPrice || 0) }}/mois</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                (click)="toggleProductSelection(selectedProduct.productId)">
+                          <i class="bi bi-x"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12" *ngIf="availableProducts.length === 0">
+                  <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Aucun produit disponible. Veuillez d'abord créer des produits.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category section -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                  <i class="bi bi-grid-3x3-gap me-2"></i>
+                  Section catégories
+                </h6>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.categorySection.enabled" 
+                         name="categoryEnabled" id="categoryEnabled">
+                  <label class="form-check-label" for="categoryEnabled">
+                    Activer cette section
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" *ngIf="editForm.categorySection.enabled">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Titre de la section *</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.categorySection.title" 
+                         name="categoryTitle" placeholder="Catégories">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Description (optionnel)</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.categorySection.description" 
+                         name="categoryDescription" placeholder="Explorez nos catégories">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Ordre d'affichage</label>
+                  <input type="number" class="form-control" [(ngModel)]="editForm.categorySection.order" 
+                         name="categoryOrder" min="1" max="10">
+                </div>
+                <div class="col-12" *ngIf="availableCategories.length > 0">
+                  <label class="form-label">Catégories à afficher *</label>
+                  <small class="form-text text-muted d-block mb-2">
+                    Sélectionnez les catégories que vous souhaitez afficher dans cette section.
+                  </small>
+                  <div class="row g-2" style="max-height: 200px; overflow-y: auto;">
+                    <div class="col-md-6" *ngFor="let category of availableCategories">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" 
+                               [checked]="isCategorySelected(category.id)"
+                               (change)="toggleCategorySelection(category.id)" 
+                               [id]="'category-' + category.id">
+                        <label class="form-check-label d-flex align-items-center" [for]="'category-' + category.id">
+                          <img [src]="'http://localhost:3000/api' + category.imageUrl || 'assets/images/category-placeholder.svg'" 
+                               alt="{{ category.name }}" class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
+                          <div>
+                            <div class="fw-medium">{{ category.name }}</div>
+                            <small class="text-muted">{{ truncateDescription(category.description, 50) }}</small>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <small class="text-muted">{{ editForm.categorySection.selectedCategories.length }} catégorie(s) sélectionnée(s)</small>
+                </div>
+                
+                <!-- Ordre des catégories sélectionnées -->
+                <div class="col-12" *ngIf="editForm.categorySection.selectedCategories.length > 0">
+                  <label class="form-label">Ordre d'affichage des catégories</label>
+                  <small class="form-text text-muted d-block mb-2">
+                    Réorganisez l'ordre d'affichage des catégories sélectionnées.
+                  </small>
+                  <div class="list-group">
+                    <div class="list-group-item d-flex align-items-center" 
+                         *ngFor="let selectedCategory of getOrderedSelectedCategories(); let i = index">
+                      <div class="me-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-1" 
+                                [disabled]="i === 0" (click)="moveCategoryUp(selectedCategory.categoryId)">
+                          <i class="bi bi-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                [disabled]="i === editForm.categorySection.selectedCategories.length - 1" 
+                                (click)="moveCategoryDown(selectedCategory.categoryId)">
+                          <i class="bi bi-arrow-down"></i>
+                        </button>
+                      </div>
+                      <div class="me-3">
+                        <span class="badge bg-primary">{{ selectedCategory.order }}</span>
+                      </div>
+                      <img [src]="'http://localhost:3000/api' + getCategoryById(selectedCategory.categoryId)?.imageUrl || 'assets/images/category-placeholder.svg'" 
+                           alt="{{ getCategoryById(selectedCategory.categoryId)?.name }}" 
+                           class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
+                      <div class="flex-grow-1">
+                        <div class="fw-medium">{{ getCategoryById(selectedCategory.categoryId)?.name }}</div>
+                        <small class="text-muted">{{ truncateDescription(getCategoryById(selectedCategory.categoryId)?.description, 50) }}</small>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger" 
+                              (click)="toggleCategorySelection(selectedCategory.categoryId)">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12" *ngIf="availableCategories.length === 0">
+                  <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Aucune catégorie disponible. Veuillez d'abord créer des catégories.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alert section -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  Alerte/Notification
+                </h6>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.alert.enabled" 
+                         name="alertEnabled" id="alertEnabled">
+                  <label class="form-check-label" for="alertEnabled">
+                    Activer cette section
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="card-body" *ngIf="editForm.alert.enabled">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Type d'alerte *</label>
+                  <select class="form-select" [(ngModel)]="editForm.alert.type" name="alertType">
+                    <option value="info">Information</option>
+                    <option value="success">Succès</option>
+                    <option value="warning">Avertissement</option>
+                    <option value="error">Erreur</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Titre *</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.alert.title" 
+                         name="alertTitle" placeholder="Nouvelle offre !">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Description</label>
+                  <input type="text" class="form-control" [(ngModel)]="editForm.alert.description" 
+                         name="alertDescription" placeholder="Profitez de -20% sur tous nos produits">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Ordre d'affichage</label>
+                  <input type="number" class="form-control" [(ngModel)]="editForm.alert.order" 
+                         name="alertOrder" min="1" max="10">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Page settings -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="bi bi-gear me-2"></i>
+                Paramètres de la page
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="editForm.isMain" 
+                       name="isMain" id="isMain">
+                <label class="form-check-label" for="isMain">
+                  <strong>Définir comme page principale</strong>
+                  <small class="text-muted d-block">Cette page sera affichée sur la page d'accueil du site</small>
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Annuler</button>
+        <button type="button" class="btn btn-outline-info me-2" (click)="previewLandingForm()" 
+                [disabled]="!editLandingForm.form.valid">
+          <i class="bi bi-eye me-1"></i>
+          Aperçu
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveLanding()" 
+                [disabled]="!editLandingForm.form.valid || isSaving">
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+          <i class="bi bi-save me-1" *ngIf="!isSaving"></i>
+          {{ currentLanding ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal aperçu -->
+<div class="modal fade" [class.show]="showPreviewModal" [style.display]="showPreviewModal ? 'block' : 'none'" tabindex="-1"
+  *ngIf="showPreviewModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-eye me-2"></i>
+          Aperçu de la landing page
+        </h5>
+        <button type="button" class="btn-close" (click)="closePreviewModal()"></button>
