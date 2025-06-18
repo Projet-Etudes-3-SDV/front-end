@@ -53,7 +53,7 @@
           </ion-input>
         </ion-item>
         <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error">
-          Mot de passe requis
+          Votre mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (&#64;$!%*?&).
         </div>
         <ion-button class="register-button" expand="full" type="submit" [disabled]="registerForm.invalid">
           S'inscrire
