@@ -1,7 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
-import { IconSetService } from '@coreui/icons-angular';
-import { cilMenu, cilAccountLogout, cilUser, cilSpeedometer, cilInbox, cilCart, cilSettings } from '@coreui/icons';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -13,56 +11,44 @@ import { AuthService } from '../../services/auth.service';
 })
 export class AdminLayoutComponent {
   sidebarId = 'sidebar';
-  
+
   navItems = [
     {
       name: 'Dashboard',
       url: '/admin/dashboard',
-      iconComponent: { name: 'cil-speedometer' }
+      icon: 'bi bi-speedometer2'
     },
     {
       name: 'Utilisateurs',
       url: '/admin/users',
-      iconComponent: { name: 'cil-user' }
+      icon: 'bi bi-people'
     },
     {
       name: 'Catégories',
       url: '/admin/categories',
-      iconComponent: { name: 'cil-menu' }
+      icon: 'bi bi-list-ul'
     },
     {
       name: 'Produits',
       url: '/admin/products',
-      iconComponent: { name: 'cil-inbox' }
+      icon: 'bi bi-box'
     },
     {
       name: 'Commandes',
       url: '/admin/orders',
-      iconComponent: { name: 'cil-cart' }
+      icon: 'bi bi-receipt'
     },
     {
       name: 'Paramètres',
       url: '/admin/settings',
-      iconComponent: { name: 'cil-settings' }
+      icon: 'bi bi-gear'
     }
   ];
 
   constructor(
-    private iconSetService: IconSetService,
     private authService: AuthService,
     private router: Router
-  ) {
-    // Enregistrer les icônes CoreUI
-    this.iconSetService.icons = { 
-      cilMenu, 
-      cilAccountLogout, 
-      cilUser, 
-      cilSpeedometer, 
-      cilInbox, 
-      cilCart, 
-      cilSettings 
-    };
-  }
+  ) {}
 
   getCurrentYear(): number {
     return new Date().getFullYear();

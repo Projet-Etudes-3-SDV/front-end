@@ -272,8 +272,8 @@ export class CategoriesPage implements OnInit {
         }
       }, 100);
       
-      const response = await this.apiService.postImage(`/categories/${categoryId}/image`, formData);
-      const result = await response.json();
+      const response = await this.apiService.postImage(`/upload/category/${categoryId}`, formData);
+      const result = await response.data;
       
       clearInterval(uploadInterval);
       this.imageUploadProgress = 100;

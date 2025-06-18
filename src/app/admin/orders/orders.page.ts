@@ -669,7 +669,7 @@ export class OrdersPage implements OnInit {
   }
 
   getSubscriptionIcon(type: string): string {
-    return type === 'monthly' ? 'bi-calendar-month' : 'bi-calendar-year';
+    return type === 'monthly' ? 'bi-calendar-month' : 'bi-calendar-date';
   }
 
   getPaymentFrequency(type: string): string {
