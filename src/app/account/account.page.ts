@@ -386,4 +386,14 @@ ${productsText}`;
 
     await confirmAlert.present();
   }
+
+  async sendInvoiceMail(subscriptionId: string) {
+    try {
+      await this.apiService.sendInvoiceMail(subscriptionId);
+      this.toastService.presentToast('L\'email de facture a été envoyé avec succès.', 'success');
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email de facture:', error);
+      this.toastService.presentToast('Erreur lors de l\'envoi de l\'email de facture.', 'danger');
+    }
+  }
 }

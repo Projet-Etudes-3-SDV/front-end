@@ -223,4 +223,9 @@ export class ApiService {
     return this.axiosInstance.get(`/orders/by-session/${orderId}`);
   }
 
+  /** Gestion des factures */
+  sendInvoiceMail(subscriptionId: string): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.get(`/invoices/${subscriptionId}`);
+  }
+
 }
