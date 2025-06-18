@@ -1,0 +1,140 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Détails de l'abonnement</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="subscription-details">
+    <div class="header-section mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <ion-icon name="diamond" class="text-blue-500 text-2xl"></ion-icon>
+        <h2 class="text-xl font-bold text-gray-800">{{ subscription.name }}</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-3 py-1 rounded-full text-sm font-semibold" [ngClass]="{
+          'bg-green-100 text-green-700': subscription.status === 'active' || subscription.status === 'trialing',
+          'bg-yellow-100 text-yellow-700': subscription.status === 'past_due' || subscription.status === 'incomplete',
+          'bg-red-100 text-red-700': subscription.status === 'canceled' || subscription.status === 'incomplete_expired' || subscription.status === 'unpaid'
+        }">
+          {{ subscriptionStatusMap[subscription.status] }}
+        </span>
+      </div>
+    </div>
+
+    <div class="description-section mb-6" *ngIf="subscription.description">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <div class="flex items-start gap-2 mb-2">
+          <ion-icon name="information-circle" class="text-blue-500 text-lg mt-0.5"></ion-icon>
+          <h3 class="font-semibold text-gray-700">Description</h3>
+        </div>
+        <p class="text-gray-600 leading-relaxed">{{ subscription.description }}</p>
+      </div>
+    </div>
+
+    <div class="pricing-section mb-6">
+      <div class="bg-blue-50 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <ion-icon name="card" class="text-blue-500 text-lg"></ion-icon>
+          <h3 class="font-semibold text-gray-700">Informations tarifaires</h3>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Prix :</span>
+            <span class="font-semibold text-lg text-blue-600">
+              {{ subscription.price | currency: subscription.currency }}
+              <span class="text-sm text-gray-500">
+                /{{ subscription.planType === 'monthly' ? 'mois' : 'an' }}
+              </span>
+            </span>
+          </div>
+          <div class="flex justify-between items-center" *ngIf="subscription.coupon">
+            <span class="text-gray-600">Coupon appliqué :</span>
+            <span class="font-semibold text-green-600">{{ subscription.coupon.code }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dates-section mb-6">
+      <div class="bg-gray-50 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <ion-icon name="calendar" class="text-blue-500 text-lg"></ion-icon>
+          <h3 class="font-semibold text-gray-700">Dates importantes</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Date de début :</span>
+            <span class="font-medium">{{ subscription.startDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">{{ !subscription.cancelAtPeriodEnd ? 'Prochain renouvellement' : 'Date de fin'
+              }} :</span>
+            <span class="font-medium" [ngClass]="{
+              'text-green-600': !subscription.cancelAtPeriodEnd,
+              'text-red-600': subscription.cancelAtPeriodEnd
+            }">
+              {{ subscription.endDate | date:'dd/MM/yyyy à HH:mm' }}
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Créé le :</span>
+            <span class="font-medium">{{ subscription.createdAt | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="renewal-section mb-6">
+      <div class="rounded-lg p-4" [ngClass]="{
+        'bg-green-50': !subscription.cancelAtPeriodEnd,
+        'bg-orange-50': subscription.cancelAtPeriodEnd
+      }">
+        <div class="flex items-center gap-2 mb-2">
+          <ion-icon [name]="!subscription.cancelAtPeriodEnd ? 'sync-circle' : 'pause-circle'"
+            [class]="!subscription.cancelAtPeriodEnd ? 'text-green-500' : 'text-orange-500'" class="text-lg"></ion-icon>
+          <h3 class="font-semibold text-gray-700">Renouvellement automatique</h3>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600">Statut :</span>
+          <div class="flex items-center gap-2">
+            <span [class]="!subscription.cancelAtPeriodEnd ? 'text-green-600' : 'text-orange-600'"
+              class="font-semibold">
+              {{ !subscription.cancelAtPeriodEnd ? 'Activé' : 'Désactivé' }}
+            </span>
+            <ion-icon [name]="!subscription.cancelAtPeriodEnd ? 'checkmark-circle' : 'close-circle'"
+              [class]="!subscription.cancelAtPeriodEnd ? 'text-green-500' : 'text-orange-500'">
+            </ion-icon>
+          </div>
+          <ion-button *ngIf="!subscription.cancelAtPeriodEnd" expand="block" fill="outline" color="danger" (click)="cancelSubscription()">
+            <ion-icon name="close-outline" slot="start"></ion-icon>
+              Annuler le renouvellement
+            </ion-button>
+        </div>
+        <p class="text-sm text-gray-600 mt-2" *ngIf="!subscription.cancelAtPeriodEnd">
+          Votre abonnement sera automatiquement renouvelé le {{ subscription.endDate | date:'dd/MM/yyyy' }}.
+        </p>
+        <p class="text-sm text-gray-600 mt-2" *ngIf="subscription.cancelAtPeriodEnd">
+          Votre abonnement se terminera le {{ subscription.endDate | date:'dd/MM/yyyy' }} et ne sera pas renouvelé.
+        </p>
+      </div>
+    </div>
+
+    <div class="actions-section">
+      <div class="flex flex-col gap-3">
+        <ion-button expand="block" fill="outline" color="primary" (click)="sendInvoice()">
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          Envoyer la facture par email
+        </ion-button>
+        <ion-button expand="block" fill="clear" color="medium" (click)="dismiss()">
+          Fermer
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

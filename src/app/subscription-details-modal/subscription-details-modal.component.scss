@@ -1,0 +1,35 @@
+.subscription-details {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.header-section h2 {
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .sm\\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.space-y-2>*+* {
+  margin-top: 0.5rem;
+}
+
+.leading-relaxed {
+  line-height: 1.625;
+}

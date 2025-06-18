@@ -140,8 +140,8 @@ export class ApiService {
     return this.axiosInstance.post('/subscription/activate', data);
   }
 
-  cancelSubscription(data: any): Promise<AxiosResponse<any>> {
-    return this.axiosInstance.post('/subscription/cancel', data);
+  cancelSubscription(id: string): Promise<AxiosResponse<any>> {
+    return this.axiosInstance.post('/subscriptions/cancel/' + id);
   }
 
   updateSubscriptionEndDate(data: any): Promise<AxiosResponse<any>> {

@@ -81,10 +81,10 @@
                   {{ sub.name }}
                 </h4>
                 <span class="px-2 py-1 rounded-lg text-xs font-bold uppercase flex items-center gap-1" [ngClass]="{
-                  'bg-green-300 text-green-800': sub.status === 'active' || sub.status === 'trialing',
-                  'bg-yellow-300 text-yellow-800': sub.status === 'past_due' || sub.status === 'incomplete',
-                  'bg-red-300 text-red-800': sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'
-                }">
+                          'bg-green-300 text-green-800': sub.status === 'active' || sub.status === 'trialing',
+                          'bg-yellow-300 text-yellow-800': sub.status === 'past_due' || sub.status === 'incomplete',
+                          'bg-red-300 text-red-800': sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'
+                        }">
                   {{ subscriptionStatusMap[sub.status] }}
                 </span>
               </div>
@@ -95,20 +95,24 @@
                 </p>
                 <p class="flex items-center gap-1">
                   <ion-icon name="time" slot="start" class="text-blue-400 ml-0 mr-1"></ion-icon>
-                  {{ sub.cancelAtPeriodEnd ? 'Renouvellement' : 'Fin' }} le <strong>{{ sub.endDate | date:'EEEE d MMMM y
-                    à HH:mm' }}</strong>
+                  {{ !sub.cancelAtPeriodEnd ? 'Renouvellement' : 'Fin' }} le <strong>{{ sub.endDate | date:'EEEE d MMMM y à
+                    HH:mm' }}</strong>
                 <p class="flex items-center gap-2">
                   <ion-icon name="sync-circle" slot="start" class="text-blue-400 ml-0"></ion-icon>
-                  Renouvellement automatique : <strong>{{ sub.cancelAtPeriodEnd ? 'Oui' : 'Non' }}</strong>
+                  Renouvellement automatique : <strong>{{ !sub.cancelAtPeriodEnd ? 'Oui' : 'Non' }}</strong>
                 </p>
               </div>
             </ion-label>
-            <div>
-              <ion-icon name="mail-outline" matTooltip="Envoyer la facture" color="primary" (click)="sendInvoiceMail(sub.id)" class="cursor-pointer"></ion-icon>
-              <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl"></ion-icon>
+            <div class="flex items-center gap-2">
+              <ion-icon name="mail-outline" matTooltip="Envoyer la facture" color="primary" (click)="sendInvoiceMail(sub.id)"
+                class="cursor-pointer">
+              </ion-icon>
+              <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl cursor-pointer"
+                (click)="viewSubscriptionDetails(sub)">
+              </ion-icon>
             </div>
           </ion-item>
-        </ion-list>
+          </ion-list>
 
         <div *ngIf="userSubscriptions.length > 0" class="flex items-center justify-center gap-2 mt-4">
           <ion-button size="small" fill="outline" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">

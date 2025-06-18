@@ -12,6 +12,7 @@ import {
 } from '@angular/animations';
 import { ToastService } from '../services/toast.service';
 import { OrderDetailsModalComponent } from '../order-details-modal/order-details-modal.component';
+import { SubscriptionDetailsModalComponent } from '../subscription-details-modal/subscription-details-modal.component';
 
 @Component({
   selector: 'app-account',
@@ -394,6 +395,57 @@ ${productsText}`;
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'email de facture:', error);
       this.toastService.presentToast('Erreur lors de l\'envoi de l\'email de facture.', 'danger');
+    }
+  }
+
+  async cancelSubscription(subscriptionId: string) {
+    const confirmAlert = await this.alertController.create({
+      header: 'Confirmer l\'annulation',
+      message: 'Êtes-vous sûr de vouloir annuler cette souscription ?',
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel'
+        },
+        {
+          text: 'Annuler la souscription',
+          cssClass: 'danger',
+          handler: async () => {
+            try {
+              await this.apiService.cancelSubscription(subscriptionId);
+              this.toastService.presentToast('La souscription a été annulée avec succès.', 'success');
+
+              this.userSubscriptions.find(sub => sub.id === subscriptionId).cancelAtPeriodEnd = true;
+            } catch (error) {
+              console.error('Erreur lors de l\'annulation de la souscription:', error);
+              this.toastService.presentToast('Erreur lors de l\'annulation de la souscription.', 'danger');
+            }
+          }
+        }
+      ] 
+    });
+    await confirmAlert.present();
+  }
+
+  async viewSubscriptionDetails(subscription: any) {
+    const modal = await this.modalCtrl.create({
+      component: SubscriptionDetailsModalComponent,
+      componentProps: {
+        subscription,
+        subscriptionStatusMap: this.subscriptionStatusMap
+      },
+      cssClass: 'subscription-details-modal'
+    });
+
+    await modal.present();
+
+    // Gérer le retour de la modale
+    const { data } = await modal.onWillDismiss();
+
+    if (data && data.action === 'sendInvoice') {
+      await this.sendInvoiceMail(data.subscriptionId);
+    } else if (data && data.action === 'cancelSubscription') {
+      await this.cancelSubscription(subscription.id);
     }
   }
 }
