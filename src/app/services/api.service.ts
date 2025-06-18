@@ -215,13 +215,12 @@ export class ApiService {
   }
 
   /** Gestion des Commandes **/
-
   getUserOrders(): Promise<AxiosResponse<any>> {
     return this.axiosInstance.get(`/orders/me`);
   }
 
   getUserOrderById(orderId: string): Promise<AxiosResponse<any>> {
-    return this.axiosInstance.get(`/orders/${orderId}`);
+    return this.axiosInstance.get(`/orders/by-session/${orderId}`);
   }
 
 }
