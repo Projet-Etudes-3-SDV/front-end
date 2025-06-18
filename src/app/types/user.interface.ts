@@ -17,7 +17,7 @@ export interface User {
   role: UserRole;
   registrationDate: Date;
   lastLogin?: Date;
-  cart: string[]; // or string if single cart
+  cart: string[];
   isValidated: boolean;
   addresses: Address[];
   stripeCustomerId?: string;

@@ -71,7 +71,6 @@ export class CategoriesPage implements OnInit {
     this.loadCategories();
   }
 
-  // Chargement des données
   async loadCategories(): Promise<void> {
     try {
       this.isLoading = true;
@@ -98,11 +97,9 @@ export class CategoriesPage implements OnInit {
     }
   }
 
-  // Filtres et tri
   applyFiltersAndSort(): void {
     let filtered = [...this.categories];
 
-    // Recherche
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(category =>
@@ -111,7 +108,6 @@ export class CategoriesPage implements OnInit {
       );
     }
 
-    // Tri
     filtered.sort((a, b) => {
       let aValue: any = a[this.sortBy as keyof Category];
       let bValue: any = b[this.sortBy as keyof Category];
@@ -133,7 +129,6 @@ export class CategoriesPage implements OnInit {
 
     this.filteredCategories = filtered;
     
-    // Ajuster la page courante si nécessaire
     const totalPages = this.getTotalPages();
     if (this.currentPage > totalPages && totalPages > 0) {
       this.currentPage = totalPages;
@@ -155,7 +150,6 @@ export class CategoriesPage implements OnInit {
     return this.sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
   }
 
-  // Pagination
   getPaginatedCategories(): Category[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     return this.filteredCategories.slice(start, start + this.itemsPerPage);
@@ -180,7 +174,6 @@ export class CategoriesPage implements OnInit {
     return Math.min(a, b);
   }
 
-  // Sélection
   get hasSelectedCategories(): boolean {
     return this.selectedCategories.size > 0;
   }
@@ -217,12 +210,11 @@ export class CategoriesPage implements OnInit {
     }
   }
 
-  // Upload d'image
   onImageSelected(event: any): void {
     const file = event.target.files[0];
     
     if (file) {
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
 
       if (!allowedTypes.includes(file.type)) {
@@ -241,7 +233,6 @@ export class CategoriesPage implements OnInit {
       this.selectedFileName = file.name;
       this.categoryForm.imageFile = file;
 
-      // Prévisualisation de l'image
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.categoryForm.imageUrl = e.target.result;
@@ -280,7 +271,6 @@ export class CategoriesPage implements OnInit {
 
       if (result && result.imageUrl) {
         this.categoryForm.imageUrl = result.imageUrl;
-        console.log('URL de l\'image mise à jour:', result.imageUrl);
       }
 
       setTimeout(() => {
@@ -294,7 +284,6 @@ export class CategoriesPage implements OnInit {
     }
   }
 
-  // CRUD Operations
   async createCategory(): Promise<void> {
     if (!this.categoryForm.name.trim() || !this.categoryForm.description.trim()) return;
 
@@ -308,7 +297,6 @@ export class CategoriesPage implements OnInit {
 
       const newCategory = await this.apiService.post('/categories', categoryData);
       
-      // Upload de l'image si elle existe
       const fileToUpload = this.selectedImageFile || this.categoryForm.imageFile;
       if (fileToUpload && newCategory?.id) {
         await this.uploadCategoryImage(newCategory.id, fileToUpload);
@@ -342,7 +330,6 @@ export class CategoriesPage implements OnInit {
 
       const updatedCategory = await this.apiService.put(`/categories/${this.currentCategory.id}`, categoryData);
       
-      // Upload de l'image si une nouvelle image a été sélectionnée
       const fileToUpload = this.selectedImageFile || this.categoryForm.imageFile;
       if (fileToUpload && this.currentCategory.id) {
         await this.uploadCategoryImage(this.currentCategory.id, fileToUpload);
@@ -406,7 +393,6 @@ export class CategoriesPage implements OnInit {
     }
   }
 
-  // Gestion des modales
   openCreateModal(): void {
     this.currentCategory = null;
     this.categoryForm = {
@@ -462,7 +448,6 @@ export class CategoriesPage implements OnInit {
     this.categoriesToDelete = [];
   }
 
-  // Utilitaires d'affichage
   formatDate(dateString: string): string {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -508,12 +493,10 @@ export class CategoriesPage implements OnInit {
     }
   }
 
-  // Actions rapides
   refreshCategories(): void {
     this.loadCategories();
   }
 
-  // Export
   exportToCSV(): void {
     const headers = ['ID', 'Nom', 'Description', 'URL Image', 'Date de création'];
     const csvData = this.filteredCategories.map(category => [

@@ -46,8 +46,6 @@ export interface Order {
   status: 'paid' | 'pending' | 'cancelled' | 'failed';
   products: OrderProduct[];
   orderDate: string;
-  
-  // Propriétés calculées pour la compatibilité
   customerEmail?: string;
   customerId?: string;
   stripeCustomerId?: string;
@@ -152,22 +150,14 @@ export class OrdersPage implements OnInit {
         }
       });
 
-      console.log('Réponse API orders:', response);
-
       const ordersData = this.extractDataArray(response);
       this.totalItems = response.total || ordersData.length;
 
-      console.log('Orders data extraites:', ordersData);
-
-      // Adapter la structure des données de votre API
       this.orders = ordersData.map(order => {
-        console.log('Traitement de la commande:', order);
         
-        // Prendre le premier produit comme produit principal (vous pouvez adapter selon vos besoins)
         const firstProduct = order.products && order.products.length > 0 ? order.products[0] : null;
         const product = firstProduct?.product;
         
-        // Mapper les statuts de votre API vers ceux attendus
         const statusMapping: {[key: string]: 'active' | 'pending' | 'cancelled' | 'past_due'} = {
           'paid': 'active',
           'pending': 'pending', 
@@ -176,19 +166,16 @@ export class OrdersPage implements OnInit {
         };
 
         const adaptedOrder: OrderTableData = {
-          // Données originales
           id: order.id,
           user: order.user,
           total: order.total,
           status: order.status,
           products: order.products || [],
           orderDate: order.orderDate,
-          
-          // Propriétés adaptées pour la compatibilité
           customerEmail: order.user?.email || '',
           customerId: order.user?.id || '',
-          stripeCustomerId: '', // Vous pouvez ajouter cette info si disponible
-          stripeSubscriptionId: '', // Vous pouvez ajouter cette info si disponible
+          stripeCustomerId: '',
+          stripeSubscriptionId: '',
           productId: product?.id || '',
           productName: product?.name || 'Commande multi-produits',
           product: product,
@@ -201,16 +188,11 @@ export class OrdersPage implements OnInit {
             subscriptionType: firstProduct?.plan as 'monthly' | 'yearly' || 'monthly'
           } as any),
           statusHistory: [],
-          
-          // Propriété pour la sélection
           selected: false
         };
 
-        console.log('Commande adaptée:', adaptedOrder);
         return adaptedOrder;
       });
-
-      console.log('Toutes les commandes traitées:', this.orders);
 
       this.applyFiltersAndSort();
       this.calculateMetrics();
@@ -269,7 +251,7 @@ export class OrdersPage implements OnInit {
       active: this.orders.filter(o => o.status === 'paid').length,
       pending: this.orders.filter(o => o.status === 'pending').length,
       cancelled: this.orders.filter(o => o.status === 'cancelled' || o.status === 'failed').length,
-      pastDue: 0, // Pas de statut past_due dans votre API pour l'instant
+      pastDue: 0,
       totalRevenue: this.orders
         .filter(o => o.status === 'paid')
         .reduce((sum, o) => sum + (o.total || 0), 0)
@@ -279,7 +261,6 @@ export class OrdersPage implements OnInit {
   applyFiltersAndSort(): void {
     let filtered = [...this.orders];
 
-    // Recherche
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(order =>
@@ -289,7 +270,6 @@ export class OrdersPage implements OnInit {
       );
     }
 
-    // Filtres
     if (this.statusFilter) {
       filtered = filtered.filter(order => order.status === this.statusFilter);
     }
@@ -302,7 +282,6 @@ export class OrdersPage implements OnInit {
       filtered = filtered.filter(order => order.productId === this.productFilter);
     }
 
-    // Filtre par date
     if (this.dateFrom) {
       const fromDate = new Date(this.dateFrom);
       filtered = filtered.filter(order => {
@@ -320,12 +299,10 @@ export class OrdersPage implements OnInit {
       });
     }
 
-    // Tri
     filtered.sort((a, b) => {
       let aValue: any = a[this.sortColumn as keyof OrderTableData];
       let bValue: any = b[this.sortColumn as keyof OrderTableData];
 
-      // Gestion des cas spéciaux
       if (this.sortColumn === 'productName') {
         aValue = a.productName || '';
         bValue = b.productName || '';
@@ -367,7 +344,6 @@ export class OrdersPage implements OnInit {
     return this.sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
   }
 
-  // Pagination
   getPaginatedOrders(): OrderTableData[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     return this.filteredOrders.slice(startIndex, startIndex + this.itemsPerPage);
@@ -383,7 +359,6 @@ export class OrdersPage implements OnInit {
     }
   }
 
-  // Sélection
   toggleOrderSelection(orderId: string): void {
     const order = this.orders.find(o => o.id === orderId);
     if (order) {
@@ -419,7 +394,6 @@ export class OrdersPage implements OnInit {
     return currentPageOrders.length > 0 && currentPageOrders.every(order => order.selected);
   }
 
-  // Actions sur les commandes
   viewOrderDetails(order: Order): void {
     this.currentOrder = order;
     this.showDetailsModal = true;
@@ -450,13 +424,11 @@ export class OrdersPage implements OnInit {
 
       await this.apiService.put(`/orders/${this.currentOrder.id}/status`, updateData);
 
-      // Mettre à jour la commande locale
       const orderIndex = this.orders.findIndex(o => o.id === this.currentOrder!.id);
       if (orderIndex !== -1) {
         this.orders[orderIndex].status = this.statusForm.newStatus as any;
         this.orders[orderIndex].updatedAt = new Date().toISOString();
         
-        // Ajouter à l'historique
         if (!this.orders[orderIndex].statusHistory) {
           this.orders[orderIndex].statusHistory = [];
         }
@@ -527,14 +499,12 @@ export class OrdersPage implements OnInit {
     try {
       await this.apiService.delete(`/orders/${orderId}`);
       
-      // Supprimer de la liste locale
       this.orders = this.orders.filter(o => o.id !== orderId);
       this.selectedOrders.delete(orderId);
       
       this.applyFiltersAndSort();
       this.calculateMetrics();
       
-      // Fermer les modales si la commande supprimée était affichée
       if (this.currentOrder?.id === orderId) {
         this.closeDetailsModal();
         this.closeStatusModal();
@@ -555,7 +525,6 @@ export class OrdersPage implements OnInit {
         await this.apiService.delete(`/orders/${orderId}`);
       }
       
-      // Supprimer de la liste locale
       this.orders = this.orders.filter(o => !this.selectedOrders.has(o.id));
       this.selectedOrders.clear();
       
@@ -586,7 +555,6 @@ export class OrdersPage implements OnInit {
     }
   }
 
-  // Gestion des modales
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.currentOrder = null;
@@ -602,7 +570,6 @@ export class OrdersPage implements OnInit {
     };
   }
 
-  // Utilitaires d'affichage
   getCustomerInitials(email: string): string {
     if (!email) return '?';
     const parts = email.split('@')[0].split('.');
@@ -717,7 +684,6 @@ export class OrdersPage implements OnInit {
     });
   }
 
-  // Export CSV
   exportCSV(): void {
     const headers = [
       'ID Commande',

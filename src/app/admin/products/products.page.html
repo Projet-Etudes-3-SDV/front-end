@@ -157,7 +157,7 @@
                      class="product-thumbnail me-3"
                      style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
                 <div>
-                  <div class="fw-medium">{{ product.name }}</div>
+                  <div class="fw-medium truncate">{{ product.name }}</div>
                   <div class="small text-muted mt-1">
                     <span class="badge bg-light text-dark rounded-pill me-1">
                       {{ product.features.length }} fonctionnalité<span *ngIf="product.features.length > 1">s</span>

@@ -76,14 +76,12 @@ export class SearchPage {
   }
 
   async ionViewWillEnter() {
-    // Charger les catégories pour le filtre
     await this.loadCategories();
     this.onSearchChange();
   }
 
   async loadCategories() {
     try {
-      // Supposons que vous avez une méthode pour récupérer les catégories
       const { categories } = await this.productSearchService.search(
         { name: '', page: 1, limit: 100 },
         'categories'
@@ -125,7 +123,6 @@ export class SearchPage {
   }
 
   onFiltersChange() {
-    // Débounce pour éviter trop d'appels API
     if (this.filterTimeout) {
       clearTimeout(this.filterTimeout);
     }

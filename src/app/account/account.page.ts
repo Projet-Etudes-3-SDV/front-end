@@ -117,7 +117,6 @@ export class AccountPage {
         this.user = response.data;
         this.userSubscriptions = this.user.subscriptions || [];
 
-        // Charger les commandes
         await this.loadUserOrders();
 
         this.showAccountContent = true;
@@ -439,7 +438,6 @@ ${productsText}`;
 
     await modal.present();
 
-    // Gérer le retour de la modale
     const { data } = await modal.onWillDismiss();
 
     if (data && data.action === 'sendInvoice') {

@@ -123,17 +123,14 @@ export class ProductsPage implements OnInit {
       this.totalItems = response.total || productsData.length;
 
       this.products = productsData.map(product => {
-        // Convertir les features en objets Feature
         const convertedFeatures: Feature[] = Array.isArray(product.features) 
           ? product.features.map((f: any) => {
-              // Si c'est déjà un objet avec title/description, on le garde
               if (f && typeof f === 'object' && f.title) {
                 return {
                   title: f.title,
                   description: f.description || ''
                 } as Feature;
               }
-              // Si c'est une string, on la convertit en objet
               if (typeof f === 'string') {
                 return {
                   title: f,
@@ -173,7 +170,6 @@ export class ProductsPage implements OnInit {
       this.availableCategories = this.extractDataArray(response);
     } catch (error) {
       console.error('Erreur lors du chargement des catégories:', error);
-      // Catégories par défaut si l'API n'existe pas encore
       this.availableCategories = [
         { id: '1', name: 'SOC', description: 'Security Operations Center' },
         { id: '2', name: 'EDR', description: 'Endpoint Detection and Response' },
@@ -201,7 +197,6 @@ export class ProductsPage implements OnInit {
   applyFiltersAndSort(): void {
     let filtered = [...this.products];
 
-    // Recherche
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(product =>
@@ -210,7 +205,6 @@ export class ProductsPage implements OnInit {
       );
     }
 
-    // Filtres
     if (this.categoryFilter) {
       filtered = filtered.filter(product => product.category.id === this.categoryFilter);
     }
@@ -220,12 +214,10 @@ export class ProductsPage implements OnInit {
       filtered = filtered.filter(product => product.available === isAvailable);
     }
 
-    // Tri
     filtered.sort((a, b) => {
       let aValue: any = a[this.sortColumn as keyof ProductTableData];
       let bValue: any = b[this.sortColumn as keyof ProductTableData];
 
-      // Gestion des cas spéciaux
       if (this.sortColumn === 'category') {
         aValue = a.category.name || '';
         bValue = b.category.name || '';
@@ -268,7 +260,6 @@ export class ProductsPage implements OnInit {
     return this.sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
   }
 
-  // Pagination
   getPaginatedProducts(): ProductTableData[] {
     return this.filteredProducts;
   }
@@ -284,7 +275,6 @@ export class ProductsPage implements OnInit {
     }
   }
 
-  // Sélection
   toggleProductSelection(productId: string): void {
     const product = this.products.find(p => p.id === productId);
     if (product) {
@@ -320,7 +310,6 @@ export class ProductsPage implements OnInit {
     return currentPageProducts.length > 0 && currentPageProducts.every(product => product.selected);
   }
 
-  // Actions CRUD
   openCreateModal(): void {
     this.currentProduct = null;
     this.editForm = {
@@ -347,7 +336,6 @@ export class ProductsPage implements OnInit {
     
     this.currentProduct = product;
     
-    // S'assurer que les features sont correctement copiées
     let productFeatures: Feature[];
     
     if (Array.isArray(product.features) && product.features.length > 0) {
@@ -370,7 +358,6 @@ export class ProductsPage implements OnInit {
         }
       });
     } else {
-      console.log('Aucune feature trouvée, création d\'une feature vide');
       productFeatures = [{ title: '', description: '' }];
     }
     
@@ -399,7 +386,6 @@ export class ProductsPage implements OnInit {
     try {
       this.isSaving = true;
 
-      // Nettoyer les features vides et s'assurer qu'elles sont valides
       const cleanedFeatures = this.editForm.features
         .filter(f => f && f.title && f.title.trim() !== '')
         .map(f => ({
@@ -478,7 +464,6 @@ export class ProductsPage implements OnInit {
       };
       reader.readAsDataURL(file);
     } else {
-      console.log('Aucun fichier sélectionné');
       this.selectedImageFile = null;
       this.selectedFileName = '';
       this.editForm.imageFile = undefined;
@@ -604,22 +589,18 @@ export class ProductsPage implements OnInit {
     }
   }
 
-  // Gestion des features dans le formulaire
   addFeature(): void {
     this.editForm.features.push({ title: '', description: '' });
-    console.log('Feature ajoutée. Total features:', this.editForm.features.length);
   }
 
   removeFeature(index: number): void {
     if (this.editForm.features.length > 1) {
       this.editForm.features.splice(index, 1);
-      console.log('Feature supprimée. Total features:', this.editForm.features.length);
     } else {
       console.log('Impossible de supprimer la dernière feature');
     }
   }
 
-  // Gestion des modales
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.currentProduct = null;
@@ -649,7 +630,6 @@ export class ProductsPage implements OnInit {
     this.productsToDelete = [];
   }
 
-  // Utilitaires
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
@@ -701,7 +681,6 @@ export class ProductsPage implements OnInit {
     return monthlyRevenue + yearlyRevenue;
   }
 
-  // Export CSV
   exportCSV(): void {
     const headers = [
       'Nom',

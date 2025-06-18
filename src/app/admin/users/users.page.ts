@@ -76,7 +76,6 @@ export class UsersPage implements OnInit {
       });
 
       const usersData = this.extractDataArray(response.data.result);
-      console.log(response)
       this.totalItems = response.data.total || usersData.length;
 
       this.users = usersData.map(user => ({
@@ -89,7 +88,7 @@ export class UsersPage implements OnInit {
         createdAt: user.createdAt || new Date().toISOString()
       }));
 
-      this.applyFiltersAndSort(); // <-- Ajoute cette ligne ici
+      this.applyFiltersAndSort();
 
     } catch (error) {
       console.error('Erreur lors du chargement des utilisateurs:', error);
@@ -103,7 +102,6 @@ export class UsersPage implements OnInit {
       return response;
     }
     if (response && response.result && Array.isArray(response.result)) {
-      console.log(response.result)
       return response.result;
     }
     if (response && response.data && Array.isArray(response.data)) {
@@ -115,7 +113,6 @@ export class UsersPage implements OnInit {
   applyFiltersAndSort(): void {
     let filtered = [...this.users];
 
-    // Recherche
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(user =>
@@ -128,7 +125,6 @@ export class UsersPage implements OnInit {
       filtered = filtered.filter(user => user.role === this.roleFilter);
     }
 
-    // Tri
     filtered.sort((a, b) => {
       let aValue: any = a[this.sortColumn as keyof UserTableData];
       let bValue: any = b[this.sortColumn as keyof UserTableData];
@@ -145,7 +141,6 @@ export class UsersPage implements OnInit {
       return this.sortDirection === 'asc' ? comparison : -comparison;
     });
 
-    // Ne pas toucher à this.totalItems ici !
     this.filteredUsers = filtered;
 
     if (this.currentPage > this.getTotalPages()) {
@@ -168,7 +163,6 @@ export class UsersPage implements OnInit {
     return this.sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
   }
 
-  // Pagination
   getPaginatedUsers(): UserTableData[] {
     return this.filteredUsers;
   }
@@ -180,11 +174,10 @@ export class UsersPage implements OnInit {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.getTotalPages()) {
       this.currentPage = page;
-      this.loadUsers(); // Ajoute cet appel pour recharger les données depuis l'API
+      this.loadUsers();
     }
   }
 
-  // Sélection
   toggleUserSelection(userId: string): void {
     const user = this.users.find(u => u.id === userId);
     if (user) {
@@ -220,7 +213,6 @@ export class UsersPage implements OnInit {
     return currentPageUsers.length > 0 && currentPageUsers.every(user => user.selected);
   }
 
-  // Actions CRUD
   viewUserDetails(user: User): void {
     this.currentUser = user;
     this.showDetailsModal = true;
@@ -244,7 +236,6 @@ export class UsersPage implements OnInit {
     try {
       await this.apiService.put(`/users/${this.currentUser.id}`, this.editForm);
 
-      // Mettre à jour localement
       const userIndex = this.users.findIndex(u => u.id === this.currentUser!.id);
       if (userIndex !== -1) {
         this.users[userIndex] = {
@@ -278,12 +269,10 @@ export class UsersPage implements OnInit {
     try {
       this.isDeleting = true;
 
-      // Supprimer chaque utilisateur
       for (const userId of this.usersToDelete) {
         await this.apiService.delete(`/users/${userId}`);
       }
 
-      // Mettre à jour localement
       this.users = this.users.filter(user => !this.usersToDelete.includes(user.id));
       this.selectedUsers.clear();
       this.applyFiltersAndSort();
@@ -297,7 +286,6 @@ export class UsersPage implements OnInit {
     }
   }
 
-  // Gestion des modales
   closeDetailsModal(): void {
     this.showDetailsModal = false;
     this.currentUser = null;
@@ -314,7 +302,6 @@ export class UsersPage implements OnInit {
     this.usersToDelete = [];
   }
 
-  // Utilitaires
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR');
   }
@@ -349,7 +336,6 @@ export class UsersPage implements OnInit {
     }
   }
 
-  // Export CSV
   exportCSV(): void {
     const headers = [
       'Nom complet',
