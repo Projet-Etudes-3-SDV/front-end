@@ -104,11 +104,8 @@
               </div>
             </ion-label>
             <div class="flex items-center gap-2">
-              <ion-icon name="mail-outline" matTooltip="Envoyer la facture" color="primary" (click)="sendInvoiceMail(sub.id)"
-                class="cursor-pointer">
-              </ion-icon>
               <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl cursor-pointer"
-                (click)="viewSubscriptionDetails(sub)">
+                (click)="viewSubscriptionDetails(sub)" matTooltip="Voir les détails">
               </ion-icon>
             </div>
           </ion-item>
@@ -171,7 +168,10 @@
                 </p>
               </div>
             </ion-label>
-            <ion-button slot="end" fill="clear" (click)="viewOrderDetails(order)">
+            <ion-icon name="mail-outline" matTooltip="Envoyer la facture" color="primary" (click)="sendInvoiceMail(order.subscriptionId)"
+              class="cursor-pointer">
+            </ion-icon>
+            <ion-button slot="end" fill="clear" (click)="viewOrderDetails(order)" matTooltip="Voir les détails">
               <ion-icon name="eye-outline"></ion-icon>
             </ion-button>
           </ion-item>
