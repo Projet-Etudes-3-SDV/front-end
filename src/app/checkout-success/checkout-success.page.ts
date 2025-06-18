@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { NavController, Platform, ModalController } from '@ionic/angular';
 import {
@@ -58,7 +58,8 @@ export class CheckoutSuccessPage implements OnInit {
     private navCtrl: NavController,
     private toastService: ToastService,
     private platform: Platform,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -113,11 +114,11 @@ export class CheckoutSuccessPage implements OnInit {
   }
 
   goToAccount() {
-    this.navCtrl.navigateRoot('/tabs/account');
+    this.router.navigate(['/account']);
   }
 
   goToHome() {
-    this.navCtrl.navigateRoot('/tabs/home');
+    this.router.navigate(['/home']);
   }
 
   getFormattedDate(dateString: string): string {

@@ -14,7 +14,8 @@ export interface Category {
 interface CategoryFormData {
   name: string;
   description: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageFile?: File;
 }
 
 @Component({
@@ -49,6 +50,9 @@ export class CategoriesPage implements OnInit {
   showEditModal = false;
   showDetailsModal = false;
   showDeleteModal = false;
+  imageUploadProgress = 0;
+  selectedFileName = '';
+  selectedImageFile: File | null = null;
 
   // Données modales
   currentCategory: Category | null = null;
@@ -213,14 +217,103 @@ export class CategoriesPage implements OnInit {
     }
   }
 
+  // Upload d'image
+  onImageSelected(event: any): void {
+    const file = event.target.files[0];
+    
+    if (file) {
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+
+      if (!allowedTypes.includes(file.type)) {
+        alert('Format d\'image non supporté. Utilisez JPG, PNG, GIF ou SVG.');
+        event.target.value = '';
+        return;
+      }
+
+      if (file.size > maxSize) {
+        alert('L\'image est trop volumineuse. Taille maximum: 5MB.');
+        event.target.value = '';
+        return;
+      }
+
+      this.selectedImageFile = file;
+      this.selectedFileName = file.name;
+      this.categoryForm.imageFile = file;
+
+      // Prévisualisation de l'image
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.categoryForm.imageUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.selectedImageFile = null;
+      this.selectedFileName = '';
+      this.categoryForm.imageFile = undefined;
+    }
+  }
+
+  async uploadCategoryImage(categoryId: string, file: File): Promise<void> {
+    try {
+      const formData = new FormData();
+      
+      if (!(file instanceof File)) {
+        throw new Error('Le fichier n\'est pas de type File');
+      }
+      
+      formData.append('file', file, file.name);
+
+      this.imageUploadProgress = 0;
+      const uploadInterval = setInterval(() => {
+        this.imageUploadProgress += 10;
+        if (this.imageUploadProgress >= 90) {
+          clearInterval(uploadInterval);
+        }
+      }, 100);
+      
+      const response = await this.apiService.postImage(`/categories/${categoryId}/image`, formData);
+      const result = await response.json();
+      
+      clearInterval(uploadInterval);
+      this.imageUploadProgress = 100;
+
+      if (result && result.imageUrl) {
+        this.categoryForm.imageUrl = result.imageUrl;
+        console.log('URL de l\'image mise à jour:', result.imageUrl);
+      }
+
+      setTimeout(() => {
+        this.imageUploadProgress = 0;
+      }, 1000);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'upload de l\'image:', error);
+      this.imageUploadProgress = 0;
+      alert('Erreur lors de l\'upload de l\'image. Veuillez réessayer.');
+    }
+  }
+
   // CRUD Operations
   async createCategory(): Promise<void> {
     if (!this.categoryForm.name.trim() || !this.categoryForm.description.trim()) return;
 
     try {
       this.isSaving = true;
-      const newCategory = await this.apiService.post('/categories', this.categoryForm);
       
+      const categoryData = {
+        name: this.categoryForm.name,
+        description: this.categoryForm.description
+      };
+
+      const newCategory = await this.apiService.post('/categories', categoryData);
+      
+      // Upload de l'image si elle existe
+      const fileToUpload = this.selectedImageFile || this.categoryForm.imageFile;
+      if (fileToUpload && newCategory?.id) {
+        await this.uploadCategoryImage(newCategory.id, fileToUpload);
+      }
+
       this.categories.unshift({
         ...newCategory,
         selected: false
@@ -241,7 +334,19 @@ export class CategoriesPage implements OnInit {
 
     try {
       this.isSaving = true;
-      const updatedCategory = await this.apiService.put(`/categories/${this.currentCategory.id}`, this.categoryForm);
+      
+      const categoryData = {
+        name: this.categoryForm.name,
+        description: this.categoryForm.description
+      };
+
+      const updatedCategory = await this.apiService.put(`/categories/${this.currentCategory.id}`, categoryData);
+      
+      // Upload de l'image si une nouvelle image a été sélectionnée
+      const fileToUpload = this.selectedImageFile || this.categoryForm.imageFile;
+      if (fileToUpload && this.currentCategory.id) {
+        await this.uploadCategoryImage(this.currentCategory.id, fileToUpload);
+      }
       
       const index = this.categories.findIndex(c => c.id === this.currentCategory!.id);
       if (index !== -1) {
@@ -309,6 +414,9 @@ export class CategoriesPage implements OnInit {
       description: '',
       imageUrl: ''
     };
+    this.imageUploadProgress = 0;
+    this.selectedFileName = '';
+    this.selectedImageFile = null;
     this.showEditModal = true;
   }
 
@@ -319,6 +427,9 @@ export class CategoriesPage implements OnInit {
       description: category.description,
       imageUrl: category.imageUrl || ''
     };
+    this.imageUploadProgress = 0;
+    this.selectedFileName = '';
+    this.selectedImageFile = null;
     this.showEditModal = true;
     this.showDetailsModal = false;
   }
@@ -336,6 +447,9 @@ export class CategoriesPage implements OnInit {
       description: '',
       imageUrl: ''
     };
+    this.imageUploadProgress = 0;
+    this.selectedFileName = '';
+    this.selectedImageFile = null;
   }
 
   closeDetailsModal(): void {

@@ -35,7 +35,7 @@
   <!-- Stats Cards -->
   <div *ngIf="!isLoading" class="row g-4 mb-4">
     <div class="col-md-6 col-xl-4" *ngFor="let stat of getStatCards()">
-      <div class="card h-100 border-0 shadow-sm hover-shadow">
+      <div class="card h-100 shadow-sm hover-shadow" [ngClass]="'border-' + stat.color">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-3">
             <div class="text-muted small fw-medium text-uppercase">{{ stat.title }}</div>
@@ -43,13 +43,11 @@
               <i [class]="'bi bi-' + stat.icon + ' text-' + stat.color"></i>
             </div>
           </div>
-
           <div class="mb-2">
             <span class="display-6 fw-bold text-dark"
               [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.value) : stat.value">
             </span>
           </div>
-
           <div *ngIf="stat.subValue !== undefined" class="d-flex align-items-center text-muted small">
             <span class="fw-medium me-1"
               [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.subValue) : stat.subValue">
@@ -62,34 +60,48 @@
   </div>
 
   <!-- Quick Stats -->
-  <div *ngIf="!isLoading" class="row g-4 mb-4">
+  <div class="row g-4 mb-4">
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm">
+      <div class="card shadow-sm">
         <div class="card-body">
           <h6 class="card-title mb-3">Taux de conversion des commandes</h6>
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1">
-              <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-success" [style.width.%]="getOrdersSuccessRate()">
-                </div>
-              </div>
-            </div>
-            <div class="ms-3">
-              <span class="fw-bold text-success">{{ getOrdersSuccessRate() }}%</span>
+          <!-- Spinner pour le taux de conversion -->
+          <div *ngIf="isLoadingStats" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
             </div>
           </div>
-          <small class="text-muted">
-            {{ stats.paidOrders }} commandes payées sur {{ stats.totalOrders }} total
-          </small>
+          <!-- Contenu du taux de conversion -->
+          <div *ngIf="!isLoadingStats">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-success" [style.width.%]="getOrdersSuccessRate()"></div>
+                </div>
+              </div>
+              <div class="ms-3">
+                <span class="fw-bold text-success">{{ getOrdersSuccessRate() }}%</span>
+              </div>
+            </div>
+            <small class="text-muted">
+              {{ stats.paidOrders }} commandes payées sur {{ stats.totalOrders }} total
+            </small>
+          </div>
         </div>
       </div>
     </div>
-
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm">
+      <div class="card shadow-sm">
         <div class="card-body">
           <h6 class="card-title mb-3">Répartition des statuts</h6>
-          <div class="row g-2">
+          <!-- Spinner pour la répartition des statuts -->
+          <div *ngIf="isLoadingStats" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+          <!-- Contenu de la répartition des statuts -->
+          <div *ngIf="!isLoadingStats" class="row g-2">
             <div class="col-4 text-center">
               <div class="text-success fw-bold">{{ stats.paidOrders }}</div>
               <small class="text-muted">Payées</small>
@@ -108,48 +120,42 @@
     </div>
   </div>
 
-  <!-- Content Grid -->
-  <div class="row g-4">
-    <!-- Recent Orders -->
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm">
+  <!-- Commandes récentes + Produits populaires -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
         <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
           <h6 class="mb-0 fw-semibold">Commandes récentes</h6>
           <a href="/admin/orders" class="btn btn-sm btn-outline-primary">
             Voir toutes <i class="bi bi-arrow-right ms-1"></i>
           </a>
         </div>
-
         <div class="card-body p-0">
           <div *ngIf="isLoadingOrders" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Chargement...</span>
             </div>
           </div>
-
           <div *ngIf="!isLoadingOrders && recentOrders.length === 0" class="text-center py-5 text-muted">
             <i class="bi bi-receipt fs-1 mb-3"></i>
             <p>Aucune commande récente</p>
           </div>
-
           <div *ngIf="!isLoadingOrders && recentOrders.length > 0" class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  <th class="border-0 fw-semibold">Client</th>
-                  <th class="border-0 fw-semibold">Produits</th>
-                  <th class="border-0 fw-semibold">Total</th>
-                  <th class="border-0 fw-semibold">Statut</th>
-                  <th class="border-0 fw-semibold">Date</th>
+                  <th>Client</th>
+                  <th>Produits</th>
+                  <th>Total</th>
+                  <th>Statut</th>
+                  <th>Date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let order of recentOrders" class="align-middle">
                   <td>
-                    <div>
-                      <div class="fw-medium">{{ order.customerName }}</div>
-                      <small class="text-muted">{{ order.customerEmail }}</small>
-                    </div>
+                    <div class="fw-medium">{{ order.customerName }}</div>
+                    <small class="text-muted">{{ order.customerEmail }}</small>
                   </td>
                   <td>
                     <span class="badge bg-light text-dark rounded-pill">
@@ -174,28 +180,24 @@
       </div>
     </div>
 
-    <!-- Top Products & Subscriptions -->
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm mb-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
         <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
           <h6 class="mb-0 fw-semibold">Produits les plus vendus</h6>
           <a href="/admin/products" class="btn btn-sm btn-outline-primary">
             Voir tous <i class="bi bi-arrow-right ms-1"></i>
           </a>
         </div>
-
         <div class="card-body">
           <div *ngIf="isLoadingProducts" class="text-center py-4">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Chargement...</span>
             </div>
           </div>
-
           <div *ngIf="!isLoadingProducts && topProducts.length === 0" class="text-center py-4 text-muted">
             <i class="bi bi-box fs-1 mb-3"></i>
             <p>Aucune vente enregistrée</p>
           </div>
-
           <div *ngIf="!isLoadingProducts && topProducts.length > 0">
             <div class="mb-3" *ngFor="let product of topProducts; let i = index">
               <div class="d-flex align-items-center justify-content-between mb-2">
@@ -208,7 +210,6 @@
                   <small class="text-muted">CA total</small>
                 </div>
               </div>
-
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <small class="text-muted">
                   {{ product.orderCount }} vente<span *ngIf="product.orderCount > 1">s</span>
@@ -218,48 +219,60 @@
                 </small>
                 <small class="fw-medium">{{ formatCurrency(product.revenue) }}</small>
               </div>
-
               <div class="progress" style="height: 4px;">
                 <div class="progress-bar" [class.bg-primary]="i === 0" [class.bg-secondary]="i > 0"
                   [style.width.%]="(product.orderCount / topProducts[0].orderCount) * 100"></div>
               </div>
-
               <hr *ngIf="i < topProducts.length - 1" class="my-3">
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Abonnements populaires -->
-      <div class="card border-0 shadow-sm">
+  <!-- Abonnements populaires -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
         <div class="card-header bg-white border-0">
           <h6 class="mb-0 fw-semibold">Abonnements actifs</h6>
         </div>
-
         <div class="card-body">
-          <div *ngIf="topSubscriptions.length === 0" class="text-center py-4 text-muted">
-            <i class="bi bi-arrow-repeat fs-1 mb-3"></i>
-            <p>Aucun abonnement actif</p>
-          </div>
-
-          <div *ngFor="let sub of topSubscriptions; let i = index">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <div>
-                <div class="fw-medium">{{ sub.name }}</div>
-                <small class="text-muted">{{ sub.count }} abonnement<span *ngIf="sub.count > 1">s</span></small>
-              </div>
-              <div class="text-end">
-                <div class="fw-bold text-success">{{ formatCurrency(sub.revenue) }}</div>
-                <small class="text-muted">/mois</small>
-              </div>
+          <!-- Spinner pour les abonnements -->
+          <div *ngIf="isLoadingSubscriptions" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
             </div>
-            <hr *ngIf="i < topSubscriptions.length - 1" class="my-3">
           </div>
-
-          <div *ngIf="topSubscriptions.length > 0" class="mt-3 pt-3 border-top">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-semibold">MRR Total</span>
-              <span class="fw-bold text-success">{{ formatCurrency(getSubscriptionRecurringRevenue()) }}</span>
+          <!-- Contenu des abonnements -->
+          <div *ngIf="!isLoadingSubscriptions">
+            <div *ngIf="topSubscriptions.length === 0" class="text-center py-4 text-muted">
+              <i class="bi bi-arrow-repeat fs-1 mb-3"></i>
+              <p>Aucun abonnement actif</p>
+            </div>
+            <div *ngFor="let sub of topSubscriptions; let i = index">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <div class="fw-medium">{{ sub.name }}</div>
+                  <small class="text-muted">
+                    {{ sub.count }} abonnement<span *ngIf="sub.count > 1">s</span>
+                  </small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold text-success">{{ formatCurrency(sub.revenue) }}</div>
+                  <small class="text-muted">
+                    /{{ sub.planType === 'yearly' ? 'an' : 'mois' }}
+                  </small>
+                </div>
+              </div>
+              <hr *ngIf="i < topSubscriptions.length - 1" class="my-3">
+            </div>
+            <div *ngIf="topSubscriptions.length > 0" class="mt-3 pt-3 border-top">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">MRR Total</span>
+                <span class="fw-bold text-success">{{ formatCurrency(getSubscriptionRecurringRevenue()) }}</span>
+              </div>
             </div>
           </div>
         </div>

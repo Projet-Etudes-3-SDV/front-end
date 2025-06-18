@@ -378,20 +378,3 @@
     }
   }
 }
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .checkout-success-content {
-    --background: var(--ion-color-dark);
-
-    .success-container,
-    .order-card,
-    .order-summary {
-      background: var(--ion-color-step-50);
-    }
-
-    .additional-info .info-card {
-      background: var(--ion-color-step-50);
-    }
-  }
-}

@@ -9,7 +9,7 @@
       </p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-success btn-sm" (click)="openCreateModal()">
+      <button class="btn btn-success btn-sm text-white" (click)="openCreateModal()">
         <i class="bi bi-plus-circle me-1"></i>
         Ajouter une catégorie
       </button>
@@ -27,7 +27,7 @@
   <!-- Filtres et recherche -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-      <div class="row g-3">
+      <div class="row g-2">
         <div class="col-md-6">
           <label class="form-label small fw-medium">Recherche</label>
           <div class="input-group">
@@ -36,14 +36,7 @@
               (input)="applyFiltersAndSort()">
           </div>
         </div>
-        <div class="col-md-3">
-          <label class="form-label small fw-medium">Trier par</label>
-          <select class="form-select" [(ngModel)]="sortBy" (change)="applyFiltersAndSort()">
-            <option value="name">Nom</option>
-            <option value="createdAt">Date de création</option>
-          </select>
-        </div>
-        <div class="col-md-3">
+        <div class="col-md-6">
           <label class="form-label small fw-medium">Ordre</label>
           <select class="form-select" [(ngModel)]="sortDirection" (change)="applyFiltersAndSort()">
             <option value="asc">Croissant</option>
@@ -130,7 +123,7 @@
             <td>
               <div class="d-flex align-items-center">
                 <img *ngIf="category.imageUrl" 
-                     [src]="getImageUrl(category.imageUrl)" 
+                     [src]="'http://localhost:3000/api' + category.imageUrl" 
                      [alt]="category.name" 
                      class="category-thumbnail me-3"
                      style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;"
@@ -229,7 +222,7 @@
             <div class="card border-0 bg-light">
               <div class="card-body text-center">
                 <img *ngIf="currentCategory.imageUrl" 
-                     [src]="getImageUrl(currentCategory.imageUrl)" 
+                     [src]="'http://localhost:3000/api' + currentCategory.imageUrl" 
                      [alt]="currentCategory.name" 
                      class="img-fluid rounded mb-3"
                      style="max-height: 200px;"
@@ -251,15 +244,6 @@
                 <div class="mb-3">
                   <strong>Description :</strong>
                   <p class="mb-0 mt-1">{{ currentCategory.description }}</p>
-                </div>
-                <div class="mb-3" *ngIf="currentCategory.imageUrl">
-                  <strong>URL de l'image :</strong>
-                  <p class="mb-0 mt-1">
-                    <a [href]="getImageUrl(currentCategory.imageUrl)" target="_blank" class="text-decoration-none">
-                      {{ currentCategory.imageUrl }}
-                      <i class="bi bi-box-arrow-up-right ms-1"></i>
-                    </a>
-                  </p>
                 </div>
                 <div class="mb-2" *ngIf="currentCategory.createdAt">
                   <strong>Date de création :</strong> {{ formatDate(currentCategory.createdAt) }}
@@ -312,10 +296,25 @@
               <textarea class="form-control" rows="4" [(ngModel)]="categoryForm.description" name="description" required></textarea>
             </div>
             <div class="col-12">
-              <label class="form-label">URL de l'image</label>
-              <input type="url" class="form-control" [(ngModel)]="categoryForm.imageUrl" name="imageUrl"
-                     placeholder="https://example.com/image.jpg">
-              <small class="text-muted">Optionnel - URL d'une image pour illustrer la catégorie</small>
+              <label class="form-label">Image de la catégorie</label>
+              <div class="mb-2" *ngIf="categoryForm.imageUrl">
+                <img [src]="'http://localhost:3000/api' + categoryForm.imageUrl" alt="Aperçu" class="img-thumbnail" style="max-height: 100px;">
+              </div>
+              <input type="file" class="form-control" accept="image/*,.svg" (change)="onImageSelected($event)" 
+                     #fileInput name="imageFile">
+              <small class="text-muted">Formats acceptés: JPG, PNG, GIF, SVG (max 5MB)</small>
+              <div *ngIf="selectedFileName" class="mt-1">
+                <small class="text-info">
+                  <i class="bi bi-paperclip me-1"></i>
+                  Fichier sélectionné: {{ selectedFileName }}
+                </small>
+              </div>
+              <div *ngIf="imageUploadProgress > 0 && imageUploadProgress < 100" class="mt-2">
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar" [style.width.%]="imageUploadProgress"></div>
+                </div>
+                <small class="text-muted">Upload en cours... {{ imageUploadProgress }}%</small>
+              </div>
             </div>
           </div>
         </form>

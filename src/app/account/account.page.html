@@ -75,25 +75,19 @@
         <ion-list *ngIf="userSubscriptions.length > 0" class="m-[24px]">
           <ion-item *ngFor="let sub of paginatedSubscriptions" lines="none">
             <ion-label class="flex flex-col gap-1">
-              <h4 class="!text-base !font-semibold flex items-center gap-1">
-                <ion-icon name="chevron-forward" slot="start" class="text-blue-400 ml-0"></ion-icon>
-                {{ sub.name }}
-                <a class="px-1.5 py-0.5 uppercase rounded-xl font-bold text-white flex items-center gap-1 ml-1"
-                  [ngClass]="{
-                'active': sub.status === 'active' || sub.status === 'trialing',
-                'incomplete': sub.status === 'past_due' || sub.status === 'incomplete',
-                'canceled': sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'
-              }">
-                  <ion-icon name="close"
-                    *ngIf="sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'"
-                    class="text-red-500 m-0"></ion-icon>
-                  <ion-icon name="time-outline" *ngIf="sub.status === 'past_due' || sub.status === 'incomplete'"
-                    class="text-yellow-500 m-0"></ion-icon>
-                  <ion-icon name="checkmark" *ngIf="sub.status === 'active' || sub.status === 'trialing'"
-                    class="text-green-500 m-0"></ion-icon>
+              <div class="flex items-center gap-3">
+                <h4 class="!text-base !font-semibold flex items-center gap-1">
+                  <ion-icon name="chevron-forward" slot="start" class="text-blue-400 ml-0"></ion-icon>
+                  {{ sub.name }}
+                </h4>
+                <span class="px-2 py-1 rounded-lg text-xs font-bold uppercase flex items-center gap-1" [ngClass]="{
+                  'bg-green-300 text-green-800': sub.status === 'active' || sub.status === 'trialing',
+                  'bg-yellow-300 text-yellow-800': sub.status === 'past_due' || sub.status === 'incomplete',
+                  'bg-red-300 text-red-800': sub.status === 'canceled' || sub.status === 'incomplete_expired' || sub.status === 'unpaid'
+                }">
                   {{ subscriptionStatusMap[sub.status] }}
-                </a>
-              </h4>
+                </span>
+              </div>
               <div class="text-sm mt-1 text-gray-300">
                 <p class="flex items-center gap-2">
                   <ion-icon name="card" slot="start" class="text-blue-400 ml-0"></ion-icon>
@@ -111,19 +105,20 @@
             </ion-label>
             <ion-icon name="chevron-forward-outline" slot="end" class="text-blue-400 text-2xl"></ion-icon>
           </ion-item>
-          <div class="flex items-center justify-center gap-2 mt-4">
-            <ion-button size="small" fill="outline" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-              <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-
-            <span class="text-sm font-medium text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</span>
-
-            <ion-button size="small" fill="outline" [disabled]="currentPage === totalPages"
-              (click)="goToPage(currentPage + 1)">
-              <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-          </div>
         </ion-list>
+
+        <div *ngIf="userSubscriptions.length > 0" class="flex items-center justify-center gap-2 mt-4">
+          <ion-button size="small" fill="outline" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+            <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+
+          <span class="text-sm font-medium text-gray-600">Page {{ currentPage }} sur {{ totalPages }}</span>
+
+          <ion-button size="small" fill="outline" [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)">
+            <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
 
         <ion-list *ngIf="userSubscriptions.length === 0" class="m-[24px]">
           <ion-item>
@@ -142,17 +137,17 @@
         </div>
 
         <ion-list *ngIf="userOrders.length > 0" class="m-[24px]">
-          <ion-item *ngFor="let order of paginatedOrders" lines="none" class="mb-4">
+          <ion-item *ngFor="let order of paginatedOrders" lines="none">
             <ion-label class="flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <h4 class="!text-base !font-semibold flex items-center gap-2">
-                  <ion-icon name="receipt-outline" class="text-blue-400"></ion-icon>
+              <div class="flex items-center gap-3">
+                <h4 class="!text-base !font-semibold flex items-center gap-1">
+                  <ion-icon name="chevron-forward" slot="start" class="text-blue-400 ml-0"></ion-icon>
                   Commande #{{ order.id.substring(0, 8) }}
                 </h4>
                 <span class="px-2 py-1 rounded-lg text-xs font-bold uppercase" [ngClass]="{
-                        'bg-green-100 text-green-800': order.status === 'paid',
-                        'bg-yellow-100 text-yellow-800': order.status === 'pending',
-                        'bg-red-100 text-red-800': order.status === 'failed' || order.status === 'cancelled'
+                        'bg-green-300 text-green-800': order.status === 'paid',
+                        'bg-yellow-300 text-yellow-800': order.status === 'pending',
+                        'bg-red-300 text-red-800': order.status === 'failed' || order.status === 'cancelled'
                       }">
                   {{ orderStatusMap[order.status] }}
                 </span>
@@ -160,26 +155,13 @@
 
               <div class="text-sm text-gray-600">
                 <p class="flex items-center gap-2">
-                  <ion-icon name="calendar-outline" class="text-blue-400"></ion-icon>
+                  <ion-icon name="calendar-outline" class="text-blue-400 m-0"></ion-icon>
                   {{ order.orderDate | date:'EEEE d MMMM y à HH:mm' }}
                 </p>
                 <p class="flex items-center gap-2">
-                  <ion-icon name="card-outline" class="text-blue-400"></ion-icon>
+                  <ion-icon name="card-outline" class="text-blue-400 m-0"></ion-icon>
                   <strong>{{ order.total | currency:'EUR' }}</strong>
                 </p>
-              </div>
-
-              <div class="mt-2">
-                <p class="text-sm font-medium text-gray-700 mb-1">Produits :</p>
-                <div class="space-y-1">
-                  <div *ngFor="let orderProduct of order.products" class="bg-gray-50 p-2 rounded-lg">
-                    <p class="text-sm font-medium">{{ orderProduct.product.name }}</p>
-                    <p class="text-xs text-gray-500">{{ orderProduct.product.category.name }}</p>
-                    <p class="text-xs text-blue-600 font-medium">
-                      Plan {{ orderProduct.plan === 'monthly' ? 'mensuel' : 'annuel' }}
-                    </p>
-                  </div>
-                </div>
               </div>
             </ion-label>
             <ion-button slot="end" fill="clear" (click)="viewOrderDetails(order)">
@@ -188,20 +170,21 @@
           </ion-item>
 
           <!-- Pagination des commandes -->
-          <div class="flex items-center justify-center gap-2 mt-4">
-            <ion-button size="small" fill="outline" [disabled]="currentOrderPage === 1"
-              (click)="goToOrderPage(currentOrderPage - 1)">
-              <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-
-            <span class="text-sm font-medium text-gray-600">Page {{ currentOrderPage }} sur {{ totalOrderPages }}</span>
-
-            <ion-button size="small" fill="outline" [disabled]="currentOrderPage === totalOrderPages"
-              (click)="goToOrderPage(currentOrderPage + 1)">
-              <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
-            </ion-button>
-          </div>
         </ion-list>
+
+        <div *ngIf="userOrders.length > 0" class="flex items-center justify-center gap-2 mt-4">
+          <ion-button size="small" fill="outline" [disabled]="currentOrderPage === 1"
+            (click)="goToOrderPage(currentOrderPage - 1)">
+            <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+
+          <span class="text-sm font-medium text-gray-600">Page {{ currentOrderPage }} sur {{ totalOrderPages }}</span>
+
+          <ion-button size="small" fill="outline" [disabled]="currentOrderPage === totalOrderPages"
+            (click)="goToOrderPage(currentOrderPage + 1)">
+            <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
 
         <ion-list *ngIf="userOrders.length === 0" class="m-[24px]">
           <ion-item>

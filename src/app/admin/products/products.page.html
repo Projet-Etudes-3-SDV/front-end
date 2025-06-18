@@ -9,7 +9,7 @@
       </p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-success btn-sm" (click)="openCreateModal()">
+      <button class="btn btn-success btn-sm text-white" (click)="openCreateModal()">
         <i class="bi bi-plus-circle me-1"></i>
         Ajouter un produit
       </button>
@@ -158,7 +158,6 @@
                      style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
                 <div>
                   <div class="fw-medium">{{ product.name }}</div>
-                  <small class="text-muted">{{ truncateText(product.description, 50) }}</small>
                   <div class="small text-muted mt-1">
                     <span class="badge bg-light text-dark rounded-pill me-1">
                       {{ product.features.length }} fonctionnalité<span *ngIf="product.features.length > 1">s</span>
@@ -172,38 +171,26 @@
                 {{ product.category.name || 'N/A' }}
               </span>
             </td>
-            <td class="fw-bold">{{ formatCurrency(product.monthlyPrice) }}</td>
-            <td class="fw-bold text-success">
+            <td class="fw-semibold text-primary">{{ formatCurrency(product.monthlyPrice) }}</td>
+            <td class="fw-semibold text-success">
               {{ formatCurrency(product.yearlyPrice) }}
-              <small class="text-muted d-block">{{ getYearlySavings(product) }}</small>
             </td>
             <td>
               <div class="d-flex align-items-center">
                 <span class="badge rounded-pill px-3 py-2 me-2" [ngClass]="getStatusBadgeClass(product.available)">
                   {{ getStatusLabel(product.available) }}
                 </span>
-                <button class="btn btn-sm btn-outline-secondary"
-                  [title]="product.available ? 'Rendre indisponible' : 'Rendre disponible'" 
-                  (click)="toggleProductStatus(product.id)">
-                  <i class="bi" [class.bi-toggle-on]="product.available"
-                    [class.bi-toggle-off]="!product.available"></i>
-                </button>
               </div>
             </td>
             <td>
               <div class="d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 gap-1">
                   <small class="text-muted">Mensuel:</small>
                   <span class="fw-medium">{{ product.monthlyPurchaseAmount || 0 }}</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <small class="text-muted">Annuel:</small>
                   <span class="fw-medium">{{ product.yearlyPurchaseAmount || 0 }}</span>
-                </div>
-                <div class="text-end mt-1">
-                  <small class="text-success fw-bold">
-                    {{ formatCurrency(getTotalRevenue(product)) }} CA
-                  </small>
                 </div>
               </div>
             </td>
@@ -279,7 +266,7 @@
         <div class="row g-4">
           <div class="col-md-4">
             <div class="card border-0 bg-light">
-              <div class="card-body text-center">
+              <div class="card-body text-center flex flex-col">
                 <img [src]="'http://localhost:3000/api' + currentProduct.imageUrl || 'assets/images/product-placeholder.svg'" 
                      alt="{{ currentProduct.name }}" 
                      class="img-fluid rounded mb-3"

@@ -74,6 +74,10 @@ export class LoginPage {
           );
         } else if (errorData?.code === 'NO_USER_FOUND') {
           this.toastService.presentToast('Utilisateur non trouvé.', 'danger');
+        } else if (errorData?.code === 'INVALID_CREDENTIALS') {
+          this.toastService.presentToast('Identifiants invalides.', 'danger');
+        } else if (errorData?.code === 'USER_NOT_ACTIVE') {
+          this.toastService.presentToast("Votre compte n'est pas validé, veuillez vérifier votre email", 'danger');
         } else {
           this.toastService.presentToast('Erreur de connexion.', 'danger');
         }

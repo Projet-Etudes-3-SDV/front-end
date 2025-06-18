@@ -24,7 +24,7 @@
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label class="form-label small fw-medium">Recherche</label>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -32,20 +32,13 @@
               (input)="applyFiltersAndSort()">
           </div>
         </div>
-        <div class="col-md-4">
-          <label class="form-label small fw-medium">Statut</label>
-          <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFiltersAndSort()">
-            <option value="">Tous les statuts</option>
-            <option value="active">Actif</option>
-            <option value="inactive">Inactif</option>
-          </select>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
           <label class="form-label small fw-medium">Rôle</label>
           <select class="form-select" [(ngModel)]="roleFilter" (change)="applyFiltersAndSort()">
             <option value="">Tous les rôles</option>
             <option value="client">Client</option>
             <option value="admin">Administrateur</option>
+            <option value="superadmin">Super Administrateur</option>
           </select>
         </div>
       </div>
@@ -80,10 +73,10 @@
       <i class="bi bi-people fs-1 text-muted mb-3"></i>
       <h5 class="text-muted">Aucun utilisateur trouvé</h5>
       <p class="text-muted mb-0">
-        <span *ngIf="searchTerm || statusFilter || roleFilter">
+        <span *ngIf="searchTerm || roleFilter">
           Essayez de modifier vos critères de recherche
         </span>
-        <span *ngIf="!searchTerm && !statusFilter && !roleFilter">
+        <span *ngIf="!searchTerm && !roleFilter">
           Aucun utilisateur n'est encore enregistré
         </span>
       </p>
@@ -105,10 +98,6 @@
             <th class="border-0 fw-semibold cursor-pointer" (click)="sort('role')">
               Rôle
               <i class="bi ms-1" [class]="getSortIcon('role')"></i>
-            </th>
-            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('status')">
-              Statut
-              <i class="bi ms-1" [class]="getSortIcon('status')"></i>
             </th>
             <th class="border-0 fw-semibold cursor-pointer" (click)="sort('createdAt')">
               Inscription
@@ -148,18 +137,6 @@
               <span class="badge rounded-pill px-3 py-2" [ngClass]="getRoleBadgeClass(user.role)">
                 {{ getRoleLabel(user.role) }}
               </span>
-            </td>
-            <td>
-              <div class="d-flex align-items-center">
-                <span class="badge rounded-pill px-3 py-2 me-2" [ngClass]="getStatusBadgeClass(user.status)">
-                  {{ getStatusLabel(user.status) }}
-                </span>
-                <button class="btn btn-sm btn-outline-secondary"
-                  [title]="user.status === 'active' ? 'Désactiver' : 'Activer'" (click)="toggleUserStatus(user.id)">
-                  <i class="bi" [class.bi-toggle-on]="user.status === 'active'"
-                    [class.bi-toggle-off]="user.status !== 'active'"></i>
-                </button>
-              </div>
             </td>
             <td class="text-muted">
               {{ formatDate(user.createdAt) }}
@@ -266,12 +243,6 @@
                     {{ getRoleLabel(currentUser.role) }}
                   </span>
                 </div>
-                <div>
-                  <strong>Statut :</strong>
-                  <span class="badge ms-2" [ngClass]="getStatusBadgeClass(currentUser.status)">
-                    {{ getStatusLabel(currentUser.status) }}
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -351,13 +322,7 @@
               <select class="form-select" [(ngModel)]="editForm.role" name="role" required>
                 <option value="client">Client</option>
                 <option value="admin">Administrateur</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Statut</label>
-              <select class="form-select" [(ngModel)]="editForm.status" name="status" required>
-                <option value="active">Actif</option>
-                <option value="inactive">Inactif</option>
+                <option value="superadmin">Super Administrateur</option>
               </select>
             </div>
           </div>

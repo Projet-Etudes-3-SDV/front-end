@@ -52,7 +52,7 @@
   &-main {
     background: #F1F3F5;
   }
-  
+
   &-secondary {
     background: linear-gradient(150deg, rgb(1, 0, 51) 9%, rgb(48, 32, 130) 100%)
   }
@@ -67,9 +67,11 @@
   &-title {
     color: #9933ff;
   }
+
   &-subtitle {
     color: #00aaff;
   }
+
   &-main {
     color: #F1F3F5;
   }
@@ -139,7 +141,7 @@ ion-list {
     --inner-border-width: 0;
   }
 
-  ion-item {  
+  ion-item {
     border: 0 !important;
 
     &:nth-child(odd) {
@@ -149,7 +151,7 @@ ion-list {
     &:nth-child(even) {
       --background: rgba(80, 197, 255, 0.03);
     }
-    
+
     ion-label {
       display: flex;
       flex-direction: column;
@@ -157,10 +159,16 @@ ion-list {
       margin-left: 10px;
     }
 
-    ion-icon {
+    > ion-icon,
+    > *:not(ion-button) ion-icon {
       font-size: 20px;
       color: #00aaff;
       margin: 0 0 0 10px;
+    }
+
+    // Ion-icon dans ion-button : aucun style appliqué ici
+    ion-button ion-icon {
+      margin: 0; // override si besoin
     }
   }
 }

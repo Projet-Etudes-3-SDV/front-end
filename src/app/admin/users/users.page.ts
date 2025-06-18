@@ -7,8 +7,7 @@ export interface User {
   lastName: string;
   email: string;
   phone?: string;
-  role: 'client' | 'admin';
-  status: 'active' | 'inactive';
+  role: 'client' | 'admin' | 'superadmin';
   createdAt: string;
   lastLoginAt?: string;
   orderCount?: number;
@@ -43,7 +42,6 @@ export class UsersPage implements OnInit {
 
   // Filtres et recherche
   searchTerm = '';
-  statusFilter = '';
   roleFilter = '';
 
   // États
@@ -88,7 +86,6 @@ export class UsersPage implements OnInit {
         activeSubscriptionsCount: Array.isArray(user.subscriptions)
           ? user.subscriptions.filter((sub: any) => sub.status === 'active').length
           : 0,
-        status: user.status || 'active',
         createdAt: user.createdAt || new Date().toISOString()
       }));
 
@@ -125,11 +122,6 @@ export class UsersPage implements OnInit {
         user.fullName.toLowerCase().includes(term) ||
         user.email.toLowerCase().includes(term)
       );
-    }
-
-    // Filtres
-    if (this.statusFilter) {
-      filtered = filtered.filter(user => user.status === this.statusFilter);
     }
 
     if (this.roleFilter) {
@@ -242,7 +234,6 @@ export class UsersPage implements OnInit {
       email: user.email,
       phone: user.phone,
       role: user.role,
-      status: user.status
     };
     this.showEditModal = true;
   }
@@ -306,24 +297,6 @@ export class UsersPage implements OnInit {
     }
   }
 
-  async toggleUserStatus(userId: string): Promise<void> {
-    try {
-      const user = this.users.find(u => u.id === userId);
-      if (!user) return;
-
-      const newStatus = user.status === 'active' ? 'inactive' : 'active';
-
-      await this.apiService.patch(`/users/admin/${userId}`, { status: newStatus });
-
-      // Mettre à jour localement
-      user.status = newStatus;
-      this.applyFiltersAndSort();
-
-    } catch (error) {
-      console.error('Erreur lors du changement de statut:', error);
-    }
-  }
-
   // Gestion des modales
   closeDetailsModal(): void {
     this.showDetailsModal = false;
@@ -357,11 +330,11 @@ export class UsersPage implements OnInit {
   }
 
   getRoleLabel(role: string): string {
-    return role === 'admin' ? 'Administrateur' : 'Client';
-  }
-
-  getStatusLabel(status: string): string {
-    return status === 'active' ? 'Actif' : 'Inactif';
+    switch (role) {
+      case 'admin': return 'Administrateur';
+      case 'superadmin': return 'Super Administrateur';
+      default: return 'Client';
+    }
   }
 
   getStatusBadgeClass(status: string): string {
@@ -369,7 +342,11 @@ export class UsersPage implements OnInit {
   }
 
   getRoleBadgeClass(role: string): string {
-    return role === 'admin' ? 'bg-primary' : 'bg-info';
+    switch (role) {
+      case 'admin': return 'bg-primary';
+      case 'superadmin': return 'bg-danger';
+      default: return 'bg-info';
+    }
   }
 
   // Export CSV
@@ -390,7 +367,6 @@ export class UsersPage implements OnInit {
       user.email,
       user.phone || '',
       this.getRoleLabel(user.role),
-      this.getStatusLabel(user.status),
       this.formatDate(user.createdAt),
       user.lastLoginAt ? this.formatDate(user.lastLoginAt) : 'Jamais',
       user.activeSubscriptionsCount?.toString() || '0'

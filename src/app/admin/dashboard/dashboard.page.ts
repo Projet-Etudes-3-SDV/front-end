@@ -155,11 +155,15 @@ export class DashboardPage implements OnInit {
     name: string;
     count: number;
     revenue: number;
+    planType: string;
   }[] = [];
 
+  // Variables de chargement
   isLoading = true;
   isLoadingOrders = true;
   isLoadingProducts = true;
+  isLoadingStats = true;           // Nouveau
+  isLoadingSubscriptions = true;   // Nouveau
 
   constructor(private apiService: ApiService) {}
 
@@ -169,7 +173,12 @@ export class DashboardPage implements OnInit {
 
   public async loadDashboardData(): Promise<void> {
     try {
+      // Initialiser tous les états de chargement
       this.isLoading = true;
+      this.isLoadingOrders = true;
+      this.isLoadingProducts = true;
+      this.isLoadingStats = true;
+      this.isLoadingSubscriptions = true;
       
       // Charger toutes les données en parallèle
       const [
@@ -210,12 +219,32 @@ export class DashboardPage implements OnInit {
       this.prepareTopProductsFromAdmin(productsAdminData);
       this.prepareTopSubscriptions(subscriptionsData);
 
+      // Arrêter les états de chargement de manière échelonnée pour un meilleur effet visuel
+      setTimeout(() => {
+        this.isLoading = false;
+        this.isLoadingStats = false;
+      }, 300);
+      
+      setTimeout(() => {
+        this.isLoadingOrders = false;
+      }, 500);
+      
+      setTimeout(() => {
+        this.isLoadingProducts = false;
+      }, 700);
+      
+      setTimeout(() => {
+        this.isLoadingSubscriptions = false;
+      }, 900);
+
     } catch (error) {
       console.error('Erreur lors du chargement du dashboard:', error);
-    } finally {
+      // En cas d'erreur, arrêter tous les chargements
       this.isLoading = false;
       this.isLoadingOrders = false;
       this.isLoadingProducts = false;
+      this.isLoadingStats = false;
+      this.isLoadingSubscriptions = false;
     }
   }
 
@@ -255,7 +284,7 @@ export class DashboardPage implements OnInit {
     this.stats.totalUsers = users.length;
     
     // Compter les utilisateurs actifs (ceux qui ont une subscription active)
-    const activeUserIds = new Set(subscriptions.filter(sub => sub.status === 'active').map(sub => sub.id));
+    const activeUserIds = new Set(subscriptions.filter(sub => sub.status === 'active' || sub.status === 'trialing').map(sub => sub.id));
     this.stats.activeUsers = activeUserIds.size;
 
     // Statistiques produits
@@ -269,8 +298,8 @@ export class DashboardPage implements OnInit {
     this.stats.cancelledOrders = orders.filter(order => order.status === 'cancelled').length;
 
     // Statistiques abonnements
-    this.stats.activeSubscriptions = subscriptions.filter(sub => sub.status === 'active').length;
-    this.stats.trialSubscriptions = subscriptions.filter(sub => sub.status === 'trial').length;
+    this.stats.activeSubscriptions = subscriptions.filter(sub => sub.status === 'active' || sub.status === 'trialing').length;
+    this.stats.trialSubscriptions = subscriptions.filter(sub => sub.status === 'trialing').length;
 
     // Revenus des commandes
     this.stats.totalRevenue = orders
@@ -298,7 +327,7 @@ export class DashboardPage implements OnInit {
     
     this.recentOrders = ordersArray
       .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime())
-      .slice(0, 10)
+      .slice(0, 2)
       .map(order => ({
         id: order.id,
         customerName: `${order.user.firstName} ${order.user.lastName}`,
@@ -342,7 +371,7 @@ export class DashboardPage implements OnInit {
         // Si le nombre de ventes est identique, on trie par revenue
         return b.revenue - a.revenue;
       })
-      .slice(0, 5);
+      .slice(0, 2);
   }
 
   private prepareTopSubscriptions(subscriptions: Subscription[]): void {
@@ -350,15 +379,16 @@ export class DashboardPage implements OnInit {
     const subscriptionsArray = Array.isArray(subscriptions) ? subscriptions : [];
     
     // Grouper les abonnements par nom de produit
-    const subscriptionGroups = new Map<string, { count: number; revenue: number }>();
+    const subscriptionGroups = new Map<string, { count: number; revenue: number, planType: string }>();
     
     subscriptionsArray
-      .filter(sub => sub.status === 'active')
+      .filter(sub => sub.status === 'active' || sub.status === 'trialing')
       .forEach(sub => {
         const current = subscriptionGroups.get(sub.name) || { count: 0, revenue: 0 };
         subscriptionGroups.set(sub.name, {
           count: current.count + 1,
-          revenue: current.revenue + sub.price
+          revenue: current.revenue + sub.price,
+          planType: sub.planType || 'unknown'
         });
       });
 
@@ -368,7 +398,8 @@ export class DashboardPage implements OnInit {
         id: name,
         name: name,
         count: data.count,
-        revenue: data.revenue
+        revenue: data.revenue,
+        planType: data.planType
       }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
