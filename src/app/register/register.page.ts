@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import {
   trigger,
   transition,
@@ -34,6 +34,7 @@ export class RegisterPage {
   isDesktop: boolean = false;
   showPassword = false;
   showForm: boolean = false;
+  showPasswordVerification = false;
 
   constructor(
     private apiService: ApiService,
@@ -46,9 +47,16 @@ export class RegisterPage {
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$')]]
-    });
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$')]],
+      passwordVerification: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
   }
+
+  passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('passwordVerification')?.value;
+    return password === confirmPassword ? null : { passwordsMismatch: true };
+  };
 
   ionViewWillEnter() {
     this.isDesktop = this.platform.is('desktop');
@@ -79,5 +87,9 @@ export class RegisterPage {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+
+  togglePasswordVerificationVisibility() {
+    this.showPasswordVerification = !this.showPasswordVerification;
   }
 }

@@ -52,9 +52,22 @@
             </ion-button>
           </ion-input>
         </ion-item>
-        <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error">
-          Votre mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (&#64;$!%*?&).
+
+        <ion-item>
+          <ion-input labelPlacement="stacked" label="Confirmer le mot de passe" placeholder="Confirmer le mot de passe"
+            [type]="showPasswordVerification ? 'text' : 'password'" formControlName="passwordVerification" required>
+            <ion-icon slot="start" name="lock-closed" aria-hidden="true"></ion-icon>
+            <ion-button fill="clear" slot="end" (click)="togglePasswordVerificationVisibility()" type="button"
+              aria-label="Afficher ou masquer le mot de passe">
+              <ion-icon slot="icon-only" [name]="showPasswordVerification ? 'eye-off' : 'eye'" aria-hidden="true"></ion-icon>
+            </ion-button>
+          </ion-input>
+        </ion-item>
+
+        <div *ngIf="registerForm.errors?.['passwordsMismatch'] && registerForm.touched" class="text-red-500">
+          Les mots de passe ne correspondent pas.
         </div>
+        
         <ion-button class="register-button" expand="full" type="submit" [disabled]="registerForm.invalid">
           S'inscrire
         </ion-button>
