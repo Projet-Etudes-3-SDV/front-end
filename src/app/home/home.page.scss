@@ -290,7 +290,7 @@ img {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--spacing-md);
-    z-index: var(--hero-z-index);
+    z-index: 10;
   }
 }
 
@@ -299,7 +299,7 @@ img {
   text-align: center;
   color: white;
   position: relative;
-  z-index: var(--hero-z-index);
+  z-index: 10;
 
   .hero-badge {
     display: inline-flex;
@@ -407,7 +407,7 @@ img {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: var(--hero-z-index);
+  z-index: 10;
 
   ion-icon {
     font-size: 2rem;
