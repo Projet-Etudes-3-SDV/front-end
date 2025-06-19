@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { CookieService } from 'ngx-cookie-service';
+import { Platform } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -8,9 +9,9 @@ import { CookieService } from 'ngx-cookie-service';
 export class ApiService {
   private axiosInstance: AxiosInstance;
 
-  constructor(private cookieService: CookieService) {
+  constructor(private cookieService: CookieService, private platform: Platform) {
     this.axiosInstance = axios.create({
-      baseURL: true ? 'http://localhost:3000/api' : 'http://10.111.9.38:3000/api',
+      baseURL: this.platform.is('cordova') || this.platform.is('capacitor') ? 'http://localhost:3000/api' : 'http://localhost:3000/api',
       headers: {
         'Content-Type': 'application/json'
       }
