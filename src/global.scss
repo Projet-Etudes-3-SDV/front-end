@@ -22,6 +22,7 @@
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
+
 /* Optional CSS utils that can be commented out */
 // @import "@ionic/angular/css/padding.css";
 // @import "@ionic/angular/css/float-elements.css";
@@ -193,4 +194,36 @@ hr {
   --ion-color-secondary-rgb: rgb(27, 44, 86);
   --ion-background-color: #1b2c56;
   --ion-text-color: #000000;
+}
+
+:root {
+  --cyna-primary: #9933ff !important;
+  --cyna-primary-dark: #7a2acc !important;
+  --cyna-secondary: #00aaff !important;
+  --cyna-gradient: linear-gradient(135deg, #9933ff 0%, #00aaff 100%) !important;
+  --cyna-gradient-light: linear-gradient(135deg, rgba(153, 51, 255, 0.1) 0%, rgba(0, 170, 255, 0.1) 100%) !important;
+  
+  --surface-primary: #ffffff !important;
+  --surface-secondary: #f8f9fa !important;
+  --surface-tertiary: #e9ecef !important;
+  
+  --text-primary: #1a1a1a !important;
+  --text-secondary: #6c757d !important;
+  --text-muted: #adb5bd !important;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  
+  --radius-sm: 8px !important;
+  --radius-md: 12px !important;
+  --radius-lg: 16px !important;
+  --radius-xl: 24px !important;
+  
+  --spacing-xs: 0.5rem !important;
+  --spacing-sm: 1rem !important;
+  --spacing-md: 1.5rem !important;
+  --spacing-lg: 2rem !important;
+  --spacing-xl: 3rem !important;
+  --spacing-2xl: 4rem !important;
 }

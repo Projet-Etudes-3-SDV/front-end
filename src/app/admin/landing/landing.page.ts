@@ -74,7 +74,7 @@ export class LandingPage implements OnInit {
     isMain: false
   };
 
-  constructor(public apiService: ApiService) {}
+  constructor(public apiService: ApiService) { }
 
   ngOnInit(): void {
     this.loadLandings();
@@ -87,18 +87,28 @@ export class LandingPage implements OnInit {
     try {
       this.isLoading = true;
       const response = await this.apiService.get('/landings');
-      
-      // Pour axios, utiliser response.data
       const landingsData = this.extractDataArray(response.data);
-      this.totalItems = landingsData.length;
 
-      this.landings = landingsData.map(landing => ({
+      // Correction du mapping des catégories
+      this.landings = landingsData.map((landing: any) => ({
         ...landing,
-        selected: false
+        selected: false,
+        categorySection: landing.categorySection
+          ? {
+            ...landing.categorySection,
+            categories: Array.isArray(landing.categorySection.categories)
+              ? landing.categorySection.categories.map((catObj: any) =>
+                catObj.category
+                  ? { ...catObj.category, order: catObj.order }
+                  : catObj // fallback si déjà plat
+              )
+              : []
+          }
+          : undefined
       }));
 
+      this.totalItems = this.landings.length;
       this.applyFiltersAndSort();
-
     } catch (error) {
       console.error('Erreur lors du chargement des landing pages:', error);
     } finally {
@@ -109,8 +119,25 @@ export class LandingPage implements OnInit {
   async loadMainLanding(): Promise<void> {
     try {
       const response = await this.apiService.get('/landings/main');
-      // Pour axios, utiliser response.data
-      this.mainLanding = response.data;
+      const landing = response.data;
+      // Correction du mapping des catégories
+      this.mainLanding = landing
+        ? {
+          ...landing,
+          categorySection: landing.categorySection
+            ? {
+              ...landing.categorySection,
+              categories: Array.isArray(landing.categorySection.categories)
+                ? landing.categorySection.categories.map((catObj: any) =>
+                  catObj.category
+                    ? { ...catObj.category, order: catObj.order }
+                    : catObj
+                )
+                : []
+            }
+            : undefined
+        }
+        : null;
     } catch (error) {
       console.error('Erreur lors du chargement de la landing page principale:', error);
       this.mainLanding = null;
@@ -257,17 +284,17 @@ export class LandingPage implements OnInit {
 
   editLanding(landing: ILanding): void {
     this.currentLanding = landing;
-    
+
     // Convertir les produits du carousel en format du formulaire
     const selectedProducts = landing.carouselSection?.products.map(cp => ({
       productId: cp.product.id,
       order: cp.order
     })) || [];
 
-    // Convertir les catégories en format du formulaire
-    const selectedCategories = landing.categorySection?.categories.map((category, index) => ({
+    // Convertir les catégories en format du formulaire (support du nouveau format)
+    const selectedCategories = landing.categorySection?.categories.map((category: any, index) => ({
       categoryId: category.id,
-      order: index + 1
+      order: category.order ?? index + 1
     })) || [];
 
     this.editForm = {
@@ -350,6 +377,8 @@ export class LandingPage implements OnInit {
           type: this.editForm.alert.type,
           order: this.editForm.alert.order
         };
+      } else if (this.editForm.alert.enabled === false) {
+        landingData.alert = null;
       }
 
       let savedLanding: ILanding;
@@ -374,16 +403,16 @@ export class LandingPage implements OnInit {
   private validateAndFixOrders(): void {
     // Réorganiser les produits pour garantir des ordres séquentiels uniques
     this.reorderProducts();
-    
+
     // Réorganiser les catégories pour garantir des ordres séquentiels uniques
     this.reorderCategories();
   }
 
   // === GESTION DES PRODUITS ===
-  
+
   toggleProductSelection(productId: string): void {
     const existingIndex = this.editForm.carouselSection.selectedProducts.findIndex(p => p.productId === productId);
-    
+
     if (existingIndex > -1) {
       // Supprimer le produit
       this.editForm.carouselSection.selectedProducts.splice(existingIndex, 1);
@@ -391,12 +420,12 @@ export class LandingPage implements OnInit {
       this.reorderProducts();
     } else {
       // Ajouter le produit avec l'ordre suivant disponible
-      const maxOrder = this.editForm.carouselSection.selectedProducts.length > 0 
+      const maxOrder = this.editForm.carouselSection.selectedProducts.length > 0
         ? Math.max(...this.editForm.carouselSection.selectedProducts.map(p => p.order))
         : 0;
-      this.editForm.carouselSection.selectedProducts.push({ 
-        productId, 
-        order: maxOrder + 1 
+      this.editForm.carouselSection.selectedProducts.push({
+        productId,
+        order: maxOrder + 1
       });
     }
   }
@@ -413,7 +442,7 @@ export class LandingPage implements OnInit {
   moveProductUp(productId: string): void {
     const products = this.editForm.carouselSection.selectedProducts.sort((a, b) => a.order - b.order);
     const productIndex = products.findIndex(p => p.productId === productId);
-    
+
     if (productIndex > 0) {
       // Échanger avec le produit précédent
       const temp = products[productIndex].order;
@@ -425,7 +454,7 @@ export class LandingPage implements OnInit {
   moveProductDown(productId: string): void {
     const products = this.editForm.carouselSection.selectedProducts.sort((a, b) => a.order - b.order);
     const productIndex = products.findIndex(p => p.productId === productId);
-    
+
     if (productIndex < products.length - 1) {
       // Échanger avec le produit suivant
       const temp = products[productIndex].order;
@@ -450,7 +479,7 @@ export class LandingPage implements OnInit {
 
   toggleCategorySelection(categoryId: string): void {
     const existingIndex = this.editForm.categorySection.selectedCategories.findIndex(c => c.categoryId === categoryId);
-    
+
     if (existingIndex > -1) {
       // Supprimer la catégorie
       this.editForm.categorySection.selectedCategories.splice(existingIndex, 1);
@@ -458,12 +487,12 @@ export class LandingPage implements OnInit {
       this.reorderCategories();
     } else {
       // Ajouter la catégorie avec l'ordre suivant disponible
-      const maxOrder = this.editForm.categorySection.selectedCategories.length > 0 
+      const maxOrder = this.editForm.categorySection.selectedCategories.length > 0
         ? Math.max(...this.editForm.categorySection.selectedCategories.map(c => c.order))
         : 0;
-      this.editForm.categorySection.selectedCategories.push({ 
-        categoryId, 
-        order: maxOrder + 1 
+      this.editForm.categorySection.selectedCategories.push({
+        categoryId,
+        order: maxOrder + 1
       });
     }
   }
@@ -480,7 +509,7 @@ export class LandingPage implements OnInit {
   moveCategoryUp(categoryId: string): void {
     const categories = this.editForm.categorySection.selectedCategories.sort((a, b) => a.order - b.order);
     const categoryIndex = categories.findIndex(c => c.categoryId === categoryId);
-    
+
     if (categoryIndex > 0) {
       // Échanger avec la catégorie précédente
       const temp = categories[categoryIndex].order;
@@ -492,7 +521,7 @@ export class LandingPage implements OnInit {
   moveCategoryDown(categoryId: string): void {
     const categories = this.editForm.categorySection.selectedCategories.sort((a, b) => a.order - b.order);
     const categoryIndex = categories.findIndex(c => c.categoryId === categoryId);
-    
+
     if (categoryIndex < categories.length - 1) {
       // Échanger avec la catégorie suivante
       const temp = categories[categoryIndex].order;
@@ -521,7 +550,7 @@ export class LandingPage implements OnInit {
       if (!landing) return;
 
       await this.apiService.put(`/landings/${landingId}`, { ...landing, isMain: true });
-      
+
       await this.loadLandings();
       await this.loadMainLanding();
 
@@ -535,7 +564,7 @@ export class LandingPage implements OnInit {
 
     try {
       await this.apiService.delete(`/landings/${landingId}`);
-      
+
       this.landings = this.landings.filter(l => l.id !== landingId);
       this.applyFiltersAndSort();
 

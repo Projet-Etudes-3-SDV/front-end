@@ -42,7 +42,7 @@
               <i class="bi bi-grid-3x3-gap me-1"></i>
               Section catégories
             </span>
-            <span class="badge" *ngIf="mainLanding.alert" [ngClass]="getAlertBadgeClass(mainLanding.alert.type)">
+            <span class="badge" *ngIf="mainLanding.alert && mainLanding.alert.type" [ngClass]="getAlertBadgeClass(mainLanding.alert.type)">
               <i class="bi bi-exclamation-circle me-1"></i>
               Alerte {{ mainLanding.alert.type }}
             </span>
@@ -541,15 +541,3 @@
     </div>
   </div>
 </div>
-
-<!-- Modal aperçu -->
-<div class="modal fade" [class.show]="showPreviewModal" [style.display]="showPreviewModal ? 'block' : 'none'" tabindex="-1"
-  *ngIf="showPreviewModal">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-eye me-2"></i>
-          Aperçu de la landing page
-        </h5>
-        <button type="button" class="btn-close" (click)="closePreviewModal()"></button>

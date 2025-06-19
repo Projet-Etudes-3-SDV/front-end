@@ -90,12 +90,12 @@ export interface ILandingRequest {
     order: number;
     categories: ICategorySelection[]; // Catégories sélectionnées avec ordre
   };
-  alert?: { 
-    title: string; 
-    description?: string; 
-    type: "info" | "warning" | "error" | "success"; 
+  alert?: ({
+    title: string;
+    description?: string;
+    type: "info" | "warning" | "error" | "success";
     order: number;
-  };
+  } | null);
   isMain: boolean;
 }
 

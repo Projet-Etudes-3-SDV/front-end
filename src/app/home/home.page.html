@@ -1,130 +1,308 @@
-<ion-content [fullscreen]="true" class="min-h-full">
-  <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="min-h-full">
-    
-    <!-- Header de la landing page -->
-    <div class="banner">
-      <h1>{{ headerTitle }}</h1>
-      <p *ngIf="headerSubtitle">{{ headerSubtitle }}</p>
-    </div>
+<!-- Page d'accueil moderne pour Cyna - SANS navbar flottante -->
+<ion-content [fullscreen]="true" class="home-content">
 
-    <!-- Sections dans l'ordre configuré -->
-    <div *ngFor="let section of orderedSections">
-      
-      <!-- Section Alerte -->
-      <div *ngIf="section.type === 'alert'" class="px-6 mb-4">
-        <ion-card [class]="getAlertClass(section.data.type)" class="alert-card">
-          <ion-card-content class="d-flex align-items-center">
-            <ion-icon [name]="getAlertIcon(section.data.type)" class="me-3 fs-4"></ion-icon>
-            <div>
-              <div class="fw-bold">{{ section.data.title }}</div>
-              <div *ngIf="section.data.description" class="mt-1">{{ section.data.description }}</div>
-            </div>
-          </ion-card-content>
-        </ion-card>
+  <!-- Hero Section avec animation -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <div class="hero-background"></div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <div class="hero-badge">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>Solutions de sécurité SaaS de nouvelle génération</span>
+        </div>
+
+        <h1 class="hero-title">
+          {{ headerTitle }}
+          <span class="gradient-text">Cyna Security</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          {{ headerSubtitle }}
+        </p>
+
+        <div class="hero-actions">
+          <ion-button size="large" class="cta-primary" (click)="scrollToProducts()">
+            <ion-icon name="rocket-outline" slot="start"></ion-icon>
+            Découvrir nos solutions
+          </ion-button>
+        </div>
+
+        <!-- Stats rapides -->
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-number">99.9%</div>
+            <div class="stat-label">Uptime garanti</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">1000+</div>
+            <div class="stat-label">Entreprises protégées</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Support expert</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Section Carousel -->
-      <div *ngIf="section.type === 'carousel' && section.data.products.length > 0">
-        <div class="w-full flex flex-col justify-center gap-2 px-6">
-          <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
-            <ion-icon name="star" class="color-theme-title text-3xl"></ion-icon>
-            <h3 class="text-2xl font-bold text-black/80">{{ section.data.title }}</h3>
-          </div>
-          <p *ngIf="section.data.description" class="text-muted mb-2">{{ section.data.description }}</p>
-          <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+      <!-- Scroll indicator -->
+      <div class="scroll-indicator" (click)="scrollToContent()">
+        <ion-icon name="chevron-down-outline"></ion-icon>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alert dynamique si configurée -->
+  <section *ngIf="alertSection" class="alert-section">
+    <div class="custom-alert" [ngClass]="'alert-' + alertSection.type">
+      <div class="alert-content">
+        <ion-icon [name]="getAlertIcon(alertSection.type)" class="alert-icon"></ion-icon>
+        <div class="alert-text">
+          <strong>{{ alertSection.title }}</strong>
+          <span *ngIf="alertSection.description"> {{ alertSection.description }}</span>
         </div>
-        
-        <swiper-container
-          slides-per-view="1.5"
-          space-between="0"
-          navigation="true"
-          pagination="true"
-          autoplay="true"
-          class="product-slider py-4"
-        >
-          <swiper-slide class="px-6 pb-10" *ngFor="let product of section.data.products">
-            <ion-card class="m-0" (click)="goToProduct(product.id)">
-              <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/placeholder-image.png'" 
-                   [alt]="product.name" class="product-image" />
-              <ion-card-header>
-                <ion-card-title>{{ product.name }}</ion-card-title>
-                <ion-card-subtitle>{{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois</ion-card-subtitle>
-              </ion-card-header>
-            </ion-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Produits - CARROUSEL -->
+  <section *ngIf="carouselSection" class="products-section" id="products">
+    <div class="section-container">
+
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-badge">
+          <ion-icon name="star-outline"></ion-icon>
+          <span>Solutions premium</span>
+        </div>
+        <h2 class="section-title">{{ carouselSection.title }}</h2>
+        <p class="section-subtitle" *ngIf="carouselSection.description">
+          {{ carouselSection.description }}
+        </p>
+      </div>
+
+      <!-- Products Carousel -->
+      <div class="products-carousel">
+        <swiper-container [slides-per-view]="isDesktop ? 3 : 1.2" [space-between]="isDesktop ? 24 : 16"
+          [centered-slides]="false" [pagination]="true" [navigation]="isDesktop" class="products-swiper">
+          <swiper-slide *ngFor="let product of carouselSection.products; trackBy: trackByProductId"
+            class="product-slide">
+            <div class="product-card" [class.mobile]="!isDesktop" (click)="goToProduct(product.id)">
+
+              <!-- Version Desktop -->
+              <ng-container *ngIf="isDesktop">
+                <div class="product-image-container">
+                  <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/placeholder-image.png'"
+                    [alt]="product.name" class="product-image" (error)="onImageError($event)">
+                  <div class="product-overlay">
+                    <ion-button fill="solid" color="light" class="overlay-btn">
+                      <ion-icon name="arrow-forward-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+
+                <div class="product-content">
+                  <div class="product-category">Solution {{ product.category?.name || 'SaaS' }}</div>
+                  <h3 class="product-name">{{ product.name }}</h3>
+
+                  <div class="product-pricing">
+                    <div class="price-main">
+                      <span class="price-amount">{{ formatCurrency(product.monthlyPrice) }}</span>
+                      <span class="price-period">/mois</span>
+                    </div>
+                    <div class="price-yearly">
+                      ou {{ formatCurrency(product.yearlyPrice) }}/an
+                      <span class="price-savings" *ngIf="getYearlySavings(product) > 0">
+                        (-{{ getYearlySavings(product) }}%)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="product-features" *ngIf="product.features && product.features.length > 0">
+                    <div class="feature-item" *ngFor="let feature of product.features.slice(0, 3)">
+                      <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+                      <span>{{ feature.title }}</span>
+                    </div>
+                  </div>
+
+                  <div class="product-actions">
+                    <ion-button expand="block" class="product-cta"
+                      (click)="addToCart(product, 'monthly'); $event.stopPropagation()">
+                      Essai gratuit 14 jours
+                    </ion-button>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Version Mobile -->
+              <ng-container *ngIf="!isDesktop">
+                <div class="product-header">
+                  <div class="product-category">{{ product.category?.name || 'SaaS' }}</div>
+                  <div class="product-pricing">
+                    <span class="price-amount">{{ formatCurrency(product.monthlyPrice) }}</span>
+                    <span class="price-period">/mois</span>
+                  </div>
+                </div>
+
+                <div class="product-image-container">
+                  <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/placeholder-image.png'"
+                    [alt]="product.name" class="product-image" (error)="onImageError($event)">
+                </div>
+
+                <div class="product-content">
+                  <h3 class="product-name">{{ product.name }}</h3>
+
+                  <div class="product-features" *ngIf="product.features && product.features.length > 0">
+                    <div class="feature-item" *ngFor="let feature of product.features.slice(0, 2)">
+                      <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+                      <span>{{ feature.title }}</span>
+                    </div>
+                  </div>
+
+                  <ion-button expand="block" fill="outline" class="mobile-cta">
+                    Découvrir
+                    <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+                  </ion-button>
+                </div>
+              </ng-container>
+            </div>
           </swiper-slide>
         </swiper-container>
       </div>
 
-      <!-- Section Catégories -->
-      <div *ngIf="section.type === 'category' && section.data.categories && section.data.categories.length > 0">
-        <div class="w-full flex flex-col justify-center gap-2 px-6">
-          <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
-            <ion-icon name="file-tray-full" class="color-theme-title text-3xl"></ion-icon>
-            <h3 class="text-2xl font-bold text-black/80">{{ section.data.title }}</h3>
+    </div>
+  </section>
+
+  <!-- Section Catégories -->
+  <section *ngIf="categorySection" class="categories-section">
+    <div class="section-container">
+
+      <div class="section-header">
+        <div class="section-badge">
+          <ion-icon name="grid-outline"></ion-icon>
+          <span>Nos expertises</span>
+        </div>
+        <h2 class="section-title !text-white">{{ categorySection.title }}</h2>
+        <p class="section-subtitle" *ngIf="categorySection.description">
+          {{ categorySection.description }}
+        </p>
+      </div>
+
+      <div class="categories-grid">
+        <div *ngFor="let category of categorySection.categories; trackBy: trackByCategoryId" class="category-card"
+          (click)="goToCategory(category.id)">
+          <div class="category-icon">
+            <img *ngIf="category.imageUrl" [src]="'http://localhost:3000/api' + category.imageUrl" [alt]="category.name"
+              (error)="onImageError($event)">
+            <div *ngIf="!category.imageUrl" class="category-icon-placeholder">
+              {{ category.name ? getCategoryInitials(category.name) : '??' }}
+            </div>
           </div>
-          <p *ngIf="section.data.description" class="text-muted mb-2">{{ section.data.description }}</p>
-          <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
-        </div>
-        
-        <div class="categories">
-          <ion-chip *ngFor="let category of section.data.categories" (click)="goToCategory(category.id)">
-            <ion-icon name="pricetag"></ion-icon>
-            <ion-label>{{ category.name }}</ion-label>
-          </ion-chip>
-        </div>
-      </div>
 
-    </div>
+          <div class="category-content">
+            <h3 class="category-name">{{ category.name }}</h3>
+            <p class="category-description">{{ category.description }}</p>
 
-    <!-- Fallback: Si aucune section n'est configurée, afficher le contenu par défaut -->
-    <div *ngIf="orderedSections.length === 0">
-      <!-- Section produits en vedette par défaut -->
-      <div class="w-full flex flex-col justify-center gap-2 px-6" *ngIf="shouldShowCarousel()">
-        <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
-          <ion-icon name="star" class="color-theme-title text-3xl"></ion-icon>
-          <h3 class="text-2xl font-bold text-black/80">{{ carouselTitle }}</h3>
-        </div>
-        <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
-      </div>
-      
-      <swiper-container
-        *ngIf="shouldShowCarousel()"
-        slides-per-view="1.5"
-        space-between="0"
-        navigation="true"
-        pagination="true"
-        autoplay="true"
-        class="product-slider py-4"
-      >
-        <swiper-slide class="px-6 pb-10" *ngFor="let product of featuredProducts">
-          <ion-card class="m-0" (click)="goToProduct(product.id)">
-            <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/placeholder-image.png'" 
-                 [alt]="product.name" class="product-image" />
-            <ion-card-header>
-              <ion-card-title>{{ product.name }}</ion-card-title>
-              <ion-card-subtitle>{{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois</ion-card-subtitle>
-            </ion-card-header>
-          </ion-card>
-        </swiper-slide>
-      </swiper-container>
+            <div class="category-action">
+              <span>Explorer</span>
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </div>
+          </div>
 
-      <!-- Section catégories par défaut -->
-      <div class="w-full flex flex-col justify-center gap-2 px-6" *ngIf="shouldShowCategories()">
-        <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
-          <ion-icon name="file-tray-full" class="color-theme-title text-3xl"></ion-icon>
-          <h3 class="text-2xl font-bold text-black/80">{{ categoryTitle }}</h3>
+          <div class="category-overlay"></div>
         </div>
-        <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
-      </div>
-      
-      <div class="categories" *ngIf="shouldShowCategories()">
-        <ion-chip *ngFor="let category of categories" (click)="goToCategory(category.id)">
-          <ion-icon name="pricetag"></ion-icon>
-          <ion-label>{{ category.name }}</ion-label>
-        </ion-chip>
       </div>
     </div>
+  </section>
 
-  </div>
+  <!-- Section Trust/Social Proof -->
+  <section class="trust-section">
+    <div class="section-container">
+      <div class="trust-content">
+        <h2 class="trust-title">Rejoignez plus de 1000 entreprises qui nous font confiance</h2>
+
+        <div class="trust-logos">
+          <div class="logo-item" *ngFor="let logo of trustLogos">
+            <img [src]="logo.url" [alt]="logo.name" class="trust-logo" (error)="onImageError($event)">
+          </div>
+        </div>
+
+        <div class="trust-stats">
+          <div class="trust-stat">
+            <div class="stat-icon">
+              <ion-icon name="shield-checkmark-outline" color="success"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">99.9%</div>
+              <div class="stat-label">Taux de protection</div>
+            </div>
+          </div>
+
+          <div class="trust-stat">
+            <div class="stat-icon">
+              <ion-icon name="time-outline" color="primary"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">&lt; 1min</div>
+              <div class="stat-label">Temps de détection</div>
+            </div>
+          </div>
+
+          <div class="trust-stat">
+            <div class="stat-icon">
+              <ion-icon name="people-outline" color="warning"></ion-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Support expert</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section finale -->
+  <section class="final-cta-section">
+    <div class="cta-container">
+      <div class="cta-content">
+        <h2 class="cta-title">Prêt à sécuriser votre entreprise ?</h2>
+        <p class="cta-subtitle">
+          Commencez votre essai gratuit dès aujourd'hui et découvrez pourquoi plus de 1000 entreprises nous font
+          confiance.
+        </p>
+
+        <div class="cta-actions">
+          <ion-button size="large" class="cta-primary" (click)="startTrial()">
+            <ion-icon name="rocket-outline" slot="start"></ion-icon>
+            Commencer l'essai gratuit
+          </ion-button>
+          <ion-button size="large" fill="outline" color="light" (click)="contactSales()">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            Contacter nos experts
+          </ion-button>
+        </div>
+
+        <div class="cta-features">
+          <div class="cta-feature">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <span>14 jours d'essai gratuit</span>
+          </div>
+          <div class="cta-feature">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <span>Paiement sécurisé</span>
+          </div>
+          <div class="cta-feature">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <span>Support 24/7 inclus</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer intégré -->
   <app-footer></app-footer>
+
 </ion-content>

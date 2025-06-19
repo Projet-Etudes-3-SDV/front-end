@@ -13,7 +13,7 @@ import { FooterModule } from "../footer/footer.module";
     IonicModule,
     HomePageRoutingModule,
     FooterModule
-],
+  ],
   declarations: [HomePage],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
