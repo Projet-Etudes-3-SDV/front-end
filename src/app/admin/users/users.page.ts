@@ -9,7 +9,7 @@ export interface User {
   phone?: string;
   role: 'client' | 'admin' | 'superadmin';
   createdAt: string;
-  lastLoginAt?: string;
+  lastLogin?: string;
   orderCount?: number;
   subscriptions?: any[];
   activeSubscriptionsCount?: number;
@@ -132,7 +132,7 @@ export class UsersPage implements OnInit {
       if (aValue == null) aValue = '';
       if (bValue == null) bValue = '';
 
-      if (this.sortColumn === 'createdAt' || this.sortColumn === 'lastLoginAt') {
+      if (this.sortColumn === 'createdAt' || this.sortColumn === 'lastLogin') {
         aValue = new Date(aValue).getTime();
         bValue = new Date(bValue).getTime();
       }
@@ -354,7 +354,7 @@ export class UsersPage implements OnInit {
       user.phone || '',
       this.getRoleLabel(user.role),
       this.formatDate(user.createdAt),
-      user.lastLoginAt ? this.formatDate(user.lastLoginAt) : 'Jamais',
+      user.lastLogin ? this.formatDate(user.lastLogin) : 'Jamais',
       user.activeSubscriptionsCount?.toString() || '0'
     ]);
 

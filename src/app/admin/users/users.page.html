@@ -103,9 +103,9 @@
               Inscription
               <i class="bi ms-1" [class]="getSortIcon('createdAt')"></i>
             </th>
-            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('lastLoginAt')">
+            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('lastLogin')">
               Dernière connexion
-              <i class="bi ms-1" [class]="getSortIcon('lastLoginAt')"></i>
+              <i class="bi ms-1" [class]="getSortIcon('lastLogin')"></i>
             </th>
             <th class="border-0 fw-semibold text-center">
               Abonnements actifs
@@ -142,8 +142,8 @@
               {{ formatDate(user.createdAt) }}
             </td>
             <td class="text-muted">
-              <span *ngIf="user.lastLoginAt; else neverLogin">
-                {{ formatDateTime(user.lastLoginAt) }}
+              <span *ngIf="user.lastLogin; else neverLogin">
+                {{ formatDateTime(user.lastLogin) }}
               </span>
               <ng-template #neverLogin>
                 <span class="text-muted fst-italic">Jamais</span>
@@ -256,8 +256,8 @@
                 </div>
                 <div class="mb-2">
                   <strong>Dernière connexion :</strong>
-                  <span *ngIf="currentUser.lastLoginAt; else neverLogin2">
-                    {{ formatDateTime(currentUser.lastLoginAt) }}
+                  <span *ngIf="currentUser.lastLogin; else neverLogin2">
+                    {{ formatDateTime(currentUser.lastLogin) }}
                   </span>
                   <ng-template #neverLogin2>
                     <span class="text-muted fst-italic">Jamais</span>
