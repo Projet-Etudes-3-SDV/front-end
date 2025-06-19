@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardPage } from './dashboard.page';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { CardModule, GridModule, SpinnerModule } from '@coreui/angular';
 import { IconModule } from '@coreui/icons-angular';
@@ -21,7 +22,8 @@ const routes: Routes = [
     CardModule,
     GridModule,
     IconModule,
-    SpinnerModule
+    SpinnerModule,
+    MatTooltipModule
   ]
 })
 export class DashboardPageModule { }

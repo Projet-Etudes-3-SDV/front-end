@@ -65,7 +65,6 @@ export class CheckoutSuccessPage implements OnInit {
   ngOnInit() {
     this.isDesktop = this.platform.is('desktop');
 
-    // Récupérer l'ID de la commande depuis l'URL
     this.route.params.subscribe(params => {
       this.orderId = params['id'];
       if (this.orderId) {

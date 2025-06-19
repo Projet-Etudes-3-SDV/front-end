@@ -18,7 +18,7 @@
       <p><span class="font-medium text-gray-700">Statut :</span> {{ orderStatusMap[order?.status] }}</p>
     </div>
 
-    <ion-list class="bg-white rounded-lg shadow-sm">
+    <ion-list class="bg-white shadow-sm p-0">
       <ion-item *ngFor="let item of order?.products" class="border-b last:border-none">
         <ion-label>
           <h3 class="text-base font-semibold text-gray-800">{{ item.product.name }}</h3>

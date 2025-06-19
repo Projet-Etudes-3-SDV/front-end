@@ -235,7 +235,7 @@
             </td>
             <td>
               <div class="d-flex align-items-center">
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 shrink-0"
                      style="width: 36px; height: 36px; font-size: 14px; font-weight: 600;">
                   {{ getCustomerInitials(order.customerEmail || '') }}
                 </div>
@@ -254,7 +254,6 @@
                      style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;">
                 <div>
                   <div class="fw-medium">{{ order.productName }}</div>
-                  <small class="text-muted" *ngIf="order.product?.category?.name">{{ order.product!.category!.name }}</small>
                   <small class="text-muted d-block" *ngIf="order.products && order.products.length > 1">
                     +{{ order.products.length - 1 }} autre(s) produit(s)
                   </small>
@@ -296,20 +295,10 @@
                   (click)="editOrderStatus(order)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <div class="btn-group" role="group">
-                  <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="bi bi-three-dots"></i>
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" (click)="downloadInvoice(order.id)">
-                      <i class="bi bi-download me-2"></i>Télécharger facture
-                    </a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#" (click)="cancelOrder(order.id)">
-                      <i class="bi bi-x-circle me-2"></i>Annuler commande
-                    </a></li>
-                  </ul>
-                </div>
+                <button class="btn btn-sm btn-outline-success" [title]="'Télécharger la facture'"
+                  (click)="downloadInvoice(order.id)">
+                  <i class="bi bi-envelope-arrow-up-fill"></i>
+                </button>
               </div>
             </td>
           </tr>

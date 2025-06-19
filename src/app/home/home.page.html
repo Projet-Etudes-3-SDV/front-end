@@ -1,17 +1,94 @@
 <ion-content [fullscreen]="true" class="min-h-full">
   <div [class]="isDesktop ? 'm-4 md:m-16' : ''" class="min-h-full">
+    
+    <!-- Header de la landing page -->
     <div class="banner">
-      <h1>Bienvenue sur notre boutique</h1>
-      <p>Découvrez nos produits phares et nos meilleures offres !</p>
+      <h1>{{ headerTitle }}</h1>
+      <p *ngIf="headerSubtitle">{{ headerSubtitle }}</p>
     </div>
-    <div class="w-full flex flex-col justify-center gap-2 px-6">
-      <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
-        <ion-icon name="star" class="color-theme-title text-3xl"></ion-icon>
-        <h3 class="text-2xl font-bold text-black/80">Produits en vedette</h3>
+
+    <!-- Sections dans l'ordre configuré -->
+    <div *ngFor="let section of orderedSections">
+      
+      <!-- Section Alerte -->
+      <div *ngIf="section.type === 'alert'" class="px-6 mb-4">
+        <ion-card [class]="getAlertClass(section.data.type)" class="alert-card">
+          <ion-card-content class="d-flex align-items-center">
+            <ion-icon [name]="getAlertIcon(section.data.type)" class="me-3 fs-4"></ion-icon>
+            <div>
+              <div class="fw-bold">{{ section.data.title }}</div>
+              <div *ngIf="section.data.description" class="mt-1">{{ section.data.description }}</div>
+            </div>
+          </ion-card-content>
+        </ion-card>
       </div>
-      <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+
+      <!-- Section Carousel -->
+      <div *ngIf="section.type === 'carousel' && section.data.products.length > 0">
+        <div class="w-full flex flex-col justify-center gap-2 px-6">
+          <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
+            <ion-icon name="star" class="color-theme-title text-3xl"></ion-icon>
+            <h3 class="text-2xl font-bold text-black/80">{{ section.data.title }}</h3>
+          </div>
+          <p *ngIf="section.data.description" class="text-muted mb-2">{{ section.data.description }}</p>
+          <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+        </div>
+        
+        <swiper-container
+          slides-per-view="1.5"
+          space-between="0"
+          navigation="true"
+          pagination="true"
+          autoplay="true"
+          class="product-slider py-4"
+        >
+          <swiper-slide class="px-6 pb-10" *ngFor="let product of section.data.products">
+            <ion-card class="m-0" (click)="goToProduct(product.id)">
+              <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/placeholder-image.png'" 
+                   [alt]="product.name" class="product-image" />
+              <ion-card-header>
+                <ion-card-title>{{ product.name }}</ion-card-title>
+                <ion-card-subtitle>{{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois</ion-card-subtitle>
+              </ion-card-header>
+            </ion-card>
+          </swiper-slide>
+        </swiper-container>
+      </div>
+
+      <!-- Section Catégories -->
+      <div *ngIf="section.type === 'category' && section.data.categories && section.data.categories.length > 0">
+        <div class="w-full flex flex-col justify-center gap-2 px-6">
+          <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
+            <ion-icon name="file-tray-full" class="color-theme-title text-3xl"></ion-icon>
+            <h3 class="text-2xl font-bold text-black/80">{{ section.data.title }}</h3>
+          </div>
+          <p *ngIf="section.data.description" class="text-muted mb-2">{{ section.data.description }}</p>
+          <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+        </div>
+        
+        <div class="categories">
+          <ion-chip *ngFor="let category of section.data.categories" (click)="goToCategory(category.id)">
+            <ion-icon name="pricetag"></ion-icon>
+            <ion-label>{{ category.name }}</ion-label>
+          </ion-chip>
+        </div>
+      </div>
+
     </div>
-    <swiper-container
+
+    <!-- Fallback: Si aucune section n'est configurée, afficher le contenu par défaut -->
+    <div *ngIf="orderedSections.length === 0">
+      <!-- Section produits en vedette par défaut -->
+      <div class="w-full flex flex-col justify-center gap-2 px-6" *ngIf="shouldShowCarousel()">
+        <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
+          <ion-icon name="star" class="color-theme-title text-3xl"></ion-icon>
+          <h3 class="text-2xl font-bold text-black/80">{{ carouselTitle }}</h3>
+        </div>
+        <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+      </div>
+      
+      <swiper-container
+        *ngIf="shouldShowCarousel()"
         slides-per-view="1.5"
         space-between="0"
         navigation="true"
@@ -19,30 +96,35 @@
         autoplay="true"
         class="product-slider py-4"
       >
-      <swiper-slide class="px-6 pb-10" *ngFor="let product of featuredProducts">
-        <ion-card class="m-0" (click)="goToProduct(product.id)">
-          <img src="assets/images/placeholder-image.png" alt="{{ product.name }}" class="" />
-          <ion-card-header>
-            <ion-card-title>{{ product.name }}</ion-card-title>
-            <ion-card-subtitle>{{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois - {{ product.yearlyPrice | currency: 'EUR': 'symbol' }}/an</ion-card-subtitle>
-          </ion-card-header>
-        </ion-card>
-      </swiper-slide>
-    </swiper-container>
+        <swiper-slide class="px-6 pb-10" *ngFor="let product of featuredProducts">
+          <ion-card class="m-0" (click)="goToProduct(product.id)">
+            <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/placeholder-image.png'" 
+                 [alt]="product.name" class="product-image" />
+            <ion-card-header>
+              <ion-card-title>{{ product.name }}</ion-card-title>
+              <ion-card-subtitle>{{ product.monthlyPrice | currency: 'EUR': 'symbol' }}/mois</ion-card-subtitle>
+            </ion-card-header>
+          </ion-card>
+        </swiper-slide>
+      </swiper-container>
 
-    <div class="w-full flex flex-col justify-center gap-2 px-6">
-      <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
-        <ion-icon name="file-tray-full" class="color-theme-title text-3xl"></ion-icon>
-        <h3 class="text-2xl font-bold text-black/80">Catégories</h3>
+      <!-- Section catégories par défaut -->
+      <div class="w-full flex flex-col justify-center gap-2 px-6" *ngIf="shouldShowCategories()">
+        <div class="w-full flex items-center gap-2 mt-2 rounded-lg">
+          <ion-icon name="file-tray-full" class="color-theme-title text-3xl"></ion-icon>
+          <h3 class="text-2xl font-bold text-black/80">{{ categoryTitle }}</h3>
+        </div>
+        <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
       </div>
-      <hr class="w-full h-[2px] border-0 rounded-full my-[4px]" />
+      
+      <div class="categories" *ngIf="shouldShowCategories()">
+        <ion-chip *ngFor="let category of categories" (click)="goToCategory(category.id)">
+          <ion-icon name="pricetag"></ion-icon>
+          <ion-label>{{ category.name }}</ion-label>
+        </ion-chip>
+      </div>
     </div>
-    <div class="categories">
-      <ion-chip *ngFor="let category of categories" (click)="goToCategory(category.id)">
-        <ion-icon name="pricetag"></ion-icon>
-        <ion-label>{{ category.name }}</ion-label>
-      </ion-chip>
-    </div>
+
   </div>
   <app-footer></app-footer>
 </ion-content>

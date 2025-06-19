@@ -37,8 +37,15 @@
     <div class="col-md-6 col-xl-4" *ngFor="let stat of getStatCards()">
       <div class="card h-100 shadow-sm hover-shadow" [ngClass]="'border-' + stat.color">
         <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="text-muted small fw-medium text-uppercase">{{ stat.title }}</div>
+          <div class="d-flex items-start justify-content-between mb-3">
+            <div>
+              <p class="text-muted small fw-medium text-uppercase mb-0">{{ stat.title }}</p>
+              <p class="text-muted small !text-xs italic flex gap-1 items-center" *ngIf="stat.title.includes('Revenus')">
+                <i class="bi bi-arrow-right"></i>
+                Hors abonnement en essai
+              </p>
+              <p class="text-muted small !text-xs italic flex gap-1 items-center" *ngIf="!stat.title.includes('Revenus')"> </p>
+            </div>
             <div class="p-2 rounded-circle bg-light h-[40px] w-[40px] flex items-center justify-center">
               <i [class]="'bi bi-' + stat.icon + ' text-' + stat.color"></i>
             </div>
@@ -49,6 +56,7 @@
             </span>
           </div>
           <div *ngIf="stat.subValue !== undefined" class="d-flex align-items-center text-muted small">
+            <span class="text-muted me-1" [innerHTML]="stat.title.includes('Abonnements') ? 'dont' : ''"></span>
             <span class="fw-medium me-1"
               [innerHTML]="stat.title.includes('Revenus') ? formatCurrency(stat.subValue) : stat.subValue">
             </span>

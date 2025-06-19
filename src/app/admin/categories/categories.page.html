@@ -107,10 +107,6 @@
               Description
               <i class="bi ms-1" [class]="getSortIcon('description')"></i>
             </th>
-            <th class="border-0 fw-semibold cursor-pointer" (click)="sort('createdAt')">
-              Date de création
-              <i class="bi ms-1" [class]="getSortIcon('createdAt')"></i>
-            </th>
             <th class="border-0 fw-semibold text-end">Actions</th>
           </tr>
         </thead>
@@ -143,10 +139,6 @@
               <div class="text-muted" style="max-width: 300px;">
                 {{ truncateText(category.description, 100) }}
               </div>
-            </td>
-            <td>
-              <div>{{ formatDate(category.createdAt || '') }}</div>
-              <small class="text-muted">{{ formatTime(category.createdAt || '') }}</small>
             </td>
             <td class="text-end">
               <div class="btn-group" role="group">

@@ -38,7 +38,7 @@ export class ApiService {
     return this.axiosInstance.post<T>(endpoint, data);
   }
 
-  put<T>(endpoint: string, data?: any): Promise<AxiosResponse<T>> {
+  put<T>(endpoint: string, data?: any): any {
     return this.axiosInstance.put<T>(endpoint, data);
   }
 
