@@ -152,7 +152,7 @@
             </td>
             <td>
               <div class="d-flex align-items-center">
-                <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/product-placeholder.svg'" 
+                <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/product-placeholder.svg'" 
                      alt="{{ product.name }}" 
                      class="product-thumbnail me-3"
                      style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;">
@@ -267,7 +267,7 @@
           <div class="col-md-4">
             <div class="card border-0 bg-light">
               <div class="card-body text-center flex flex-col">
-                <img [src]="'http://localhost:3000/api' + currentProduct.imageUrl || 'assets/images/product-placeholder.svg'" 
+                <img [src]="apiService.baseUrl  + currentProduct.imageUrl || 'assets/images/product-placeholder.svg'" 
                      alt="{{ currentProduct.name }}" 
                      class="img-fluid rounded mb-3"
                      style="max-height: 200px;">
@@ -441,7 +441,7 @@
             <div class="col-md-6" *ngIf="currentProduct">
               <label class="form-label">Image du produit</label>
               <div class="mb-2" *ngIf="editForm.imageUrl">
-                <img [src]="'http://localhost:3000/api' + editForm.imageUrl" alt="Aperçu" class="img-thumbnail" style="max-height: 100px;">
+                <img [src]="apiService.baseUrl + editForm.imageUrl" alt="Aperçu" class="img-thumbnail" style="max-height: 100px;">
               </div>
               <input type="file" class="form-control" accept="image/*,.svg" (change)="onImageSelected($event)" 
                      #fileInput name="imageFile">

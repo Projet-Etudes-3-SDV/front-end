@@ -280,7 +280,7 @@
                                (change)="toggleProductSelection(product.id)" 
                                [id]="'product-' + product.id">
                         <label class="form-check-label d-flex align-items-center" [for]="'product-' + product.id">
-                          <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/product-placeholder.svg'" 
+                          <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/product-placeholder.svg'" 
                                alt="{{ product.name }}" class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
                           <div>
                             <div class="fw-medium">{{ product.name }}</div>
@@ -322,7 +322,7 @@
                         <div class="me-3">
                           <span class="badge bg-primary">{{ selectedProduct.order }}</span>
                         </div>
-                        <img [src]="'http://localhost:3000/api' + getProductById(selectedProduct.productId)?.imageUrl || 'assets/images/product-placeholder.svg'" 
+                        <img [src]="apiService.baseUrl  + getProductById(selectedProduct.productId)?.imageUrl || 'assets/images/product-placeholder.svg'" 
                              alt="{{ getProductById(selectedProduct.productId)?.name }}" 
                              class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
                         <div class="flex-grow-1">
@@ -395,7 +395,7 @@
                                (change)="toggleCategorySelection(category.id)" 
                                [id]="'category-' + category.id">
                         <label class="form-check-label d-flex align-items-center" [for]="'category-' + category.id">
-                          <img [src]="'http://localhost:3000/api' + category.imageUrl || 'assets/images/category-placeholder.svg'" 
+                          <img [src]="apiService.baseUrl + category.imageUrl || 'assets/images/category-placeholder.svg'" 
                                alt="{{ category.name }}" class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
                           <div>
                             <div class="fw-medium">{{ category.name }}</div>
@@ -431,7 +431,7 @@
                       <div class="me-3">
                         <span class="badge bg-primary">{{ selectedCategory.order }}</span>
                       </div>
-                      <img [src]="'http://localhost:3000/api' + getCategoryById(selectedCategory.categoryId)?.imageUrl || 'assets/images/category-placeholder.svg'" 
+                      <img [src]="apiService.baseUrl + getCategoryById(selectedCategory.categoryId)?.imageUrl || 'assets/images/category-placeholder.svg'" 
                            alt="{{ getCategoryById(selectedCategory.categoryId)?.name }}" 
                            class="me-2" style="width: 32px; height: 32px; object-fit: cover; border-radius: 4px;">
                       <div class="flex-grow-1">

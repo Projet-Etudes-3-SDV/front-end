@@ -35,7 +35,7 @@ export class ProductDetailPage {
   showProduct = false;
 
   constructor(
-    private apiService: ApiService,
+    public apiService: ApiService,
     private authService: AuthService,
     private route: ActivatedRoute,
     private cookieService: CookieService,

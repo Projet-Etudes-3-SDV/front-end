@@ -64,7 +64,7 @@ export class CategoriesPage implements OnInit {
   categoriesToDelete: string[] = [];
 
   constructor(
-    private apiService: ApiService
+    public apiService: ApiService
   ) {}
 
   ngOnInit(): void {
@@ -476,7 +476,7 @@ export class CategoriesPage implements OnInit {
   getImageUrl(imageUrl: string): string {
     if (!imageUrl) return '';
     if (imageUrl.startsWith('/uploads')) {
-      return `http://localhost:3000/api${imageUrl}`;
+      return `${this.apiService.baseUrl}/${imageUrl}`;
     }
     return imageUrl;
   }

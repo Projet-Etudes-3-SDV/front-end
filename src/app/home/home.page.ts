@@ -67,7 +67,7 @@ export class HomePage implements OnInit {
   orderedSections: Section[] = [];
 
   constructor(
-    private apiService: ApiService, 
+    public apiService: ApiService, 
     private router: Router, 
     private platform: Platform
   ) {}

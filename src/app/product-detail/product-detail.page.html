@@ -22,7 +22,7 @@
       <div [class]="isDesktop ? 'grid gap-4 mt-4 grid-cols-1 w-full justify-items-center' : 'w-full gap-3 flex flex-col items-center mt-2'">
         <ion-card @fadeInCard class="flex flex-col lg:flex-row items-center justify-center w-full" *ngIf="product">
           <div *ngIf="product" class="h-full">
-            <img [src]="product.imageUrl ? 'http://localhost:3000/api' + product.imageUrl : 'assets/images/placeholder-image.png'"
+            <img [src]="product.imageUrl ? apiService.baseUrl  + product.imageUrl : 'assets/images/placeholder-image.png'"
              alt="{{ product.name }}"
              class="product-image" />
           </div>

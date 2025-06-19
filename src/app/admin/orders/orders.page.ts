@@ -131,7 +131,7 @@ export class OrdersPage implements OnInit {
     notifyCustomer: true
   };
 
-  constructor(private apiService: ApiService) { }
+  constructor(public apiService: ApiService) { }
 
   ngOnInit() {
     this.loadOrders();

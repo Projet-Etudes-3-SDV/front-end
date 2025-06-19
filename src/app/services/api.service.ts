@@ -8,8 +8,10 @@ import { Platform } from '@ionic/angular';
 })
 export class ApiService {
   private axiosInstance: AxiosInstance;
-
+  public baseUrl: string;
+  
   constructor(private cookieService: CookieService, private platform: Platform) {
+    this.baseUrl = this.platform.is('cordova') || this.platform.is('capacitor') ? 'http://10.0.2.2:3000/api' : 'http://localhost:3000/api'
     this.axiosInstance = axios.create({
       baseURL: this.platform.is('cordova') || this.platform.is('capacitor') ? 'http://10.0.2.2:3000/api' : 'http://localhost:3000/api',
       headers: {

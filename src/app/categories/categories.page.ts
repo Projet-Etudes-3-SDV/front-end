@@ -35,7 +35,7 @@ export class CategoriesPage {
   isDesktop: boolean = false;
   showCategories = false;
 
-  constructor(private apiService: ApiService, private router: Router, private platform: Platform) {}
+  constructor(public apiService: ApiService, private router: Router, private platform: Platform) {}
 
   ngOnInit() {
     this.isDesktop = this.platform.is('desktop');

@@ -74,7 +74,7 @@ export class LandingPage implements OnInit {
     isMain: false
   };
 
-  constructor(private apiService: ApiService) {}
+  constructor(public apiService: ApiService) {}
 
   ngOnInit(): void {
     this.loadLandings();

@@ -36,7 +36,7 @@ export class ProductsPage {
   showProducts = false;
 
   constructor(
-    private apiService: ApiService,
+    public apiService: ApiService,
     private route: ActivatedRoute,
     private navCtrl: NavController,
     private platform: Platform

@@ -119,7 +119,7 @@
             <td>
               <div class="d-flex align-items-center">
                 <img *ngIf="category.imageUrl" 
-                     [src]="'http://localhost:3000/api' + category.imageUrl" 
+                     [src]="apiService.baseUrl + category.imageUrl" 
                      [alt]="category.name" 
                      class="category-thumbnail me-3"
                      style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;"
@@ -214,7 +214,7 @@
             <div class="card border-0 bg-light">
               <div class="card-body text-center">
                 <img *ngIf="currentCategory.imageUrl" 
-                     [src]="'http://localhost:3000/api' + currentCategory.imageUrl" 
+                     [src]="apiService.baseUrl + currentCategory.imageUrl" 
                      [alt]="currentCategory.name" 
                      class="img-fluid rounded mb-3"
                      style="max-height: 200px;"
@@ -290,7 +290,7 @@
             <div class="col-12">
               <label class="form-label">Image de la catégorie</label>
               <div class="mb-2" *ngIf="categoryForm.imageUrl">
-                <img [src]="'http://localhost:3000/api' + categoryForm.imageUrl" alt="Aperçu" class="img-thumbnail" style="max-height: 100px;">
+                <img [src]="apiService.baseUrl  + categoryForm.imageUrl" alt="Aperçu" class="img-thumbnail" style="max-height: 100px;">
               </div>
               <input type="file" class="form-control" accept="image/*,.svg" (change)="onImageSelected($event)" 
                      #fileInput name="imageFile">

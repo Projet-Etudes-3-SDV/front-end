@@ -101,7 +101,7 @@ export class ProductsPage implements OnInit {
   // Produits à supprimer
   productsToDelete: string[] = [];
 
-  constructor(private apiService: ApiService) { }
+  constructor(public apiService: ApiService) { }
 
   ngOnInit() {
     this.loadProducts();

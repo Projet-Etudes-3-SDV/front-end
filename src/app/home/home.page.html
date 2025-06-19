@@ -44,7 +44,7 @@
         >
           <swiper-slide class="px-6 pb-10" *ngFor="let product of section.data.products">
             <ion-card class="m-0" (click)="goToProduct(product.id)">
-              <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/placeholder-image.png'" 
+              <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/placeholder-image.png'" 
                    [alt]="product.name" class="product-image" />
               <ion-card-header>
                 <ion-card-title>{{ product.name }}</ion-card-title>
@@ -98,7 +98,7 @@
       >
         <swiper-slide class="px-6 pb-10" *ngFor="let product of featuredProducts">
           <ion-card class="m-0" (click)="goToProduct(product.id)">
-            <img [src]="'http://localhost:3000/api' + product.imageUrl || 'assets/images/placeholder-image.png'" 
+            <img [src]="apiService.baseUrl + product.imageUrl || 'assets/images/placeholder-image.png'" 
                  [alt]="product.name" class="product-image" />
             <ion-card-header>
               <ion-card-title>{{ product.name }}</ion-card-title>

@@ -248,7 +248,7 @@
             </td>
             <td>
               <div class="d-flex align-items-center">
-                <img [src]="'http://localhost:3000/api' + order.product?.imageUrl || 'assets/images/product-placeholder.svg'" 
+                <img [src]="apiService.baseUrl + order.product?.imageUrl || 'assets/images/product-placeholder.svg'" 
                      alt="{{ order.productName }}" 
                      class="me-3"
                      style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;">
@@ -395,7 +395,7 @@
                   Produit commandé
                 </h6>
                 <div class="text-center mb-3">
-                  <img [src]="'http://localhost:3000/api' + currentOrder.product?.imageUrl || 'assets/images/product-placeholder.svg'" 
+                  <img [src]="apiService.baseUrl  + currentOrder.product?.imageUrl || 'assets/images/product-placeholder.svg'" 
                        alt="{{ currentOrder.productName }}" 
                        class="img-fluid rounded mb-2"
                        style="max-height: 80px;">
