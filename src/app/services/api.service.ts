@@ -11,7 +11,7 @@ export class ApiService {
 
   constructor(private cookieService: CookieService, private platform: Platform) {
     this.axiosInstance = axios.create({
-      baseURL: this.platform.is('cordova') || this.platform.is('capacitor') ? 'http://10.0.2.2:3000' : 'http://localhost:3000/api',
+      baseURL: this.platform.is('cordova') || this.platform.is('capacitor') ? 'http://10.0.2.2:3000/api' : 'http://localhost:3000/api',
       headers: {
         'Content-Type': 'application/json'
       }
