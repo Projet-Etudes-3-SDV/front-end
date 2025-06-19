@@ -17,12 +17,12 @@ export interface SearchProductCriteria {
   providedIn: 'root'
 })
 export class ProductSearchService {
-  private PRODUCT_API: string;
-  private CATEGORY_API: string;
+  private readonly PRODUCT_API: string;
+  private readonly CATEGORY_API: string;
 
   constructor(private apiService: ApiService) {
-    this.PRODUCT_API = `${this.apiService.baseUrl}/products/search`;
-    this.CATEGORY_API = `${this.apiService.baseUrl}/categories/search`;
+    this.PRODUCT_API = `${this.apiService.baseUrl}/products`;
+    this.CATEGORY_API = `${this.apiService.baseUrl}/categories`;
   }
 
   async search(criteria: SearchProductCriteria, filter: 'products' | 'categories'): Promise<{
