@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { ApiService } from './api.service';
 
 export interface SearchProductCriteria {
   id?: string;
@@ -16,10 +17,13 @@ export interface SearchProductCriteria {
   providedIn: 'root'
 })
 export class ProductSearchService {
-  private readonly PRODUCT_API = 'http://localhost:3000/api/products';
-  private readonly CATEGORY_API = 'http://localhost:3000/api/categories';
+  private PRODUCT_API: string;
+  private CATEGORY_API: string;
 
-  constructor() {}
+  constructor(private apiService: ApiService) {
+    this.PRODUCT_API = `${this.apiService.baseUrl}/products/search`;
+    this.CATEGORY_API = `${this.apiService.baseUrl}/categories/search`;
+  }
 
   async search(criteria: SearchProductCriteria, filter: 'products' | 'categories'): Promise<{
     products: any[];

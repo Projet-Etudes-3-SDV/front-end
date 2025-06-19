@@ -193,7 +193,7 @@
         <div *ngFor="let category of categorySection.categories; trackBy: trackByCategoryId" class="category-card"
           (click)="goToCategory(category.id)">
           <div class="category-icon">
-            <img *ngIf="category.imageUrl" [src]="'http://localhost:3000/api' + category.imageUrl" [alt]="category.name"
+            <img *ngIf="category.imageUrl" [src]="apiService.baseUrl + category.imageUrl" [alt]="category.name"
               (error)="onImageError($event)">
             <div *ngIf="!category.imageUrl" class="category-icon-placeholder">
               {{ category.name ? getCategoryInitials(category.name) : '??' }}
