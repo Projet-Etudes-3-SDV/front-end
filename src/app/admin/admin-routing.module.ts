@@ -1,16 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminLayoutComponent } from './layout/admin-layout.component';
+import { AdminGuard } from '../services/admin.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: AdminLayoutComponent,
+    canActivate: [AdminGuard], // Protection uniquement au niveau du layout
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardPageModule)
+        // Pas de guard ici, déjà protégé par le parent
       },
       {
         path: 'users',

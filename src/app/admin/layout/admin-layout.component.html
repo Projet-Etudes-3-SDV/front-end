@@ -5,16 +5,34 @@
   placement="start"
   [visible]="true">
   
-  <c-sidebar-brand class="d-md-down-none">
-    <img src="assets/images/cyna-long-white.svg" alt="Cyna Admin" height="35" class="sidebar-brand-full">
-    <img src="assets/images/cyna.svg" alt="Cyna" height="35" class="sidebar-brand-narrow">
-  </c-sidebar-brand>
+  <a routerLink="/home" class="text-decoration-none">
+    <c-sidebar-brand class="d-md-down-none">
+      <img src="assets/images/cyna-long-white.svg" alt="Cyna Admin" height="35" class="sidebar-brand-full">
+      <img src="assets/images/cyna.svg" alt="Cyna" height="35" class="sidebar-brand-narrow">
+    </c-sidebar-brand>
+  </a>
 
   <c-sidebar-nav
     [navItems]="navItems"
     [perfectScrollbar]="true"
     [options]="{ suppressScrollX: true }">
   </c-sidebar-nav>
+
+  <!-- Informations utilisateur -->
+  <div class="sidebar-footer" *ngIf="currentUser">
+    <div class="d-flex align-items-center p-3 border-top">
+      <div class="avatar-circle me-3">
+        {{ currentUser.firstName.charAt(0) }}{{ currentUser.lastName.charAt(0) }}
+      </div>
+      <div class="flex-grow-1 text-truncate">
+        <div class="fw-medium text-white small">{{ getUserDisplayName() }}</div>
+        <small class="text-white-50 block w-[90%] truncate">{{ getUserRole() }}</small>
+      </div>
+      <button class="btn btn-sm btn-outline-light" (click)="logout()" title="Se déconnecter">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </div>
 
   <c-sidebar-toggler
     *ngIf="!sidebar.narrow"
@@ -24,6 +42,34 @@
 </c-sidebar>
 
 <div class="wrapper d-flex flex-column min-vh-100">
+  <!-- Header avec breadcrumb et actions -->
+  <div class="header bg-white border-bottom d-print-none">
+    <div class="container-fluid px-4 py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-link d-md-none me-2" cSidebarToggle="sidebar">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item active" aria-current="page">
+                {{ getCurrentPageTitle() }}
+              </li>
+            </ol>
+          </nav>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2 ml-2">
+          <!-- Indicateur de rôle -->
+          <span class="badge rounded-pill px-3 py-2" 
+                [class]="currentUser?.role === 'superadmin' ? 'bg-danger' : 'bg-primary'">
+            {{ getUserRole() }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <c-container class="px-4 flex-grow-1 overflow-auto" fluid>
     <router-outlet></router-outlet>
   </c-container>
