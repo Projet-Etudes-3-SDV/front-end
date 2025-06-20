@@ -68,7 +68,13 @@
      <ion-tab-button (click)="openCart()">
         <ion-icon name="cart"></ion-icon>
       </ion-tab-button>
-      <span matTooltip="Administration" class="cursor-pointer bg-theme-red admin-button" [routerLink]="['/admin']" routerDirection="root" tab="admin" *ngIf="isLoggedIn && isAdmin()">
+      <!-- Bouton admin réactif : s'affiche/se cache selon le rôle -->
+      <span *ngIf="(isLoggedIn | async) && isAdmin()" 
+            matTooltip="Administration" 
+            class="cursor-pointer bg-theme-red admin-button" 
+            [routerLink]="['/admin']" 
+            routerDirection="root" 
+            tab="admin">
         <ion-tab-button tab="admin">
           <mat-icon>manage_accounts</mat-icon>
         </ion-tab-button>
@@ -107,10 +113,17 @@
         <a (click)="openCart(); menuOpen = false" class="cursor-pointer flex items-center gap-2">
           <ion-icon name="cart"></ion-icon> Panier
         </a>
-        <a *ngIf="(isLoggedIn | async); else notLogged" [routerLink]="['/account']" (click)="menuOpen = false" class="flex items-center gap-2">
+        <!-- Lien admin dans le menu mobile aussi -->
+        <a *ngIf="(isLoggedIn | async) && isAdmin()" 
+           [routerLink]="['/admin']" 
+           (click)="menuOpen = false" 
+           class="flex items-center gap-2">
+          <ion-icon name="settings"></ion-icon> Administration
+        </a>
+        <a *ngIf="(isLoggedIn | async); else notLoggedMobile" [routerLink]="['/account']" (click)="menuOpen = false" class="flex items-center gap-2">
           <ion-icon name="person"></ion-icon> Mon compte
         </a>
-        <ng-template #notLogged>
+        <ng-template #notLoggedMobile>
           <a [routerLink]="['/login']" (click)="menuOpen = false" class="flex items-center gap-2">
             <ion-icon name="log-in"></ion-icon> Connexion
           </a>
