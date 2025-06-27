@@ -21,6 +21,7 @@ Pour plus d'information sur les choix techniques: [Lien vers l'ADR](https://docs
 - **Ionic CLI** (>= 7)
 - **Capacitor**
 - **Git**
+- **Android Studio**
 
 ### Clonage du projet
 ```bash
@@ -31,12 +32,13 @@ cd Cyna-Frontend
 ### Installation des dépendances
 ```bash
 npm install
+npm install -g @ionic/cli
 ```
 
 ## Configuration
 Créer un fichier `.env` à la racine du projet et ajouter :
 ```env
-API_URL=https://api.cyna.com
+API_URL=http://localhost:3000/api
 ```
 
 ## Démarrage de l'application
@@ -52,6 +54,11 @@ ionic build
 npx cap add android  # Pour Android
 npx cap add ios      # Pour iOS
 npx cap sync         # Synchronisation Capacitor
+```
+
+### En mode développement (local sur mobile)
+```bash
+ionic cap open android
 ```
 
 ## Structure du projet
