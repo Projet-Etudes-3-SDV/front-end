@@ -25,7 +25,7 @@ Pour plus d'information sur les choix techniques: [Lien vers l'ADR](https://docs
 
 ### Clonage du projet
 ```bash
-git clone https://github.com/ton-repo/Cyna-Frontend.git
+git clone https://github.com/Projet-Etudes-3-SDV/front-end.git
 cd Cyna-Frontend
 ```
 
